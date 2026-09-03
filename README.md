@@ -1,16 +1,3 @@
----
-file: README.md
-description: MiniMax-H3（DiffSynth本地版）Mac M4 Max 128GB AI数字人生产线 - 总索引
-author: Intelligent Application Implementation Expert
-version: v2.0.1
-created: 2026-09-02
-updated: 2026-09-03
-status: active
-tags: [minimax-h3],[ai-video],[pipeline],[index]
-category: general
-language: zh-CN
----
-
 <div align="center">
 
 <img src="docs/assets/yyc3-family.png" alt="YYC³ Family" width="100%" />
