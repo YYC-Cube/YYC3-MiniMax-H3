@@ -1,5 +1,6 @@
 import { displayScore, readBatchesPayload, readManifests } from "@/lib/manifest";
 import type { Manifest } from "@yyc3/manifest-schema";
+import Link from "next/link";
 
 // manifest 是文件系统数据：每次请求重读（对齐「断点续跑」工作流，面板跑完即见）
 export const dynamic = "force-dynamic";
@@ -84,8 +85,10 @@ export default function DashboardPage() {
                     : "-";
                 return (
                   <tr key={m.batch} className="border-b border-(--border) last:border-0">
-                    <td className="py-2 pr-4 font-bold" style={{ color: "var(--accent)" }}>
-                      batch{m.batch}
+                    <td className="py-2 pr-4">
+                      <Link href={`/batches/batch${m.batch}`} className="font-bold hover:underline" style={{ color: "var(--accent)" }}>
+                        batch{m.batch}
+                      </Link>
                     </td>
                     <td className="py-2 pr-4">
                       {m.model.variant.toUpperCase()} · {m.model.pipeline}
