@@ -12,11 +12,15 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <header className="border-b border-[var(--border)] px-6 py-3 flex items-center gap-3">
+        <header className="border-b border-[var(--border)] px-6 py-3 flex items-center gap-5">
           <span className="text-lg font-bold" style={{ color: "var(--accent)" }}>
             YYC³ MiniMax-H3
           </span>
-          <span className="text-sm text-[var(--muted)]">Ref2VA 生产控制台 · 路线B</span>
+          <nav className="flex gap-4 text-sm">
+            <a href="/" className="text-[var(--muted)] hover:text-[var(--foreground)]">仪表盘</a>
+            <a href="/pipeline" className="text-[var(--muted)] hover:text-[var(--foreground)]">流水线控制</a>
+          </nav>
+          <span className="text-sm text-[var(--muted)] ml-auto">路线B · Phase 2</span>
         </header>
         <main className="p-6">{children}</main>
       </body>

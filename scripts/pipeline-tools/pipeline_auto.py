@@ -24,8 +24,12 @@ pipeline_auto.py — 一键全流程流水线 v2（批次隔离 + 自动评分�
 - AUTO_AFTER_GENERATE=False（默认推荐）：①②后暂停等人工打分，回车继续④⑤
 - AUTO_AFTER_GENERATE=True：全自动连跑（适合已提前填好上一轮report）
 
-用法：python pipeline_auto.py
+用法：python pipeline_auto.py [--batch 03] [--auto] [--dry-run]
+  --batch N   指定批次号（默认按 report_batch* 自动递增）
+  --auto      跳过人工精评暂停（控制台/API 触发时使用）
+  --dry-run   演练模式：只打印执行计划，不实际执行（联调/CI 用）
 """
+import argparse
 import re
 import subprocess
 import sys
@@ -66,19 +70,37 @@ def run_script(script_path: Path, desc: str, batch_id: str):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Ref2VA 一键迭代流水线 v2")
+    parser.add_argument("--batch", help="指定批次号（如 03），默认自动递增")
+    parser.add_argument("--auto", action="store_true", help="跳过人工精评暂停（非交互/远程触发必加）")
+    parser.add_argument("--dry-run", action="store_true", help="演练模式：只打印执行计划")
+    args = parser.parse_args()
+
     print("=" * 80)
     print("🚀 Ref2VA 一键迭代流水线 v2（manifest + 自动口型评分）")
     print("流程：生成→自动评分→(人工精评)→分析→更新Seed")
+    if args.dry_run:
+        print("🧪 DRY-RUN 演练模式：仅打印计划，不实际执行")
     print("=" * 80)
-    batch = f"{get_next_batch_id():02d}"
+    batch = args.batch or f"{get_next_batch_id():02d}"
     print(f"👉 当前批次：batch{batch}")
+    if args.dry_run:
+        print(f"  [dry] ① {MAIN_GENERATE_SCRIPT.name} --batch {batch}")
+        print(f"  [dry] ② {SCORE_SCRIPT.name} --batch {batch}")
+        if not (args.auto or AUTO_AFTER_GENERATE):
+            print(f"  [dry] ⏸ 人工精评暂停（report_batch{batch}.md）")
+        print(f"  [dry] ④ {ANALYZE_SCRIPT.name} --batch {batch}")
+        print(f"  [dry] ⑤ {UPDATE_SEED_SCRIPT.name} --batch {batch}")
+        print(f"  [dry] ⑤' {EXPORT_DASHBOARD_SCRIPT.name}")
+        print(f"\n🎉 batch{batch} 演练完毕（未实际执行）")
+        return
 
     # ① 生成（manifest + 性能基线）
     run_script(MAIN_GENERATE_SCRIPT, "① 批量视频生成", batch)
     # ② 自动口型评分（SyncNet优先，降级启发式）
     run_script(SCORE_SCRIPT, "② SyncNet自动口型评分", batch)
 
-    if not AUTO_AFTER_GENERATE:
+    if not (args.auto or AUTO_AFTER_GENERATE):
         input(f"\n⏸️ 暂停！打开 report_batch{batch}.md 填写【评分(1~10)】+【缺陷标签】。\n"
               f"   （客观口型分已自动填好，只需人工精评）填写完毕按回车继续...")
 

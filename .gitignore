@@ -16,6 +16,7 @@ checkpoints/
 ref_images/
 data/
 output_batch*/
+output_logs/
 report_batch*.md
 analysis_result_batch*.md
 logs_*.log
