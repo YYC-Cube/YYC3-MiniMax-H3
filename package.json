@@ -1,0 +1,25 @@
+{
+  "name": "yyc3-minimax-h3",
+  "version": "1.1.0",
+  "private": true,
+  "description": "YYC3-MiniMax-H3 monorepo — Python 引擎（根目录 scripts/）+ Next.js 控制台（apps/console）+ 共享契约（packages/）",
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "console:dev": "pnpm --filter console dev",
+    "console:build": "pnpm --filter console build",
+    "console:start": "pnpm --filter console start",
+    "schema:test": "pnpm --filter @yyc3/manifest-schema test",
+    "dashboard:export": "python3 scripts/pipeline-tools/export_dashboard_data.py"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
