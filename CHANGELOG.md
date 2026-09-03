@@ -21,8 +21,11 @@ language: zh-CN
 
 ### Fixed
 
-- **CI 红灯修复**：pnpm 11 `minimumReleaseAge` 供应链冷却策略拒绝 lockfile 中当日发布版本（`@types/react-dom@19.2.7`、`postcss@8.5.27`）→ workspace `overrides` pin 到合规版本（8.5.26 / 19.2.5），保留安全策略不放松
-- 配置收口：移除根 `package.json` 失效的 `pnpm` 字段与 `pnpm-workspace.yaml` 脏占位符（`allowBuilds`），`onlyBuiltDependencies` 归位 workspace 单一真源
+- **CI 红灯三连修 → 五门禁全绿**：
+  1. pnpm 11 `minimumReleaseAge`（24h 供应链冷却）拒绝 lockfile 中当日发布版本（`@types/react-dom@19.2.7`、`postcss@8.5.27`）→ workspace `overrides` pin 到合规版本（8.5.26 / 19.2.5），安全策略不放松
+  2. `ERR_PNPM_IGNORED_BUILDS: esbuild` → v11 已移除 `onlyBuiltDependencies`，构建许可迁移至 `allowBuilds: { esbuild: true }` 映射格式
+  3. 契约测试在 CI 无 `output_batch*/` 生成数据时退出 1 → 无真实数据回退内置 fixture，门禁双端有效
+- 配置收口：移除根 `package.json` 失效的 `pnpm` 字段，`pnpm-workspace.yaml` 归位为依赖设置单一真源
 
 ### Added
 
