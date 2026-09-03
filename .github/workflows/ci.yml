@@ -27,8 +27,7 @@ jobs:
 
       # ---- pnpm 门禁 ----
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
+        # 版本从根 package.json 的 packageManager 字段读取（单一真源，避免双声明冲突）
       - uses: actions/setup-node@v4
         with:
           node-version: 22
