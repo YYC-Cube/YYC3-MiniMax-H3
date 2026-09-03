@@ -1,7 +1,14 @@
 packages:
   - apps/*
   - packages/*
-allowBuilds:
-  esbuild: set this to true or false
+
+# 供应链防线：仅允许列出的依赖执行安装期构建脚本
 onlyBuiltDependencies:
   - esbuild
+
+# 版本 pin：pnpm 11 默认 minimumReleaseAge（24h 冷却）会拒绝 lockfile 中发布不足一天的版本
+# postcss 8.5.27 / @types/react-dom 19.2.6-7 均为 2026-09-03 当日发布 → pin 到合规旧版
+# 后续升级时请选择发布已超过 24h 的版本，或解除本 overrides
+overrides:
+  postcss: 8.5.26
+  "@types/react-dom": 19.2.5

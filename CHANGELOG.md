@@ -19,6 +19,11 @@ language: zh-CN
 
 ## [Unreleased]
 
+### Fixed
+
+- **CI 红灯修复**：pnpm 11 `minimumReleaseAge` 供应链冷却策略拒绝 lockfile 中当日发布版本（`@types/react-dom@19.2.7`、`postcss@8.5.27`）→ workspace `overrides` pin 到合规版本（8.5.26 / 19.2.5），保留安全策略不放松
+- 配置收口：移除根 `package.json` 失效的 `pnpm` 字段与 `pnpm-workspace.yaml` 脏占位符（`allowBuilds`），`onlyBuiltDependencies` 归位 workspace 单一真源
+
 ### Added
 
 - **路线B 生产控制台**（`apps/console/`，Next.js 15 + pnpm workspace）
