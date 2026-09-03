@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="card">
-      <div className="text-xs text-[var(--muted)]">{label}</div>
+      <div className="text-xs text-(--muted)">{label}</div>
       <div className="mono text-2xl font-bold mt-1" style={{ color: "var(--accent)" }}>
         {value}
       </div>
-      {hint ? <div className="text-xs text-[var(--muted)] mt-1">{hint}</div> : null}
+      {hint ? <div className="text-xs text-(--muted) mt-1">{hint}</div> : null}
     </div>
   );
 }
@@ -46,7 +46,7 @@ export default function DashboardPage() {
       {errors.length > 0 ? (
         <section className="card border-yellow-700">
           <div className="text-sm text-yellow-400">⚠ schema 校验警告（双端契约漂移检查）</div>
-          <ul className="mono text-xs text-[var(--muted)] mt-2 space-y-1">
+          <ul className="mono text-xs text-(--muted) mt-2 space-y-1">
             {errors.map((e) => (
               <li key={e}>{e}</li>
             ))}
@@ -59,7 +59,7 @@ export default function DashboardPage() {
         <div className="card overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[var(--muted)] border-b border-[var(--border)]">
+              <tr className="text-left text-(--muted) border-b border-(--border)">
                 <th className="py-2 pr-4">批次</th>
                 <th className="py-2 pr-4">模型</th>
                 <th className="py-2 pr-4">开始时间</th>
@@ -83,7 +83,7 @@ export default function DashboardPage() {
                     ? ((new Date(m.ended_at).getTime() - new Date(m.started_at).getTime()) / 60000).toFixed(1)
                     : "-";
                 return (
-                  <tr key={m.batch} className="border-b border-[var(--border)] last:border-0">
+                  <tr key={m.batch} className="border-b border-(--border) last:border-0">
                     <td className="py-2 pr-4 font-bold" style={{ color: "var(--accent)" }}>
                       batch{m.batch}
                     </td>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
               })}
               {manifests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-[var(--muted)]">
+                  <td colSpan={7} className="py-6 text-center text-(--muted)">
                     未发现 output_batch*/manifest.json — 先运行 pipeline_auto.py
                   </td>
                 </tr>
@@ -112,7 +112,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="text-xs text-[var(--muted)]">
+      <section className="text-xs text-(--muted)">
         数据链路：scripts/pipeline-tools（Python 引擎写 manifest）→ RSC fs 直读（本页）→
         dashboard/data/batches.json（路线A桥，Top10 复用）。路线B Phase 2 将追加：SSE 实时日志（app/api/pipeline/stream）与
         触发运行（app/api/pipeline/run，spawn 白名单 + Bearer Token）。

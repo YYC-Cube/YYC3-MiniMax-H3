@@ -17,7 +17,7 @@ interface RunStatus {
 }
 
 const STATE_STYLE: Record<RunStatus["state"], string> = {
-  idle: "text-[var(--muted)]",
+  idle: "text-(--muted)",
   running: "text-yellow-400",
   completed: "text-emerald-400",
   failed: "text-red-400",
@@ -97,12 +97,12 @@ export default function PipelinePage() {
 
       <section className="card flex flex-wrap items-end gap-4">
         <div>
-          <div className="text-xs text-[var(--muted)] mb-1">批次号（留空=自动递增）</div>
+          <div className="text-xs text-(--muted) mb-1">批次号（留空=自动递增）</div>
           <input
             value={batch}
             onChange={(e) => setBatch(e.target.value)}
             placeholder="如 03"
-            className="mono bg-[var(--background)] border border-[var(--border)] rounded px-3 py-1.5 w-32"
+            className="mono bg-(--background) border border-(--border) rounded px-3 py-1.5 w-32"
           />
         </div>
         <label className="flex items-center gap-2 text-sm pb-1.5">
@@ -113,37 +113,37 @@ export default function PipelinePage() {
           onClick={trigger}
           disabled={running}
           className={`px-4 py-1.5 rounded font-semibold text-sm ${
-            running ? "bg-[var(--border)] text-[var(--muted)] cursor-not-allowed" : "bg-[var(--accent)] text-black"
+            running ? "bg-(--border) text-(--muted) cursor-not-allowed" : "bg-(--accent) text-black"
           }`}
         >
           {running ? "运行中…" : "▶ 触发流水线"}
         </button>
         <div className="mono text-sm ml-auto">
           状态：<span className={STATE_STYLE[status?.state ?? "idle"]}>{STATE_TEXT[status?.state ?? "idle"]}</span>
-          {status?.batch ? <span className="text-[var(--muted)]"> · batch{status.batch}</span> : null}
+          {status?.batch ? <span className="text-(--muted)"> · batch{status.batch}</span> : null}
           {status?.exitCode != null ? (
-            <span className="text-[var(--muted)]"> · exit={status.exitCode}</span>
+            <span className="text-(--muted)"> · exit={status.exitCode}</span>
           ) : null}
         </div>
       </section>
 
       <section className="card">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-[var(--muted)]">实时输出（回填最近 300 行 · 心跳保活）</span>
-          <button onClick={() => setLogs([])} className="text-xs text-[var(--muted)] hover:text-[var(--foreground)]">
+          <span className="text-xs text-(--muted)">实时输出（回填最近 300 行 · 心跳保活）</span>
+          <button onClick={() => setLogs([])} className="text-xs text-(--muted) hover:text-(--foreground)">
             清屏
           </button>
         </div>
         <div
           ref={logBoxRef}
-          className="mono text-xs leading-5 h-[480px] overflow-y-auto bg-[var(--background)] border border-[var(--border)] rounded p-3 whitespace-pre-wrap"
+          className="mono text-xs leading-5 h-120 overflow-y-auto bg-(--background) border border-(--border) rounded p-3 whitespace-pre-wrap"
         >
           {logs.length === 0 ? (
-            <span className="text-[var(--muted)]">暂无输出 —— 触发流水线或等待运行事件…</span>
+            <span className="text-(--muted)">暂无输出 —— 触发流水线或等待运行事件…</span>
           ) : (
             logs.map((l, i) => (
-              <div key={i} className="text-[var(--foreground)]">
-                <span className="text-[var(--muted)] mr-2">{new Date(l.ts).toLocaleTimeString()}</span>
+              <div key={i} className="text-(--foreground)">
+                <span className="text-(--muted) mr-2">{new Date(l.ts).toLocaleTimeString()}</span>
                 {l.text}
               </div>
             ))

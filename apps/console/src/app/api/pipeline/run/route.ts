@@ -1,7 +1,7 @@
 // /api/pipeline/run - trigger pipeline via whitelisted spawn (POST) or query status (GET).
 // Auth: Bearer token (PIPELINE_TOKEN) OR loopback peers. Rate/lock: single-flight in manager.
-import { pipelineManager } from "@/lib/pipeline-manager";
 import { NextRequest, NextResponse } from "next/server";
+import { pipelineManager } from "@/lib/pipeline-manager";
 
 export const dynamic = "force-dynamic";
 
