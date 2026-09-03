@@ -664,7 +664,7 @@ body {
     </div>
     <div class="status-pill">
       <span class="mono text-sm">当前批次</span>
-      <span class="mono text-sm font-bold" id="currentBatch" style="color:var(--accent)">batch03</span>
+      <span class="mono text-sm font-bold" id="currentBatch" style="color:var(--accent)">-</span>
     </div>
   </div>
 </header>
@@ -960,8 +960,8 @@ body {
 </div>
 
 <script>
-// ===== 模拟数据 =====
-const SCRIPTS = [
+// ===== 数据源：真实 batches.json 优先，加载失败降级内置模拟数据（双后端策略） =====
+const FALLBACK_SCRIPTS = [
   { name: 'pipeline_auto.py', desc: '一键流水线入口：自动批次号 → 生成 → 分析 → 更新Seed', icon: 'PL', status: 'active', type: '入口' },
   { name: 'batch_ref2va_nf4.py', desc: 'NF4 版本批量生成：多参考图 × 多Seed，自动提取封面', icon: 'NF', status: 'active', type: '生成' },
   { name: 'batch_ref2va_pruned.py', desc: 'Pruned 剪枝版本批量生成：速度更快，显存更低', icon: 'PR', status: 'active', type: '生成' },
@@ -971,7 +971,7 @@ const SCRIPTS = [
   { name: 'clean_batch.py', desc: '清理指定批次 output 文件夹，保留 md 打分记录', icon: 'CL', status: 'active', type: '工具' },
 ];
 
-const BATCHES = [
+const FALLBACK_BATCHES = [
   {
     id: 'batch01',
     time: '2026-08-28 14:30',
@@ -1030,7 +1030,7 @@ const BATCHES = [
   },
 ];
 
-const TOP10 = [
+const FALLBACK_TOP10 = [
   { rank:1, batch:'batch03', img:'person_a.jpg', seed:42, score:9.0, tags:[] },
   { rank:2, batch:'batch03', img:'person_c.webp', seed:24, score:8.5, tags:[] },
   { rank:3, batch:'batch02', img:'person_c.webp', seed:24, score:8.0, tags:[] },
@@ -1043,7 +1043,37 @@ const TOP10 = [
   { rank:10, batch:'batch01', img:'person_a.jpg', seed:24, score:6.0, tags:['手崩'] },
 ];
 
-// ===== 路由管理 =====
+// ===== 真实数据加载（方案A数据桥）=====
+// 数据源：scripts/pipeline-tools/export_dashboard_data.py 生成（pipeline_auto ⑤' 步骤自动刷新）
+// 刻度：0-10（lipsync score_norm×10 或 human 1~10）；加载失败 → FALLBACK 模拟数据并亮黄灯
+let SCRIPTS = [];
+let BATCHES = [];
+let TOP10 = [];
+let DATA_SOURCE = 'fallback'; // 'live' | 'fallback'
+
+async function loadDashboardData() {
+  try {
+    const res = await fetch('./data/batches.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const payload = await res.json();
+    BATCHES = payload.batches || [];
+    TOP10 = payload.top10 || [];
+    // SCRIPTS 描述信息静态维护；状态与主脚本实际存在性对齐
+    SCRIPTS = FALLBACK_SCRIPTS.map(s => ({ ...s }));
+    DATA_SOURCE = 'live';
+    document.getElementById('currentBatch').textContent =
+      BATCHES.length ? BATCHES[BATCHES.length - 1].id : '-';
+    document.querySelector('#pipelineStatus').textContent = '真实数据';
+    document.querySelector('.status-dot').classList.add('warning');
+  } catch (e) {
+    BATCHES = FALLBACK_BATCHES;
+    TOP10 = FALLBACK_TOP10;
+    SCRIPTS = FALLBACK_SCRIPTS.map(s => ({ ...s }));
+    DATA_SOURCE = 'fallback';
+    console.warn('[dashboard] batches.json 加载失败，已降级模拟数据：', e.message);
+  }
+}
+
 const ROUTES = {
   dashboard: { title: '仪表盘', path: '/ dashboard' },
   pipeline: { title: '流水线控制', path: '/ pipeline' },
@@ -1344,7 +1374,7 @@ function clearTerminal() {
 const CHART_COLORS = ['#00d4aa', '#58a6ff', '#f5a623', '#ff4757', '#a371f7'];
 
 function initDashboardCharts() {
-  // 评分趋势
+  // 评分趋势（数据源：BATCHES，0-10 刻度）
   const trendChart = echarts.init(document.getElementById('chartScoreTrend'));
   trendChart.setOption({
     backgroundColor: 'transparent',
@@ -1352,13 +1382,13 @@ function initDashboardCharts() {
     grid: { left: '10%', right: '5%', top: '15%', bottom: '15%' },
     xAxis: {
       type: 'category',
-      data: ['batch01', 'batch02', 'batch03'],
+      data: BATCHES.map(b => b.id),
       axisLine: { lineStyle: { color: '#30363d' } },
       axisLabel: { color: '#8b949e', fontFamily: 'JetBrains Mono' }
     },
     yAxis: {
       type: 'value',
-      min: 5, max: 10,
+      min: 0, max: 10,
       axisLine: { show: false },
       splitLine: { lineStyle: { color: '#21262d' } },
       axisLabel: { color: '#8b949e', fontFamily: 'JetBrains Mono' }
@@ -1366,7 +1396,7 @@ function initDashboardCharts() {
     series: [{
       name: '平均分',
       type: 'line',
-      data: [6.84, 7.25, 7.42],
+      data: BATCHES.map(b => b.avgScore),
       smooth: true,
       symbol: 'circle',
       symbolSize: 8,
@@ -1383,7 +1413,13 @@ function initDashboardCharts() {
   });
   new ResizeObserver(() => trendChart.resize()).observe(document.getElementById('chartScoreTrend'));
 
-  // 缺陷分布
+  // 缺陷分布（数据源：各批次 defects 聚合）
+  const DEFECT_COLORS = ['#58a6ff', '#f5a623', '#ff4757', '#00d4aa', '#a371f7'];
+  const defectAgg = {};
+  BATCHES.forEach(b => Object.entries(b.defects || {}).forEach(([k, v]) => {
+    defectAgg[k] = (defectAgg[k] || 0) + v;
+  }));
+  const defectNames = Object.keys(defectAgg).slice(0, 6);
   const defectChart = echarts.init(document.getElementById('chartDefectDist'));
   defectChart.setOption({
     backgroundColor: 'transparent',
@@ -1397,18 +1433,13 @@ function initDashboardCharts() {
     },
     yAxis: {
       type: 'category',
-      data: ['口型错位', '抖动', '变脸', '手崩'],
+      data: defectNames,
       axisLine: { lineStyle: { color: '#30363d' } },
       axisLabel: { color: '#8b949e' }
     },
     series: [{
       type: 'bar',
-      data: [
-        { value: 3, itemStyle: { color: '#58a6ff' } },
-        { value: 4, itemStyle: { color: '#f5a623' } },
-        { value: 2, itemStyle: { color: '#ff4757' } },
-        { value: 5, itemStyle: { color: '#00d4aa' } }
-      ],
+      data: defectNames.map((n, i) => ({ value: defectAgg[n], itemStyle: { color: DEFECT_COLORS[i % DEFECT_COLORS.length] } })),
       barWidth: '50%',
       label: { show: true, position: 'right', color: '#e6edf3', fontFamily: 'JetBrains Mono' }
     }]
@@ -1417,43 +1448,55 @@ function initDashboardCharts() {
 }
 
 function initCompareCharts() {
-  // Seed对比
+  // Seed对比（数据源：BATCHES.videos 按 seed 聚合，各批次一条系列）
   const seedChart = echarts.init(document.getElementById('chartCompareSeed'));
+  const seedSet = new Set();
+  BATCHES.forEach(b => b.videos.forEach(v => seedSet.add('seed_' + v.seed)));
+  const seedLabels = [...seedSet].sort();
+  const seedSeries = BATCHES.map((b, i) => ({
+    name: b.id,
+    type: 'bar',
+    data: seedLabels.map(lbl => {
+      const hit = b.videos.find(v => 'seed_' + v.seed === lbl);
+      return hit ? hit.score : null;
+    }),
+    itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] },
+    barWidth: '20%',
+  }));
   seedChart.setOption({
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', confine: true },
-    legend: { data: ['batch01', 'batch02', 'batch03'], textStyle: { color: '#8b949e' }, top: 0 },
+    legend: { data: BATCHES.map(b => b.id), textStyle: { color: '#8b949e' }, top: 0 },
     grid: { left: '8%', right: '5%', top: '18%', bottom: '12%' },
     xAxis: {
       type: 'category',
-      data: ['seed_10', 'seed_24', 'seed_42', 'seed_66'],
+      data: seedLabels,
       axisLine: { lineStyle: { color: '#30363d' } },
       axisLabel: { color: '#8b949e', fontFamily: 'JetBrains Mono' }
     },
     yAxis: {
-      type: 'value', min: 4, max: 10,
+      type: 'value', min: 0, max: 10,
       axisLine: { show: false },
       splitLine: { lineStyle: { color: '#21262d' } },
       axisLabel: { color: '#8b949e', fontFamily: 'JetBrains Mono' }
     },
-    series: [
-      { name: 'batch01', type: 'bar', data: [5.5, 6.0, 7.5, 7.0], itemStyle: { color: '#58a6ff' }, barWidth: '20%' },
-      { name: 'batch02', type: 'bar', data: [6.5, 7.0, 8.0, 7.0], itemStyle: { color: '#f5a623' }, barWidth: '20%' },
-      { name: 'batch03', type: 'bar', data: [null, 8.5, 9.0, 7.5], itemStyle: { color: '#00d4aa' }, barWidth: '20%' },
-    ]
+    series: seedSeries
   });
   new ResizeObserver(() => seedChart.resize()).observe(document.getElementById('chartCompareSeed'));
 
-  // 缺陷趋势
+  // 缺陷趋势（数据源：各批次 defects 逐批计数）
   const defectTrend = echarts.init(document.getElementById('chartDefectTrend'));
+  const trendTagSet = new Set();
+  BATCHES.forEach(b => Object.keys(b.defects || {}).forEach(t => trendTagSet.add(t)));
+  const trendTags = [...trendTagSet].slice(0, 6);
   defectTrend.setOption({
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', confine: true },
-    legend: { data: ['手崩', '抖动', '变脸', '口型错位'], textStyle: { color: '#8b949e', fontSize: 11 }, top: 0, type: 'scroll' },
+    legend: { data: trendTags, textStyle: { color: '#8b949e', fontSize: 11 }, top: 0, type: 'scroll' },
     grid: { left: '10%', right: '5%', top: '20%', bottom: '15%' },
     xAxis: {
       type: 'category',
-      data: ['batch01', 'batch02', 'batch03'],
+      data: BATCHES.map(b => b.id),
       axisLine: { lineStyle: { color: '#30363d' } },
       axisLabel: { color: '#8b949e', fontFamily: 'JetBrains Mono' }
     },
@@ -1463,18 +1506,21 @@ function initCompareCharts() {
       splitLine: { lineStyle: { color: '#21262d' } },
       axisLabel: { color: '#8b949e', fontFamily: 'JetBrains Mono' }
     },
-    series: [
-      { name: '手崩', type: 'line', data: [3, 1, 0], smooth: true, itemStyle: { color: '#00d4aa' }, lineStyle: { width: 2 } },
-      { name: '抖动', type: 'line', data: [2, 1, 0], smooth: true, itemStyle: { color: '#f5a623' }, lineStyle: { width: 2 } },
-      { name: '变脸', type: 'line', data: [1, 0, 0], smooth: true, itemStyle: { color: '#ff4757' }, lineStyle: { width: 2 } },
-      { name: '口型错位', type: 'line', data: [0, 1, 0], smooth: true, itemStyle: { color: '#58a6ff' }, lineStyle: { width: 2 } },
-    ]
+    series: trendTags.map((tag, i) => ({
+      name: tag,
+      type: 'line',
+      data: BATCHES.map(b => (b.defects || {})[tag] || 0),
+      smooth: true,
+      itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] },
+      lineStyle: { width: 2 },
+    }))
   });
   new ResizeObserver(() => defectTrend.resize()).observe(document.getElementById('chartDefectTrend'));
 }
 
 // ===== 初始化 =====
-function init() {
+async function init() {
+  await loadDashboardData();
   renderRecentBatches();
   renderScripts();
   renderBatches();

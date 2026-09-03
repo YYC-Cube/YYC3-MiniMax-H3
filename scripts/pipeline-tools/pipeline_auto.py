@@ -32,10 +32,13 @@ import sys
 from pathlib import Path
 
 # ====================== 配置区【按需修改】======================
-MAIN_GENERATE_SCRIPT = Path(__file__).parent / "batch_ref2va_nf4.py"
-SCORE_SCRIPT = Path(__file__).parent / "score_lipsync.py"
-ANALYZE_SCRIPT = Path(__file__).parent / "pipeline-tools" / "analyze_report.py"
-UPDATE_SEED_SCRIPT = Path(__file__).parent / "pipeline-tools" / "update_seed_list.py"
+SCRIPTS_DIR = Path(__file__).parent          # scripts/
+TOOLS_DIR = SCRIPTS_DIR / "pipeline-tools"   # scripts/pipeline-tools/
+MAIN_GENERATE_SCRIPT = SCRIPTS_DIR / "batch_ref2va_nf4.py"
+SCORE_SCRIPT = SCRIPTS_DIR / "score_lipsync.py"
+ANALYZE_SCRIPT = TOOLS_DIR / "analyze_report.py"
+UPDATE_SEED_SCRIPT = TOOLS_DIR / "update_seed_list.py"
+EXPORT_DASHBOARD_SCRIPT = TOOLS_DIR / "export_dashboard_data.py"  # ⑤' 面板数据桥（静默执行，失败不阻断）
 AUTO_AFTER_GENERATE = False
 # ==============================================================
 
@@ -83,6 +86,11 @@ def main():
     run_script(ANALYZE_SCRIPT, "④ 报告分析（客观+主观）", batch)
     # ⑤ 更新seed
     run_script(UPDATE_SEED_SCRIPT, "⑤ 更新主脚本seed_list", batch)
+    # ⑤' 面板数据桥：刷新 dashboard/data/batches.json（静默执行，失败不阻断流水线）
+    if EXPORT_DASHBOARD_SCRIPT.exists():
+        print(f"\n----- ⑤' 刷新可视化面板数据 【{EXPORT_DASHBOARD_SCRIPT.name}】 -----")
+        ret = subprocess.run([sys.executable, str(EXPORT_DASHBOARD_SCRIPT)])
+        print("✅ 面板数据已刷新" if ret.returncode == 0 else "⚠️ 面板数据刷新失败（不阻断流水线）")
 
     print(f"\n🎉 batch{batch} 流水线执行完毕！")
     print(f"📄 manifest：output_batch{batch}/manifest.json")
