@@ -1,0 +1,93 @@
+# -*- coding: utf-8 -*-
+"""
+@file pipeline_auto.py
+@author YanYuCloudCube Team <admin@0379.email>
+@version v1.1.0
+@created 2026-09-02
+@updated 2026-09-03
+@status stable
+@copyright Copyright (c) 2025-2026 YYC3 Team
+@license MIT
+
+
+pipeline_auto.py — 一键全流程流水线 v2（批次隔离 + 自动评分节点 · Phase 1/2 改造）
+来源任务：docs/04-演进规划与闭环优化机制.md
+
+流程（v2 新增步骤③）：
+  ① batch_ref2va_nf4.py   生成视频 + manifest.json
+  ② score_lipsync.py      SyncNet/启发式自动口型评分（回填 manifest + report）
+  ③ 人工填写 report 评分/缺陷标签
+  ④ analyze_report.py     双格式分析（客观/主观对照 + 耗时基线）
+  ⑤ update_seed_list.py   最优seed写回主脚本
+
+两种模式：
+- AUTO_AFTER_GENERATE=False（默认推荐）：①②后暂停等人工打分，回车继续④⑤
+- AUTO_AFTER_GENERATE=True：全自动连跑（适合已提前填好上一轮report）
+
+用法：python pipeline_auto.py
+"""
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+# ====================== 配置区【按需修改】======================
+MAIN_GENERATE_SCRIPT = Path(__file__).parent / "batch_ref2va_nf4.py"
+SCORE_SCRIPT = Path(__file__).parent / "score_lipsync.py"
+ANALYZE_SCRIPT = Path(__file__).parent / "pipeline-tools" / "analyze_report.py"
+UPDATE_SEED_SCRIPT = Path(__file__).parent / "pipeline-tools" / "update_seed_list.py"
+AUTO_AFTER_GENERATE = False
+# ==============================================================
+
+
+def get_next_batch_id() -> int:
+    pattern = re.compile(r"report_batch(\d+)\.md")
+    max_b = 0
+    for f in Path(".").glob("report_batch*.md"):
+        m = pattern.match(f.name)
+        if m:
+            max_b = max(max_b, int(m.group(1)))
+    return max_b + 1
+
+
+def run_script(script_path: Path, desc: str, batch_id: str):
+    if not script_path.exists():
+        print(f"\n❌ 【{desc}】文件不存在：{script_path}")
+        sys.exit(1)
+    print(f"\n===== {desc} 【{script_path.name} --batch {batch_id}】 =====")
+    ret = subprocess.run([sys.executable, str(script_path), "--batch", batch_id])
+    if ret.returncode != 0:
+        print(f"\n❌ 【{desc}】执行失败，退出码：{ret.returncode}")
+        sys.exit(ret.returncode)
+    print(f"✅ 【{desc}】完成\n")
+
+
+def main():
+    print("=" * 80)
+    print("🚀 Ref2VA 一键迭代流水线 v2（manifest + 自动口型评分）")
+    print("流程：生成→自动评分→(人工精评)→分析→更新Seed")
+    print("=" * 80)
+    batch = f"{get_next_batch_id():02d}"
+    print(f"👉 当前批次：batch{batch}")
+
+    # ① 生成（manifest + 性能基线）
+    run_script(MAIN_GENERATE_SCRIPT, "① 批量视频生成", batch)
+    # ② 自动口型评分（SyncNet优先，降级启发式）
+    run_script(SCORE_SCRIPT, "② SyncNet自动口型评分", batch)
+
+    if not AUTO_AFTER_GENERATE:
+        input(f"\n⏸️ 暂停！打开 report_batch{batch}.md 填写【评分(1~10)】+【缺陷标签】。\n"
+              f"   （客观口型分已自动填好，只需人工精评）填写完毕按回车继续...")
+
+    # ④ 分析（双格式：manifest优先，含客观/主观对照与耗时基线）
+    run_script(ANALYZE_SCRIPT, "④ 报告分析（客观+主观）", batch)
+    # ⑤ 更新seed
+    run_script(UPDATE_SEED_SCRIPT, "⑤ 更新主脚本seed_list", batch)
+
+    print(f"\n🎉 batch{batch} 流水线执行完毕！")
+    print(f"📄 manifest：output_batch{batch}/manifest.json")
+    print(f"📋 分析：analysis_result_batch{batch}.md")
+
+
+if __name__ == "__main__":
+    main()
