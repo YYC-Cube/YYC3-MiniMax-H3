@@ -2,9 +2,10 @@ packages:
   - apps/*
   - packages/*
 
-# 供应链防线：仅允许列出的依赖执行安装期构建脚本
-onlyBuiltDependencies:
-  - esbuild
+# 构建脚本许可（pnpm 11 格式）：仅允许列出的依赖执行安装期构建脚本
+# 注：v11 已移除 onlyBuiltDependencies，统一由 allowBuilds 映射替代
+allowBuilds:
+  esbuild: true
 
 # 版本 pin：pnpm 11 默认 minimumReleaseAge（24h 冷却）会拒绝 lockfile 中发布不足一天的版本
 # postcss 8.5.27 / @types/react-dom 19.2.6-7 均为 2026-09-03 当日发布 → pin 到合规旧版
