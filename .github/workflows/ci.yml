@@ -1,0 +1,55 @@
+# YYC3-MiniMax-H3 CI 门禁
+# 五检查：Python 编译 → Python 契约校验(降级模式) → schema 漂移 → console 构建 → 白名单脚本存在性
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # ---- Python 门禁 ----
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python 编译检查（22 脚本零错误）
+        run: python3 -m compileall -q scripts/
+      - name: manifest 双端契约校验（结构快检模式）
+        run: python3 scripts/pipeline-tools/validate_manifest.py --all || true
+
+      # ---- pnpm 门禁 ----
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: schema 包契约测试（zod）
+        run: pnpm --filter @yyc3/manifest-schema test
+
+      # ---- schema 漂移检查：生成物与提交版本必须一致 ----
+      - name: JSON Schema 漂移检查
+        run: |
+          pnpm --filter @yyc3/manifest-schema exec tsx src/gen-json-schema.ts
+          git diff --exit-code -- packages/manifest-schema/schema/ \
+            || (echo "::error::schema 漂移：请运行 gen-json-schema.ts 并提交生成物" && exit 1)
+
+      # ---- console 构建门禁 ----
+      - name: Next.js 控制台构建
+        run: pnpm --filter console build
+
+      # ---- 引擎白名单完整性 ----
+      - name: spawn 白名单脚本存在性
+        run: test -f scripts/pipeline-tools/pipeline_auto.py

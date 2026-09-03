@@ -1,0 +1,38 @@
+# YYC3-MiniMax-H3 团队统一 IDE 配置（入库共享）
+{
+  // Markdown：关闭与 YYC³ 文档模板冲突的格式化
+  "markdown.extension.completion.enabled": false,
+  "markdown.extension.tableFormatter.enabled": false,
+
+  // Python：本地 conda 环境优先；类型检查交给 basedpyright
+  "python.analysis.typeCheckingMode": "off",
+  "python.defaultInterpreterPath": "/opt/miniconda3/envs/h3-m4/bin/python",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/scripts/lib",
+    "${workspaceFolder}/vendor/DiffSynth-Studio"
+  ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "none",
+    "reportMissingModuleSource": "none"
+  },
+  "basedpyright.analysis.typeCheckingMode": "standard",
+  "basedpyright.analysis.extraPaths": [
+    "${workspaceFolder}/scripts/lib",
+    "${workspaceFolder}/vendor/DiffSynth-Studio"
+  ],
+  "basedpyright.analysis.diagnosticSeverityOverrides": {
+    "reportMissingModuleSource": "none",
+    "reportUnknownMemberType": "none",
+    "reportUnknownArgumentType": "none",
+    "reportUnknownVariableType": "none",
+    "reportUnknownParameterType": "none",
+    "reportMissingTypeStubs": "none"
+  },
+
+  // Next.js 控制台：保存格式化 + Tailwind v4 智能感知
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.next": true
+  }
+}
