@@ -12,42 +12,50 @@
 import { z } from "zod";
 
 /** 单条生成记录（SUCCESS/SKIPPED/FAILED 等状态） */
-export const recordSchema = z.object({
-  ref_img: z.string(),
-  seed: z.number().int(),
-  status: z.string(), // SUCCESS | SKIPPED | FAILED | ...
-  video_path: z.string().optional(),
-  gen_seconds: z.number().optional(),
-  peak_rss_gb: z.number().optional(),
-  lipsync: z
-    .object({
-      score_norm: z.number().optional(),
-      av_offset: z.number().optional(),
-      confidence: z.number().optional(),
-    })
-    .optional(),
-  human: z
-    .object({
-      score: z.number().nullable().optional(), // null = 待人工精评
-      tags: z.string().nullable().optional(),
-      notes: z.string().nullable().optional(),
-    })
-    .optional(),
-});
+export const recordSchema = z
+  .object({
+    ref_img: z.string(),
+    seed: z.number().int(),
+    status: z.string(), // SUCCESS | SKIPPED | FAILED | ...
+    video_path: z.string().optional(),
+    gen_seconds: z.number().optional(),
+    peak_rss_gb: z.number().optional(),
+    time: z.string().optional(), // 写端扩展：完成时刻 HH:MM:SS
+    mps_alloc_gb: z.number().optional(), // 写端扩展：MPS 统计
+    lipsync: z
+      .object({
+        score_norm: z.number().optional(),
+        av_offset: z.number().optional(),
+        confidence: z.number().optional(),
+        backend: z.string().optional(), // syncnet | heuristic
+        scored_at: z.string().optional(),
+      })
+      .optional(),
+    human: z
+      .object({
+        score: z.number().nullable().optional(), // null = 待人工精评
+        tags: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+      })
+      .optional(),
+  })
+  .passthrough(); // 写端可携带扩展字段，读端不强拒（契约只锁定已知关键字段）
 export type Record = z.infer<typeof recordSchema>;
 
 /** 单批次 manifest（output_batchXX/manifest.json） */
-export const manifestSchema = z.object({
-  batch: z.string(),
-  started_at: z.string(),
-  ended_at: z.string().nullable().optional(),
-  model: z.object({
-    pipeline: z.string().default("ref2va"),
-    variant: z.string().default("nf4"),
-  }),
-  params: z.record(z.string(), z.unknown()).default({}),
-  records: z.array(recordSchema),
-});
+export const manifestSchema = z
+  .object({
+    batch: z.string(),
+    started_at: z.string(),
+    ended_at: z.string().nullable().optional(),
+    model: z.object({
+      pipeline: z.string().default("ref2va"),
+      variant: z.string().default("nf4"),
+    }),
+    params: z.record(z.string(), z.unknown()).default({}),
+    records: z.array(recordSchema),
+  })
+  .passthrough(); // schema_version 等写端扩展字段放行
 export type Manifest = z.infer<typeof manifestSchema>;
 
 /** 面板聚合数据（dashboard/data/batches.json，export_dashboard_data.py 写出） */

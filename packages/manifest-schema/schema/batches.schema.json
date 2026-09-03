@@ -1,0 +1,200 @@
+{
+  "$ref": "#/definitions/batches",
+  "definitions": {
+    "batches": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "integer"
+        },
+        "generated_at": {
+          "type": "string"
+        },
+        "score_scale": {
+          "type": "string"
+        },
+        "batches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "time": {
+                "type": "string"
+              },
+              "ended": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "model": {
+                "type": "string"
+              },
+              "pipeline": {
+                "type": "string"
+              },
+              "refImages": {
+                "type": "integer"
+              },
+              "seeds": {
+                "type": "integer"
+              },
+              "success": {
+                "type": "integer"
+              },
+              "failed": {
+                "type": "integer"
+              },
+              "skipped": {
+                "type": "integer"
+              },
+              "avgScore": {
+                "type": "number"
+              },
+              "maxScore": {
+                "type": "number"
+              },
+              "status": {
+                "type": "string"
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "ref": {
+                      "type": "string"
+                    },
+                    "seed": {
+                      "type": "integer"
+                    },
+                    "score": {
+                      "type": "number"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "video_path": {
+                      "type": "string"
+                    },
+                    "gen_seconds": {
+                      "type": "number"
+                    },
+                    "peak_rss_gb": {
+                      "type": "number"
+                    },
+                    "av_offset": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "ref",
+                    "seed",
+                    "score",
+                    "source",
+                    "tags"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "defects": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                }
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "durationMin": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "time",
+              "model",
+              "pipeline",
+              "refImages",
+              "seeds",
+              "success",
+              "failed",
+              "skipped",
+              "avgScore",
+              "maxScore",
+              "status",
+              "videos",
+              "defects",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "top10": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rank": {
+                "type": "integer"
+              },
+              "batch": {
+                "type": "string"
+              },
+              "img": {
+                "type": "string"
+              },
+              "seed": {
+                "type": "integer"
+              },
+              "score": {
+                "type": "number"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "rank",
+              "batch",
+              "img",
+              "seed",
+              "score",
+              "tags"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "generated_at",
+        "score_scale",
+        "batches",
+        "top10"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

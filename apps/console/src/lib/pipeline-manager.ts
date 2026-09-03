@@ -12,6 +12,12 @@ export interface LogLine {
   text: string;
 }
 
+export interface FileChange {
+  path: string; // 相对仓库根
+  kind: "manifest" | "report" | "batches";
+  ts: number;
+}
+
 export interface RunStatus {
   state: RunState;
   batch: string | null;
@@ -31,10 +37,66 @@ class PipelineManager {
   private runId = 0;
   readonly logDir: string;
 
+  // ---- 文件变更总线（P2）：manifest/report/batches 变化 → SSE 推送 → 仪表盘自动刷新 ----
+  private watcher: fs.FSWatcher | null = null;
+  private fileSubscribers = new Set<(change: FileChange) => void>();
+  private pendingChanges = new Map<string, FileChange>();
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
     // REPO_ROOT = apps/console 的上两级
     this.logDir = path.resolve(process.cwd(), "..", "..", "output_logs");
     fs.mkdirSync(this.logDir, { recursive: true });
+    this.startWatcher();
+  }
+
+  // 递归监听仓库根的目标文件；macOS/Windows 原生递归，Linux 降级为仅顶层（本仓库 output_batchXX 目录在顶层，够用）
+  private startWatcher() {
+    const repoRoot = path.resolve(process.cwd(), "..", "..");
+    try {
+      this.watcher = fs.watch(
+        repoRoot,
+        { recursive: true },
+        (_event, filename) => {
+          if (!filename) return;
+          const p = String(filename);
+          const kind = p.endsWith("manifest.json")
+            ? "manifest"
+            : /report_batch\d+\.md$/.test(p)
+              ? "report"
+              : p.endsWith("batches.json")
+                ? "batches"
+                : null;
+          if (!kind) return;
+          if (/node_modules|\.next|output_logs/.test(p)) return;
+          this.enqueueChange({ path: p, kind, ts: Date.now() });
+        }
+      );
+      this.watcher.on("error", () => {
+        // 监听失败不致命：页面仍有手动刷新与 force-dynamic 兜底
+        this.watcher = null;
+      });
+    } catch {
+      this.watcher = null;
+    }
+  }
+
+  /** 500ms 去抖合并（批量写 manifest 时避免风暴） */
+  private enqueueChange(change: FileChange) {
+    this.pendingChanges.set(change.path, change);
+    if (this.debounceTimer) return;
+    this.debounceTimer = setTimeout(() => {
+      this.debounceTimer = null;
+      for (const c of this.pendingChanges.values()) {
+        for (const fn of this.fileSubscribers) fn(c);
+      }
+      this.pendingChanges.clear();
+    }, 500);
+  }
+
+  subscribeFiles(fn: (change: FileChange) => void): () => void {
+    this.fileSubscribers.add(fn);
+    return () => this.fileSubscribers.delete(fn);
   }
 
   getStatus(): RunStatus & { runId: number } {

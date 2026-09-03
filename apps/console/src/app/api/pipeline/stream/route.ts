@@ -1,6 +1,6 @@
 // /api/pipeline/stream - SSE: replay last 300 lines then live tail; state event on
 // transition; 15s heartbeat keepalive (benchmark ping/pong pattern, client auto-reconnect).
-import { pipelineManager, type LogLine } from "@/lib/pipeline-manager";
+import { pipelineManager, type FileChange, type LogLine } from "@/lib/pipeline-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +9,7 @@ const HEARTBEAT_MS = 15_000;
 export async function GET() {
   const encoder = new TextEncoder();
   let unsubscribe: (() => void) | null = null;
+  let unsubscribeFiles: (() => void) | null = null;
   let heartbeat: ReturnType<typeof setInterval> | null = null;
   const stateTimers = new Set<ReturnType<typeof setInterval>>();
 
@@ -27,8 +28,9 @@ export async function GET() {
       send("state", status);
       for (const line of logs) send("log", line);
 
-      // 2) 实时订阅
+      // 2) 实时订阅（日志 + 文件变更）
       unsubscribe = pipelineManager.subscribe((line: LogLine) => send("log", line));
+      unsubscribeFiles = pipelineManager.subscribeFiles((change: FileChange) => send("file", change));
 
       // 3) 状态轮询广播（manager 内部 close → completed/failed）
       let lastState = status.state;
@@ -55,6 +57,7 @@ export async function GET() {
     cancel() {
       if (heartbeat) clearInterval(heartbeat);
       unsubscribe?.();
+      unsubscribeFiles?.();
       for (const t of stateTimers) clearInterval(t);
       stateTimers.clear();
     },

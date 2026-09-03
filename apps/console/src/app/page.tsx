@@ -1,6 +1,7 @@
 import { displayScore, readBatchesPayload, readManifests } from "@/lib/manifest";
 import type { Manifest } from "@yyc3/manifest-schema";
 import Link from "next/link";
+import RefreshOnChange from "./refresh-on-change";
 
 // manifest 是文件系统数据：每次请求重读（对齐「断点续跑」工作流，面板跑完即见）
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <RefreshOnChange />
       <section>
         <h1 className="text-xl font-bold mb-4">仪表盘 · 单一事实源直读</h1>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

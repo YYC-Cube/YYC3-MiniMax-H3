@@ -1,0 +1,132 @@
+{
+  "$ref": "#/definitions/manifest",
+  "definitions": {
+    "manifest": {
+      "type": "object",
+      "properties": {
+        "batch": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "ended_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "pipeline": {
+              "type": "string",
+              "default": "ref2va"
+            },
+            "variant": {
+              "type": "string",
+              "default": "nf4"
+            }
+          },
+          "additionalProperties": false
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {},
+          "default": {}
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ref_img": {
+                "type": "string"
+              },
+              "seed": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string"
+              },
+              "video_path": {
+                "type": "string"
+              },
+              "gen_seconds": {
+                "type": "number"
+              },
+              "peak_rss_gb": {
+                "type": "number"
+              },
+              "time": {
+                "type": "string"
+              },
+              "mps_alloc_gb": {
+                "type": "number"
+              },
+              "lipsync": {
+                "type": "object",
+                "properties": {
+                  "score_norm": {
+                    "type": "number"
+                  },
+                  "av_offset": {
+                    "type": "number"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  },
+                  "backend": {
+                    "type": "string"
+                  },
+                  "scored_at": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "human": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "tags": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "notes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "ref_img",
+              "seed",
+              "status"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "batch",
+        "started_at",
+        "model",
+        "records"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
