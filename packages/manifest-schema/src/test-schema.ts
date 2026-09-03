@@ -22,6 +22,30 @@ for (const d of fs.readdirSync(repoRoot).filter((d) => /^output_batch/.test(d)).
   checked++;
 }
 if (!checked) {
-  console.log("⚠ 未找到 output_batch*/manifest.json");
-  process.exitCode = 1;
+  // CI 环境无 output_batch*/ 生成数据（不入库）：回退内置 fixture 保证门禁双端有效
+  console.log("⚠ 未找到 output_batch*/manifest.json，回退内置 fixture 校验");
+  const fixture = {
+    batch: "batch99",
+    started_at: "2026-09-03 00:00:00",
+    ended_at: null,
+    model: { pipeline: "ref2va", variant: "nf4" },
+    params: {},
+    records: [
+      {
+        ref_img: "refs/demo.png",
+        seed: 42,
+        status: "SUCCESS",
+        video_path: "output_batch99/demo.mp4",
+        gen_seconds: 12.5,
+        peak_rss_gb: 32.8,
+        lipsync: { score_norm: 0.87, backend: "syncnet", scored_at: "2026-09-03 00:01:00" },
+        human: { score: null, tags: null, notes: null },
+        extra_future_field: true, // passthrough 放行写端扩展
+      },
+    ],
+    schema_version: 1,
+  };
+  const parsed = manifestSchema.safeParse(fixture);
+  console.log(`fixture: ${parsed.success ? "✅ schema OK" : "❌ " + JSON.stringify(parsed.error.issues.slice(0, 2))}`);
+  if (!parsed.success) process.exitCode = 1;
 }
