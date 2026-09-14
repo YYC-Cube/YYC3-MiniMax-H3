@@ -1,5 +1,6 @@
 # YYC3-MiniMax-H3 CI 门禁
 # 五检查：Python 编译 → Python 契约校验(降级模式) → schema 漂移 → console 构建 → 白名单脚本存在性
+# 供应链：所有第三方 action 以 commit SHA 锁定（tag 可变，SHA 不可变，防 tag 劫持）
 name: ci
 
 on:
@@ -12,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: recursive
 
       # ---- Python 门禁 ----
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Python 编译检查（22 脚本零错误）

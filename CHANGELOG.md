@@ -19,8 +19,15 @@ language: zh-CN
 
 ## [Unreleased]
 
+### Added
+
+- **Phase 2.1 归档通道**（`scripts/pipeline-tools/archive_to_nas.sh`）：双速制 NAS 归档（manifest 快车道实时 + 媒体慢车道 rsync -z 断点续传）、`.nas_pending` 降级队列 + `--retry-pending` 自愈补同步（对齐《第五能力审核论证》修正 1/3）
+- **Phase 2.2 夜间批量**（`scripts/pipeline-tools/nightly_run.sh`）：22:00–08:00 窗口硬约束 + 全链路编排（生成→评分→归档→补同步→面板→次晨报告）+ `H3_FORCE` 调试逃生阀
+- **docs/11-第五能力衔接实施方案.md**：三文档（DGX 指南/审核论证/可行性分析）收口 + Phase 2.3 异步任务 API 契约固化
+
 ### Fixed
 
+- **CI 供应链加固**：全部第三方 action 以 commit SHA 锁定（tag 可变、SHA 不可变，防 tag 劫持），同时消除 IDE「Unable to resolve action」报错
 - **CI 红灯三连修 → 五门禁全绿**：
   1. pnpm 11 `minimumReleaseAge`（24h 供应链冷却）拒绝 lockfile 中当日发布版本（`@types/react-dom@19.2.7`、`postcss@8.5.27`）→ workspace `overrides` pin 到合规版本（8.5.26 / 19.2.5），安全策略不放松
   2. `ERR_PNPM_IGNORED_BUILDS: esbuild` → v11 已移除 `onlyBuiltDependencies`，构建许可迁移至 `allowBuilds: { esbuild: true }` 映射格式
