@@ -12,9 +12,11 @@
     "test": "tsx src/test-schema.ts"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
+    "@types/node": "^22.20.1",
     "tsx": "^4.19.0",
     "typescript": "^5.5.0"
   }
