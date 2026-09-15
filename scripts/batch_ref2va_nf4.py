@@ -78,9 +78,9 @@ def main():
         VARIANT = args.variant
     if args.preview:
         HEIGHT, WIDTH = 360, 640          # 16:9 近似 360p（doc/12：360p 生成+后超分=6× 加速路线的第一段）
-        NUM_FRAMES = 64                    # ~2.7s @24fps：链路验证足够
+        NUM_FRAMES = 73                    # 硬约束：num_frames % 17 == 5（README 关键参数速查），73 帧 ≈ 3s @24fps
         NUM_INFERENCE_STEPS = 30           # 少步采样（docs/10 §5.2 杠杆 3）
-        print("⚡ 快预览档：360p / 64帧 / 30步（迭代用，量产请跑全质量档）")
+        print("⚡ 快预览档：360p / 73帧 / 30步（迭代用，量产请跑全质量档）")
 
     # ---------- 目录与文件规划（批次隔离） ----------
     output_root = Path(f"output_batch{batch}")
