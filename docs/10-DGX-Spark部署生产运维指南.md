@@ -199,12 +199,15 @@ python scripts/score_lipsync.py --batch 90
 | SyncNet 评分 | ~10 分钟/条（CPU） | 持平或略优 | 同为 CPU 链路，CPU 单核性能相近 |
 | 架构红利 | — | 统一内存 offload 成本更低 | GB10 CPU/GPU 同一物理 LPDDR5x，offload "CPU 侧"实为同内存不同访问路径 |
 
-### 5.2 调优杠杆（按优先级）
+### 5.2 调优杠杆（按优先级；§5.1 基线已被 GB10 社区实测刷新，见 docs/12 §2）
 
+0. **int8 黑屏自检（到货首日，先于一切）**：GB10 部分实体机存在 int8 反量化硅缺陷（输出全黑视频无报错，2026-09-02 论坛实证，docs/12 §3）——提交 `steps=1` 工作流检查解码帧，受影响则全程锁 fp8 模型变体。
 1. **Pruned vs NF4 A/B 先行**（06 文档任务 A2 平移到 Spark 重跑）：Pruned 是 bf16 直载，在 CUDA 上绕过 BNB 依赖，风险最低。
 2. **Turbo 蒸馏 LoRA**（docs/09 §3.1）：LightX2V 8-step/4-step LoRA 在 CUDA 生态验证最充分，Spark 是其最佳落地平台之一。
 3. **少步采样**：50→30 步试验与 Turbo 互补。
-4. ** PyTorch 内存策略**：`torch.cuda.set_per_process_memory_fraction` + DiffSynth `vram_limit` 联动调优（统一内存下可适度放大）。
+4. **PyTorch 内存策略**：`torch.cuda.set_per_process_memory_fraction` + DiffSynth `vram_limit` 联动调优（统一内存下可适度放大）。
+5. **低分辨率生成 + 超分后处理**（GB10 社区实测第一杠杆，docs/12 §2）：360p 生成 + RealESRGAN 2×→720p 达 6.03× 加速（超分仅 ~5s）；M4 Max 侧已落地快预览档 `--preview`（360p/64帧/30步，batch_ref2va_nf4.py），DGX 侧量产直接复用同参数组。
+6. **统一内存带宽墙预案**：GB10 高分辨率超线性劣化（960p 耗时 10.9× 仅 7.2× 像素增益，docs/12 §2.3）；>720p 量产需求优先评估 x86 卡箱路线。
 
 ---
 
@@ -305,12 +308,14 @@ WantedBy=multi-user.target
 
 | 版本 | 日期 | 变更 |
 | ---- | ---- | ---- |
+| v1.1.0 | 2026-09-15 | GB10 实测情报整合：int8 黑屏自检（§5.2/§8 验收）、低分辨率+超分杠杆、带宽墙预案（源 docs/12） |
 | v1.0.0 | 2026-09-03 | 初版：可行性结论 + 迁移路径（含可移动性审核）+ 适配点 + 运维体系 + GB10 故障排除 |
+
 ---
 
 ## 变更历史
 
-| 版本   | 日期       | 变更内容 | 作者 |
+| 版本 | 日期 | 变更内容 | 作者 |
 | ------ | ---------- | -------- | ---- |
 | v1.0.1 | 2026-09-03 | 补齐 YYC3 品牌标尾与变更历史（文档规范审计） | Impl Expert |
 | v1.0.0 | 2026-09-02 | 初始版本 | YanYuCloudCube Team |

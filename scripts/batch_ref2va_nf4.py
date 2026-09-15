@@ -60,12 +60,27 @@ NUM_INFERENCE_STEPS = 50
 def parse_args():
     ap = argparse.ArgumentParser(description="Ref2VA 批量生成（manifest化）")
     ap.add_argument("--batch", type=str, default="01", help="批次号，例如 01")
+    ap.add_argument("--preview", action="store_true",
+                    help="快预览档：24帧/30步/360p/半长度（白天窗口快速迭代 prompt/seed，"
+                         "夜间窗口跑全质量档；情报依据 docs/12 §4.3：分辨率是第一加速杠杆）")
+    ap.add_argument("--variant", choices=["nf4", "pruned"], default=None,
+                    help="覆盖脚本头部的 VARIANT 配置（pruned=bf16 直载，CUDA 无 bnb 依赖）")
     return ap.parse_args()
 
 
 def main():
     args = parse_args()
     batch = args.batch
+
+    # ---------- 快预览档参数覆盖（manifest.params 自动留痕，量化对比有据） ----------
+    global HEIGHT, WIDTH, NUM_FRAMES, NUM_INFERENCE_STEPS, VARIANT
+    if args.variant:
+        VARIANT = args.variant
+    if args.preview:
+        HEIGHT, WIDTH = 360, 640          # 16:9 近似 360p（doc/12：360p 生成+后超分=6× 加速路线的第一段）
+        NUM_FRAMES = 64                    # ~2.7s @24fps：链路验证足够
+        NUM_INFERENCE_STEPS = 30           # 少步采样（docs/10 §5.2 杠杆 3）
+        print("⚡ 快预览档：360p / 64帧 / 30步（迭代用，量产请跑全质量档）")
 
     # ---------- 目录与文件规划（批次隔离） ----------
     output_root = Path(f"output_batch{batch}")

@@ -21,6 +21,12 @@ language: zh-CN
 
 ### Added
 
+- **GB10 部署包情报整合**（源：NVIDIA 论坛社区部署包克隆，分析见 docs/12，对标清单 docs/13）：
+  - 快预览档 `batch_ref2va_nf4.py --preview`（360p/64帧/30步，白天窗口快速迭代）+ `--variant` 参数化（nf4/pruned 切换，CUDA 侧绕过 bnb）
+  - int8 黑屏自检纳入 docs/10 §5.2 杠杆 0 与 §8 验收清单（GB10 硅缺陷风险：到货首日 `steps=1` 检查，受影响锁 fp8）
+  - docs/10 §5.2 增补低分辨率+超分杠杆（GB10 实测 6.03×）与统一内存带宽墙预案
+- **docs/13-自研节点包对标清单.md**：上游 workflow JSON → zod 契约字段映射 + 8 个 custom node 功能对标（P1-P3 优先级）+ 节点包 v0.1 范围与验收门禁；Heretic 无审查 TE 划为合规红线永不纳管
+
 - **Phase 2.1 归档通道**（`scripts/pipeline-tools/archive_to_nas.sh`）：双速制 NAS 归档（manifest 快车道实时 + 媒体慢车道 rsync -z 断点续传）、`.nas_pending` 降级队列 + `--retry-pending` 自愈补同步（对齐《第五能力审核论证》修正 1/3）
 - **Phase 2.2 夜间批量**（`scripts/pipeline-tools/nightly_run.sh`）：22:00–08:00 窗口硬约束 + 全链路编排（生成→评分→归档→补同步→面板→次晨报告）+ `H3_FORCE` 调试逃生阀
 - **docs/11-第五能力衔接实施方案.md**：三文档（DGX 指南/审核论证/可行性分析）收口 + Phase 2.3 异步任务 API 契约固化

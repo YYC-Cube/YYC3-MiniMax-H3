@@ -17,6 +17,9 @@ ref_images/
 data/
 output_batch*/
 output_logs/
+
+# 运行时产物（夜间批量报告/nas 归档日志）
+logs/
 report_batch*.md
 analysis_result_batch*.md
 logs_*.log

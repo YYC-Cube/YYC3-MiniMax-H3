@@ -91,6 +91,10 @@ YYC3-MiniMax-H3/
 │   ├── 08-开发者文档.md                ← ★ API参考 + 代码示例 + 架构/流程/状态机图
 │   ├── 09-文档体系审核与版本控制.md     ← ★ 文档矩阵审核 + 版本控制 + 智能化闭环机制
 │   ├── 10-DGX-Spark部署生产运维指南.md  ← ★ GB10迁移路径 + aarch64/CUDA13 + 生产运维体系
+│   ├── 11-第五能力衔接实施方案.md       ← ★ 三文档收口 + Phase 2.1/2.2 交付 + 2.3 异步API契约
+│   ├── 12-DGXSpark-ComfyUI-H3部署包深度分析.md ← GB10社区实测情报（6.03×加速/int8风险）
+│   ├── 13-自研节点包对标清单.md         ← ★ 路线C：zod契约映射 + 8节点对标 + 节点包v0.1
+│   ├── dgxspark_comfyui_minimax_h3/     ← GB10 部署包参考克隆（.gitignore，上游跟进用）
 │   ├── YYC3-团队通用-标规文档/          ← 团队规范标准（开发标准/五维驱动/文档闭环）
 │   ├── YYC3-项目闭环-验收系统/          ← 验收标准体系（代码/功能/测试/安全/性能）
 │   └── YYC3-MiniMax-H3-impl-expert-20260903/  ← 本轮会话工作区（审核报告/方案论证/总结）
@@ -137,30 +141,30 @@ open dashboard/Ref2VA-流水线管理面板.html
 
 ## 📊 客观评估层（v2）
 
-| 组件 | 说明 |
-| ---- | ---- |
-| manifest.json | 批次单一事实源：参数/seed/状态/耗时/内存峰值/客观分/人工分 |
+| 组件　　　　　　 | 说明　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 |
+| ------------------| --------------------------------------------------------------------|
+| manifest.json　　| 批次单一事实源：参数/seed/状态/耗时/内存峰值/客观分/人工分　　　　 |
 | score_lipsync.py | 双后端：SyncNet 优先；无权重自动降级启发式（同步0.98 vs 错位0.76） |
-| 性能基线 | 每次推理记录 gen_seconds / peak_rss_gb / mps_alloc_gb |
+| 性能基线　　　　 | 每次推理记录 gen_seconds / peak_rss_gb / mps_alloc_gb　　　　　　　|
 
 ## 📋 模型权重对照
 
-| 版本 | model_id | 特点 |
-| ---- | -------- | ---- |
-| NF4 原版 | `DiffSynth-Studio/MiniMax-H3-NF4` | 画质优先 |
-| Pruned 剪枝版 | `DiffSynth-Studio/MiniMax-H3-Pruned` | 推理更快、内存更低，画质略降，适合快速试 seed |
-| Pruned 精简单文件 | `minimax-h3-fl2va-pruned-nf4.safetensors` | 单文件替换即用 |
+| 版本　　　　　　　| model_id                                  | 特点　　　　　　　　　　　　　　　　　　　　　|
+| -------------------| -------------------------------------------| -----------------------------------------------|
+| NF4 原版　　　　　| `DiffSynth-Studio/MiniMax-H3-NF4`         | 画质优先　　　　　　　　　　　　　　　　　　　|
+| Pruned 剪枝版　　 | `DiffSynth-Studio/MiniMax-H3-Pruned`      | 推理更快、内存更低，画质略降，适合快速试 seed |
+| Pruned 精简单文件 | `minimax-h3-fl2va-pruned-nf4.safetensors` | 单文件替换即用　　　　　　　　　　　　　　　　|
 
 ## 🔑 关键参数速查
 
-| 参数 | 值 | 说明 |
-| ---- | -- | ---- |
-| vram_limit | 96 | 128G 统一内存预留 96G |
-| 分辨率 | 480×832 | 官方推荐 |
-| num_frames | 124 | 必须满足 `% 17 == 5`（Ref2VA） |
-| num_inference_steps | 50 | 官方默认 |
-| fps / 采样率 | 24 / 32000 | 输出视频规格 |
-| 模型缓存 | `~/.modelscope/` | 约 72.5GB，硬盘预留 >100GB |
+| 参数　　　　　　　　| 值　　　　　　　 | 说明　　　　　　　　　　　　　 |
+| ---------------------| ------------------| --------------------------------|
+| vram_limit　　　　　| 96　　　　　　　 | 128G 统一内存预留 96G　　　　　|
+| 分辨率　　　　　　　| 480×832　　　　　| 官方推荐　　　　　　　　　　　 |
+| num_frames　　　　　| 124　　　　　　　| 必须满足 `% 17 == 5`（Ref2VA） |
+| num_inference_steps | 50　　　　　　　 | 官方默认　　　　　　　　　　　 |
+| fps / 采样率　　　　| 24 / 32000　　　 | 输出视频规格　　　　　　　　　 |
+| 模型缓存　　　　　　| `~/.modelscope/` | 约 72.5GB，硬盘预留 >100GB　　 |
 
 ---
 
@@ -172,11 +176,11 @@ Released under the MIT License.
 
 ## 🔄 变更历史
 
-| 版本 | 日期 | 变更内容 | 作者 |
-| ------ | ---------- | -------- | ---- |
-| v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/ | Impl Expert |
-| v2.0.0 | 2026-09-03 | README v2 重构：yyc3-family.png 顶图 + 徽章系统 + Mermaid 可视化架构 | Impl Expert |
-| v1.0.0 | 2026-09-02 | 初始版本（源文档整理归档） | YanYuCloudCube Team |
+| 版本　 | 日期　　　 | 变更内容　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | 作者　　　　　　　　|
+| --------| ------------| ----------------------------------------------------------------------| ---------------------|
+| v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/　| Impl Expert　　　　 |
+| v2.0.0 | 2026-09-03 | README v2 重构：yyc3-family.png 顶图 + 徽章系统 + Mermaid 可视化架构 | Impl Expert　　　　 |
+| v1.0.0 | 2026-09-02 | 初始版本（源文档整理归档）　　　　　　　　　　　　　　　　　　　　　 | YanYuCloudCube Team |
 
 ---
 
