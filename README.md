@@ -131,11 +131,16 @@ python scripts/h3_m4_fl2va.py
 python scripts/h3_m4_ref2va.py
 
 # 4. 批量生产 + 迭代闭环（v2：含自动口型评分，详见 docs/03、docs/04）
-python scripts/pipeline-tools/pipeline_auto.py
+python scripts/pipeline-tools/pipeline_auto.py --batch 01 --auto
 
 # 5. 可视化面板
 open dashboard/Ref2VA-流水线管理面板.html
+# 或开发控制台（Next.js 15，端口 3030）
+pnpm --filter console dev
 ```
+
+> ⚡ 白天快速迭代用快预览档：`python scripts/batch_ref2va_nf4.py --batch 01 --preview`（360p/64帧/30步）；
+> 🌙 夜间全质量批量 + NAS 归档：`scripts/pipeline-tools/nightly_run.sh`（22:00-08:00 窗口硬约束，见 docs/11）。
 
 ---
 
