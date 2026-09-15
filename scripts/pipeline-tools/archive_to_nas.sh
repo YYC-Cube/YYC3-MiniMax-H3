@@ -20,9 +20,9 @@
 #   archive_to_nas.sh --retry-pending             # 补同步历史待队列
 #
 # 配置（环境变量，均有默认值）：
-#   YYC3_NAS_SSH   SSH 目标（user@host，Tailscale 网内），默认 yanyu@yyc3-nas
+#   YYC3_NAS_SSH   SSH 目标（~/.ssh/config Host 别名），默认 yyc3-45（NAS 实机）
 #   YYC3_NAS_BASE  NAS 归档根目录，默认 /Volume1/yyc3_hd
-#   YYC3_NAS_PORT  SSH 端口，默认 22
+#   YYC3_NAS_PORT  SSH 端口，默认留空（尊重 ~/.ssh/config 的 Port 配置，避免覆盖）
 # =============================================================================
 # set -u 注意：本机 PayGuard safe_rm 拦截器会向子 bash 注入 init 文件，其顶层
 # 裸引用 USERPROFILE 等未定义变量，与 set -u 冲突（仅交互链路触发）。因此这里
@@ -35,11 +35,16 @@ PENDING_FILE="$REPO_ROOT/.nas_pending"
 LOG_DIR="$REPO_ROOT/logs"
 mkdir -p "$LOG_DIR"
 
-NAS_SSH="${YYC3_NAS_SSH:-yanyu@yyc3-nas}"
+NAS_SSH="${YYC3_NAS_SSH:-yyc3-45}"   # ~/.ssh/config 已配置（100.65.172.88:9557，实测可达）
 NAS_BASE="${YYC3_NAS_BASE:-/Volume1/yyc3_hd}"
-NAS_PORT="${YYC3_NAS_PORT:-22}"
+NAS_PORT="${YYC3_NAS_PORT:-}"   # 留空 = 用 ~/.ssh/config 的端口（如 yyc3-45:9557）
 [ -n "$NAS_SSH" ] && [ -n "$NAS_BASE" ] || { echo "❌ NAS 配置为空"; exit 2; }
 LOG="$LOG_DIR/nas_archive_$(date +%Y%m%d).log"
+
+# 端口参数拼装：仅在显式配置时追加 -p（避免覆盖 ssh config）
+SSH_OPTS=(-o ConnectTimeout=8 -o BatchMode=yes)
+[ -n "$NAS_PORT" ] && SSH_OPTS+=(-p "$NAS_PORT")
+SSH_R="ssh ${SSH_OPTS[*]}"
 
 log()  { echo "[$(date '+%F %T')] $*" | tee -a "$LOG"; }
 warn() { log "⚠️  $*"; }
@@ -47,7 +52,7 @@ ok()   { log "✅ $*"; }
 
 # 检测 NAS 可达性（5s 超时，Tailscale 网内正常应秒级响应）
 nas_reachable() {
-  ssh -p "$NAS_PORT" -o ConnectTimeout=5 -o BatchMode=yes "$NAS_SSH" "true" 2>/dev/null
+  ssh "${SSH_OPTS[@]}" "$NAS_SSH" "true" 2>/dev/null
 }
 
 # 入队：NAS 不可达时的降级记录（去重）
@@ -75,12 +80,12 @@ archive_batch() {
   fi
 
   # 远端建目录（含批次目录）
-  ssh -p "$NAS_PORT" "$NAS_SSH" "mkdir -p '$nas_dst'" 2>>"$LOG" || { enqueue "$batch"; return 1; }
+  ssh "${SSH_OPTS[@]}" "$NAS_SSH" "mkdir -p '$nas_dst'" 2>>"$LOG" || { enqueue "$batch"; return 1; }
 
   # 快车道：manifest + report + analysis（KB 级，实时无压力）
   # -z 压缩 + --partial 断点续传 + --timeout 防挂起（审核论证修正 3：Tailscale ~2MB/s）
   for f in "$src/manifest.json" "$REPO_ROOT/report_batch$batch.md" "$REPO_ROOT/analysis_result_batch$batch.md"; do
-    [ -f "$f" ] && rsync -az --partial --timeout=60 -e "ssh -p $NAS_PORT" \
+    [ -f "$f" ] && rsync -az --partial --timeout=60 -e "ssh ${SSH_OPTS[*]}" \
       "$f" "$NAS_SSH:$nas_dst/" 2>>"$LOG" && ok "快车道：$(basename "$f")" || warn "快车道失败：$f"
   done
   # 快车道顺带清掉待队列中该批次的快车道欠账
@@ -89,7 +94,7 @@ archive_batch() {
   # 慢车道：媒体成品（--manifest-only 时跳过，留给夜间批量）
   if [ "$manifest_only" = "no" ]; then
     log "慢车道开始：$src → $nas_dst（媒体文件，夜间窗口执行）"
-    if rsync -az --partial --timeout=600 -e "ssh -p $NAS_PORT" "$src/" "$NAS_SSH:$nas_dst/" 2>>"$LOG"; then
+    if rsync -az --partial --timeout=600 -e "ssh ${SSH_OPTS[*]}" "$src/" "$NAS_SSH:$nas_dst/" 2>>"$LOG"; then
       ok "慢车道完成：batch$batch 全量归档"
     else
       warn "慢车道中断（断点已保留，重跑本脚本即续传）"
