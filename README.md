@@ -13,7 +13,7 @@ _万象归元于云枢 | 深栈智启新纪元_
 
 <!-- BADGES -->
 [![Team](https://img.shields.io/badge/Team-YanYuCloudCube-00d4aa?style=for-the-badge)](https://github.com/YanYuCloudCube)
-[![Version](https://img.shields.io/badge/Version-v2.0.1-00b4d8?style=for-the-badge)](#-变更历史)
+[![Version](https://img.shields.io/badge/Version-v2.2.0-00b4d8?style=for-the-badge)](#-变更历史)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-M4_Max_128GB_/_DGX_Spark-black?style=for-the-badge&logo=apple)](docs/10-DGX-Spark部署生产运维指南.md)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](docs/01-环境部署指南.md)
@@ -94,6 +94,8 @@ YYC3-MiniMax-H3/
 │   ├── 11-第五能力衔接实施方案.md       ← ★ 三文档收口 + Phase 2.1/2.2 交付 + 2.3 异步API契约
 │   ├── 12-DGXSpark-ComfyUI-H3部署包深度分析.md ← GB10社区实测情报（6.03×加速/int8风险）
 │   ├── 13-自研节点包对标清单.md         ← ★ 路线C：zod契约映射 + 8节点对标 + 节点包v0.1
+│   ├── 14-生产落地指导闭环文档.md       ← ★ 全维评估（86/100）+ 风险登记册 + G1-G5 落地闭环
+│   ├── 15-Pruned-AB实测升格方案.md      ← Pruned vs NF4 A/B 作战方案（零下载 + 量化决策规则）
 │   ├── dgxspark_comfyui_minimax_h3/     ← GB10 部署包参考克隆（.gitignore，上游跟进用）
 │   ├── YYC3-团队通用-标规文档/          ← 团队规范标准（开发标准/五维驱动/文档闭环）
 │   ├── YYC3-项目闭环-验收系统/          ← 验收标准体系（代码/功能/测试/安全/性能）
@@ -181,10 +183,11 @@ Released under the MIT License.
 
 ## 🔄 变更历史
 
-| 版本　 | 日期　　　 | 变更内容　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | 作者　　　　　　　　|
-| --------| ------------| ----------------------------------------------------------------------| ---------------------|
+| 版本　 | 日期　　　 | 变更内容　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | 作者　　　　　　　　 |
+| -------- | ------------ | ---------------------------------------------------------------------- | --------------------- |
+| v2.2.0 | 2026-09-16 | 文档矩阵补 14-15（生产落地闭环 + Pruned A/B 升格方案）；A2 升格启动（h3_common pruned 修复） | Impl Expert　　　　 |
 | v2.1.0 | 2026-09-15 | 文档矩阵补 11-13；快速开始对齐实况（--auto/快预览档/console dev）；目录结构补工具链五件套 | Impl Expert　　　　 |
-| v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/　| Impl Expert　　　　 |
+| v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/　 | Impl Expert　　　　 |
 | v2.0.0 | 2026-09-03 | README v2 重构：yyc3-family.png 顶图 + 徽章系统 + Mermaid 可视化架构 | Impl Expert　　　　 |
 | v1.0.0 | 2026-09-02 | 初始版本（源文档整理归档）　　　　　　　　　　　　　　　　　　　　　 | YanYuCloudCube Team |
 

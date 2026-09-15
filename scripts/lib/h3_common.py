@@ -74,14 +74,24 @@ def m4_max_vram_config():
 
 
 def weight_files(variant: str, pipeline: str):
-    """按 variant(nf4|pruned) 和 pipeline(fl2va|ref2va) 返回权重清单"""
-    sfx = "nf4" if variant == "nf4" else "pruned"
-    dot = "-" if variant == "pruned" else "_"  # pruned文件名用连字符 video_vae-pruned
+    """按 variant(nf4|pruned) 和 pipeline(fl2va|ref2va) 返回权重清单
+
+    pruned 实况（2026-09-16 磁盘核对）：Pruned 仅 DiT 有剪枝版（AdaLN 分支剪枝 +
+    adaln_t_table 查表，DiffSynth 按 model_hash 自动映射 MiniMaxH3DiTComfyPruned）；
+    text-encoder / video_vae / audio_vae 无剪枝版，复用 nf4 全量权重。
+    """
+    if variant == "pruned":
+        return [
+            f"minimax-h3-{pipeline}-pruned-nf4.safetensors",  # 剪枝 DiT（pruned+nf4 混合量化）
+            "minimax-h3-text-encoder-nf4.safetensors",
+            "video_vae_nf4.safetensors",
+            "audio_vae_nf4.safetensors",
+        ]
     return [
-        f"minimax-h3-{pipeline}-{sfx}.safetensors",
-        f"minimax-h3-text-encoder-{sfx}.safetensors",
-        f"video_vae{dot}{sfx}.safetensors",
-        f"audio_vae{dot}{sfx}.safetensors",
+        f"minimax-h3-{pipeline}-nf4.safetensors",
+        "minimax-h3-text-encoder-nf4.safetensors",
+        "video_vae_nf4.safetensors",
+        "audio_vae_nf4.safetensors",
     ]
 
 
