@@ -29,3 +29,6 @@ dashboard/data/
 __pycache__/
 *.pyc
 .DS_Store
+
+# 嵌套 git 参考克隆（上游 fp8 缓解进展跟进）
+docs/dgxspark_comfyui_minimax_h3/
