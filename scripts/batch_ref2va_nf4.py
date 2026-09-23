@@ -65,6 +65,11 @@ def parse_args():
                          "夜间窗口跑全质量档；情报依据 docs/12 §4.3：分辨率是第一加速杠杆）")
     ap.add_argument("--variant", choices=["nf4", "pruned"], default=None,
                     help="覆盖脚本头部的 VARIANT 配置（pruned=bf16 直载，CUDA 无 bnb 依赖）")
+    ap.add_argument("--seeds", type=str, default=None,
+                    help="覆盖 SEED_LIST（逗号分隔，如 42 或 42,10）——任务式单视频生成用；"
+                         "不改源文件单行格式（update_seed_list.py 正则依赖）")
+    ap.add_argument("--prompt-file", type=str, default=None,
+                    help="从文件读取 PROMPT 覆盖（任务式自定义台词/画面描述）")
     return ap.parse_args()
 
 
@@ -73,9 +78,13 @@ def main():
     batch = args.batch
 
     # ---------- 快预览档参数覆盖（manifest.params 自动留痕，量化对比有据） ----------
-    global HEIGHT, WIDTH, NUM_FRAMES, NUM_INFERENCE_STEPS, VARIANT
+    global HEIGHT, WIDTH, NUM_FRAMES, NUM_INFERENCE_STEPS, VARIANT, SEED_LIST, PROMPT
     if args.variant:
         VARIANT = args.variant
+    if args.seeds:
+        SEED_LIST = [int(s) for s in args.seeds.split(",") if s.strip() != ""]
+    if args.prompt_file:
+        PROMPT = Path(args.prompt_file).read_text(encoding="utf-8")
     if args.preview:
         HEIGHT, WIDTH = 360, 640          # 16:9 近似 360p（doc/12：360p 生成+后超分=6× 加速路线的第一段）
         NUM_FRAMES = 73                    # 硬约束：num_frames % 17 == 5（README 关键参数速查），73 帧 ≈ 3s @24fps
