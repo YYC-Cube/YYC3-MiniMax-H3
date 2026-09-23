@@ -36,13 +36,15 @@ import sys
 from pathlib import Path
 
 # ====================== 配置区【按需修改】======================
-SCRIPTS_DIR = Path(__file__).parent          # scripts/
-TOOLS_DIR = SCRIPTS_DIR / "pipeline-tools"   # scripts/pipeline-tools/
-MAIN_GENERATE_SCRIPT = SCRIPTS_DIR / "batch_ref2va_nf4.py"
-SCORE_SCRIPT = SCRIPTS_DIR / "score_lipsync.py"
-ANALYZE_SCRIPT = TOOLS_DIR / "analyze_report.py"
-UPDATE_SEED_SCRIPT = TOOLS_DIR / "update_seed_list.py"
-EXPORT_DASHBOARD_SCRIPT = TOOLS_DIR / "export_dashboard_data.py"  # ⑤' 面板数据桥（静默执行，失败不阻断）
+# 本文件位于 scripts/pipeline-tools/：生成与评分脚本在上级 scripts/，分析工具在同目录
+# （2026-09-24 修复：原 MAIN/SCORE 按同目录寻址 → 夜间 cron 阶段① "文件不存在" 秒败四晚）
+SCRIPTS_DIR = Path(__file__).parent          # scripts/pipeline-tools/
+PARENT_SCRIPTS_DIR = SCRIPTS_DIR.parent      # scripts/
+MAIN_GENERATE_SCRIPT = PARENT_SCRIPTS_DIR / "batch_ref2va_nf4.py"
+SCORE_SCRIPT = PARENT_SCRIPTS_DIR / "score_lipsync.py"
+ANALYZE_SCRIPT = SCRIPTS_DIR / "analyze_report.py"
+UPDATE_SEED_SCRIPT = SCRIPTS_DIR / "update_seed_list.py"
+EXPORT_DASHBOARD_SCRIPT = SCRIPTS_DIR / "export_dashboard_data.py"  # ⑤' 面板数据桥（静默执行，失败不阻断）
 AUTO_AFTER_GENERATE = False
 # ==============================================================
 
