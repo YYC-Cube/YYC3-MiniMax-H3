@@ -14,6 +14,7 @@
 #   3. 结果回调流常量集中管理，与编排引擎共享
 # 依赖：redis（可选；未安装或不可达时自动 InMemory 模式）
 # ==============================================================
+import importlib
 import json
 import threading
 import time
@@ -107,7 +108,9 @@ class RedisTransport(BaseTransport):
     """Redis Streams 传输（生产模式）：消费者组 + ACK + 死信 + 审计"""
 
     def __init__(self):
-        import redis  # 延迟导入：未安装时走 InMemory 降级
+        # 动态导入（可选依赖）：Pylance 不做静态解析，未安装时抛 ImportError
+        # → get_transport() 捕获后降级 InMemory（高可用设计不变）
+        redis = importlib.import_module("redis")
         self.client = redis.Redis(
             host=config.REDIS_HOST, port=config.REDIS_PORT,
             password=config.REDIS_PASSWORD or None,

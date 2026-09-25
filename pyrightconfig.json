@@ -1,0 +1,16 @@
+{
+  // YYC³ MiniMax-H3 · Pylance/Pyright 静态分析配置
+  // 目的：vendor 第三方代码（DiffSynth-Studio）的 NPU/Ascend 兼容性代码
+  //       在 mac 环境为环境性误报（torch_npu 不存在；importlib.util 为 stub 已知误报；
+  //       torch.npu 属性经 short-circuit / 分支保护，运行时零风险）。
+  //       DGX 上 torch_npu 存在时这些误报自然消失。
+  // 原则：不改 vendor 逻辑，仅排除静态检查范围（避免升级维护负担）。
+  "exclude": [
+    "vendor/**",
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/venv/**"
+  ],
+  "reportMissingImports": "warning",
+  "typeCheckingMode": "basic"
+}
