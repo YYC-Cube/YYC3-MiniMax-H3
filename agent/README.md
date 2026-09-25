@@ -49,6 +49,10 @@ python3 -m unittest discover -s agent/tests -v
 uvicorn agent.h3_agent.gateway:app --port 8300
 #   GET  /api/healthz  GET /api/agents
 #   POST /api/tasks    POST /api/stages/audiovisual?batch=93&dry_run=true
+#   写操作需 claim：python3 -m agent.h3_agent.cli --task-type generate_batch  → 输出即 X-Claim-Token
+#
+# 5) 跨仓对接（漫剧项目侧）：H3_AGENT_GATEWAY=http://127.0.0.1:8300 + 同一 AGENT_CLAIM_SECRET
+#    → DramaToolGateway.image_to_video 自动经网关下发（未配置自动回落 stub）
 ```
 
 环境变量（全部可选，见 `h3_agent/config.py`）：`REDIS_HOST/PORT/PASSWORD`、`AGENT_CLAIM_SECRET`、`H3_AGENT_TASK_TIMEOUT`（默认 16200s，对齐生产实测）、`H3_PYTHON_BIN`、`H3_QC_PASS_SCORE`（默认 6.0）。
