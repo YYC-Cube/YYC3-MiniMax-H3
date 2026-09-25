@@ -1,10 +1,10 @@
 ---
 file: 06-面板完整HTML代码.md
-description: 面板 HTML 蓝图（⚠️ 勿直接覆盖 dashboard 现网面板；CDN src 已修复，fetch 路径待 P1-C2 对齐）
+description: 面板 HTML 蓝图 v1.2（⚠️ 勿直接覆盖 dashboard 现网面板；P1-C2 已对齐真源契约 batchesPayloadSchema）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.1.0
+version: v1.2.0
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-09-26
 status: active
 tags: [dashboard],[html],[echarts],[blueprint]
 category: code
@@ -12,11 +12,12 @@ language: zh-CN
 changelog:
   - { version: v1.0.0, date: 2026-09-25, author: 智能应用落地专家, change: 原始版本收录（生成于外部会话） }
   - { version: v1.1.0, date: 2026-09-25, author: 智能应用落地专家, change: P1-D1 规范化（修复腐蚀 CDN src/补齐 YAML FM） }
+  - { version: v1.2.0, date: 2026-09-26, author: 智能应用落地专家, change: P1-C2 契约归一——数据层对齐 batchesPayloadSchema（envelope/0-10 刻度/data/ 路径），quality_level 改面板侧派生 }
 ---
 
 # 面板完整 HTML 代码
 
-**100% 对齐既有流水线结构、manifest 单一事实源规范、NAS 同步链路与品牌视觉体系**，插入即可运行，零适配成本。
+**P1-C2 契约归一版**：数据层对齐仓库真源契约 `batchesPayloadSchema`（`dashboard/data/batches.json`，envelope 结构，0-10 刻度）。本篇为**蓝图**，建议另存部署（如 `dashboard/panel-v2.html`），勿直接覆盖现网 `dashboard/Ref2VA-流水线管理面板.html`（现网面板已契约对齐）。
 
 ---
 
@@ -24,7 +25,7 @@ changelog:
 
 ### 定位
 
-`dashboard/Ref2VA-流水线管理面板.html`，单文件零依赖部署，对齐 YYC³ 品牌视觉规范，支持本地文件 / HTTP 双数据源模式，包含概览统计、趋势图表、批次列表、详情弹窗全功能。
+单文件零依赖部署蓝图（建议命名 `dashboard/panel-v2.html`，与现网面板并存），数据源 `./data/batches.json`（envelope 契约 `batchesPayloadSchema`），须经 http(s) 静态服务访问，包含概览统计、趋势图表、批次列表、详情弹窗全功能。
 
 ### 完整代码
 
@@ -114,11 +115,12 @@ changelog:
             <div class="bg-dark-200 rounded-xl p-4 card-border">
                 <div class="text-gray-400 text-xs mb-1">平均耗时</div>
                 <div id="statTime" class="text-2xl font-bold text-secondary">--</div>
-                <div class="text-xs text-gray-500">秒/批次</div>
+                <div class="text-xs text-gray-500">min/批次</div>
             </div>
             <div class="bg-dark-200 rounded-xl p-4 card-border">
-                <div class="text-gray-400 text-xs mb-1">平均同步分</div>
+                <div class="text-gray-400 text-xs mb-1">平均质量分</div>
                 <div id="statScore" class="text-2xl font-bold text-primary">--</div>
+                <div class="text-xs text-gray-500">0-10 刻度</div>
             </div>
             <div class="bg-dark-200 rounded-xl p-4 card-border">
                 <div class="text-gray-400 text-xs mb-1">峰值内存</div>
@@ -134,7 +136,7 @@ changelog:
         <!-- 图表区 -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             <div class="lg:col-span-2 bg-dark-200 rounded-xl p-4 card-border">
-                <h3 class="text-sm font-medium mb-3 text-gray-300">近 10 批耗时与同步分趋势</div>
+                <h3 class="text-sm font-medium mb-3 text-gray-300">近 10 批耗时与质量分趋势</h3>
                 <div id="trendChart" class="h-64"></div>
             </div>
             <div class="bg-dark-200 rounded-xl p-4 card-border">
@@ -169,11 +171,11 @@ changelog:
                     <tr>
                         <th class="text-left px-4 py-3 font-medium">批次ID</th>
                         <th class="text-left px-4 py-3 font-medium">时间</th>
-                        <th class="text-left px-4 py-3 font-medium">模式</th>
+                        <th class="text-left px-4 py-3 font-medium">模型</th>
                         <th class="text-left px-4 py-3 font-medium">状态</th>
-                        <th class="text-right px-4 py-3 font-medium">帧数</th>
-                        <th class="text-right px-4 py-3 font-medium">总耗时</th>
-                        <th class="text-right px-4 py-3 font-medium">同步分</th>
+                        <th class="text-right px-4 py-3 font-medium">成功视频</th>
+                        <th class="text-right px-4 py-3 font-medium">耗时(min)</th>
+                        <th class="text-right px-4 py-3 font-medium">平均分</th>
                         <th class="text-left px-4 py-3 font-medium">质量等级</th>
                         <th class="text-center px-4 py-3 font-medium">操作</th>
                     </tr>
@@ -205,11 +207,11 @@ changelog:
     <script>
         // ==================== 配置 ====================
         const CONFIG = {
-            // 数据源：本地路径或 HTTP 接口
-            dataSource: "batches.json",
+            // 数据源：dashboard/data/batches.json（真源契约 batchesPayloadSchema，须 http(s) 访问）
+            dataSource: "data/batches.json",
             // 自动刷新间隔（毫秒），与 NAS 同步对齐
             refreshInterval: 300000,
-            // 质量等级颜色映射
+            // 质量等级颜色映射（展示层派生，非契约字段，阈值见 qualityOf()）
             qualityColor: {
                 "优秀": "text-green-400",
                 "良好": "text-blue-400",
@@ -228,16 +230,28 @@ changelog:
         let qualityChart = null;
         let autoRefreshTimer = null;
 
+        // 质量等级派生（展示层专用；契约不含 quality_level；avgScore 为 0-10 刻度）
+        function qualityOf(avgScore) {
+            if (avgScore >= 9) return "优秀";
+            if (avgScore >= 8) return "良好";
+            if (avgScore >= 6) return "合格";
+            return "待优化";
+        }
+
         // ==================== 数据加载 ====================
         async function loadData() {
             try {
-                const res = await fetch(CONFIG.dataSource + "?t=" + Date.now());
-                batchesData = await res.json();
+                const res = await fetch(CONFIG.dataSource + "?t=" + Date.now(), { cache: "no-store" });
+                const payload = await res.json();
+                // envelope 契约：{ schema_version, generated_at, score_scale, batches[], top10[] }
+                if (!Array.isArray(payload.batches)) throw new Error("契约不符：缺少 batches[]");
+                batchesData = payload.batches;
                 renderAll();
                 document.getElementById("lastUpdate").textContent = new Date().toLocaleString("zh-CN");
             } catch (e) {
+                console.warn("[panel] batches.json 加载失败：", e.message);
                 document.getElementById("batchList").innerHTML =
-                    '<tr><td colspan="9" class="text-center py-12 text-red-400">数据加载失败，请检查数据源路径</td></tr>';
+                    '<tr><td colspan="9" class="text-center py-12 text-red-400">数据加载失败，请检查 data/batches.json（契约：batchesPayloadSchema）</td></tr>';
             }
         }
 
@@ -254,15 +268,18 @@ changelog:
                 ? ((completed.length / batchesData.length) * 100).toFixed(1) + "%"
                 : "--";
 
+            // durationMin：批次耗时（分钟，契约字段）
             const avgTime = completed.length
-                ? (completed.reduce((s, b) => s + b.total_time, 0) / completed.length).toFixed(1)
+                ? (completed.reduce((s, b) => s + (b.durationMin || 0), 0) / completed.length).toFixed(1)
                 : "--";
 
+            // avgScore：0-10 刻度（人工分或口型分×10，契约字段）
             const avgScore = completed.length
-                ? (completed.reduce((s, b) => s + b.sync_score, 0) / completed.length).toFixed(3)
+                ? (completed.reduce((s, b) => s + (b.avgScore || 0), 0) / completed.length).toFixed(2)
                 : "--";
 
-            const peakMem = Math.max(...batchesData.map(b => b.peak_memory || 0), 0).toFixed(1);
+            // 批次峰值内存：videos[].peak_rss_gb 取 max（展示层派生）
+            const peakMem = Math.max(...batchesData.flatMap(b => (b.videos || []).map(v => v.peak_rss_gb || 0)), 0).toFixed(1);
             const running = batchesData.filter(b => b.status === "running").length;
 
             document.getElementById("statTotal").textContent = batchesData.length;
@@ -283,29 +300,29 @@ changelog:
             }
             trendChart.setOption({
                 tooltip: { trigger: "axis" },
-                legend: { data: ["总耗时(秒)", "同步分"], textStyle: { color: "#94a3b8", fontSize: 11 } },
+                legend: { data: ["耗时(min)", "质量分"], textStyle: { color: "#94a3b8", fontSize: 11 } },
                 grid: { left: 40, right: 40, top: 30, bottom: 30 },
                 xAxis: {
                     type: "category",
-                    data: recent.map(b => b.batch_id.slice(-8)),
+                    data: recent.map(b => b.id),
                     axisLabel: { color: "#64748b", fontSize: 10 }
                 },
                 yAxis: [
-                    { type: "value", name: "耗时(s)", axisLabel: { color: "#64748b" } },
-                    { type: "value", name: "同步分", min: 0.7, max: 1, axisLabel: { color: "#64748b" } }
+                    { type: "value", name: "耗时(min)", axisLabel: { color: "#64748b" } },
+                    { type: "value", name: "质量分", min: 0, max: 10, axisLabel: { color: "#64748b" } }
                 ],
                 series: [
                     {
-                        name: "总耗时(秒)",
+                        name: "耗时(min)",
                         type: "bar",
-                        data: recent.map(b => b.total_time),
+                        data: recent.map(b => b.durationMin || 0),
                         itemStyle: { color: "#3B82F6", borderRadius: [4,4,0,0] }
                     },
                     {
-                        name: "同步分",
+                        name: "质量分",
                         type: "line",
                         yAxisIndex: 1,
-                        data: recent.map(b => b.sync_score),
+                        data: recent.map(b => b.avgScore || 0),
                         itemStyle: { color: "#C8A968" },
                         lineStyle: { width: 2 },
                         symbol: "circle",
@@ -321,7 +338,8 @@ changelog:
             }
             const qualityCount = {};
             batchesData.forEach(b => {
-                qualityCount[b.quality_level] = (qualityCount[b.quality_level] || 0) + 1;
+                const lv = qualityOf(b.avgScore || 0);
+                qualityCount[lv] = (qualityCount[lv] || 0) + 1;
             });
             qualityChart.setOption({
                 tooltip: { trigger: "item" },
@@ -346,7 +364,7 @@ changelog:
 
             const filtered = batchesData.filter(b => {
                 if (statusFilter !== "all" && b.status !== statusFilter) return false;
-                if (modeFilter !== "all" && b.mode !== modeFilter) return false;
+                if (modeFilter !== "all" && b.pipeline !== modeFilter) return false;
                 return true;
             });
 
@@ -358,18 +376,18 @@ changelog:
 
             document.getElementById("batchList").innerHTML = filtered.map(b => `
                 <tr class="hover:bg-dark-100/50 transition-colors">
-                    <td class="px-4 py-3 font-mono text-xs">${b.batch_id}</td>
-                    <td class="px-4 py-3 text-gray-400 text-xs">${b.create_time}</td>
-                    <td class="px-4 py-3 text-xs uppercase">${b.mode}</td>
+                    <td class="px-4 py-3 font-mono text-xs">${b.id}</td>
+                    <td class="px-4 py-3 text-gray-400 text-xs">${b.time}</td>
+                    <td class="px-4 py-3 text-xs uppercase">${(b.model || "").toUpperCase()}·${b.pipeline || "-"}</td>
                     <td class="px-4 py-3">
                         <span class="px-2 py-0.5 rounded text-xs border ${CONFIG.statusColor[b.status]}">${b.status}</span>
                     </td>
-                    <td class="px-4 py-3 text-right">${b.num_frames}</td>
-                    <td class="px-4 py-3 text-right">${b.total_time}s</td>
-                    <td class="px-4 py-3 text-right font-mono">${b.sync_score}</td>
-                    <td class="px-4 py-3 ${CONFIG.qualityColor[b.quality_level]}">${b.quality_level}</td>
+                    <td class="px-4 py-3 text-right">${b.success}/${(b.videos || []).length}</td>
+                    <td class="px-4 py-3 text-right">${b.durationMin ?? "-"}min</td>
+                    <td class="px-4 py-3 text-right font-mono">${b.avgScore ?? "-"}</td>
+                    <td class="px-4 py-3 ${CONFIG.qualityColor[qualityOf(b.avgScore || 0)]}">${qualityOf(b.avgScore || 0)}</td>
                     <td class="px-4 py-3 text-center">
-                        <button onclick="showDetail('${b.batch_id}')" class="text-primary hover:text-primary/80 text-xs">详情</button>
+                        <button onclick="showDetail('${b.id}')" class="text-primary hover:text-primary/80 text-xs">详情</button>
                     </td>
                 </tr>
             `).join("");
@@ -377,67 +395,74 @@ changelog:
 
         // ==================== 详情弹窗 ====================
         function showDetail(batchId) {
-            const batch = batchesData.find(b => b.batch_id === batchId);
+            const batch = batchesData.find(b => b.id === batchId);
             if (!batch) return;
+
+            const peakMem = Math.max(...(batch.videos || []).map(v => v.peak_rss_gb || 0), 0);
+            const defects = Object.entries(batch.defects || {}).slice(0, 3)
+                .map(([k, n]) => `${k}×${n}`).join("、") || "无标注";
+            const p = batch.params || {};
 
             document.getElementById("detailContent").innerHTML = `
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <div class="text-gray-400 text-xs mb-1">批次ID</div>
-                        <div class="font-mono">${batch.batch_id}</div>
+                        <div class="font-mono">${batch.id}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">创建时间</div>
-                        <div>${batch.create_time}</div>
+                        <div class="text-gray-400 text-xs mb-1">启动时间</div>
+                        <div>${batch.time || "-"}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">生产模式</div>
-                        <div class="uppercase">${batch.mode}</div>
+                        <div class="text-gray-400 text-xs mb-1">结束时间</div>
+                        <div>${batch.ended || "进行中"}</div>
                     </div>
                     <div>
                         <div class="text-gray-400 text-xs mb-1">状态</div>
                         <span class="px-2 py-0.5 rounded text-xs border ${CONFIG.statusColor[batch.status]}">${batch.status}</span>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">帧数</div>
-                        <div>${batch.num_frames} 帧</div>
+                        <div class="text-gray-400 text-xs mb-1">模型 · 流水线</div>
+                        <div class="uppercase">${(batch.model || "").toUpperCase()}·${batch.pipeline || "-"}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">分辨率</div>
-                        <div>${batch.resolution || "-"}</div>
+                        <div class="text-gray-400 text-xs mb-1">参考图 / 种子数</div>
+                        <div>${batch.refImages} / ${batch.seeds}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">总耗时</div>
-                        <div>${batch.total_time} 秒</div>
+                        <div class="text-gray-400 text-xs mb-1">成功 / 失败 / 跳过</div>
+                        <div>${batch.success} / ${batch.failed} / ${batch.skipped}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">单帧耗时</div>
-                        <div>${batch.avg_frame_time} 秒</div>
+                        <div class="text-gray-400 text-xs mb-1">批次耗时</div>
+                        <div>${batch.durationMin ?? "-"} 分钟</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">峰值内存</div>
-                        <div>${batch.peak_memory} GB</div>
+                        <div class="text-gray-400 text-xs mb-1">平均分（0-10）</div>
+                        <div class="${CONFIG.qualityColor[qualityOf(batch.avgScore || 0)]} font-medium">${batch.avgScore ?? "-"} · ${qualityOf(batch.avgScore || 0)}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">同步评分</div>
-                        <div class="${CONFIG.qualityColor[batch.quality_level]} font-medium">${batch.sync_score} · ${batch.quality_level}</div>
+                        <div class="text-gray-400 text-xs mb-1">最高分（0-10）</div>
+                        <div>${batch.maxScore ?? "-"}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">随机种子</div>
-                        <div class="font-mono">${batch.seed}</div>
+                        <div class="text-gray-400 text-xs mb-1">峰值内存（派生）</div>
+                        <div>${peakMem} GB</div>
                     </div>
                     <div>
-                        <div class="text-gray-400 text-xs mb-1">模型版本</div>
-                        <div class="text-xs">${batch.model_version}</div>
+                        <div class="text-gray-400 text-xs mb-1">生成参数</div>
+                        <div class="text-xs">${p.height || "?"}×${p.width || "?"} · ${p.num_frames || "?"}帧 · ${p.num_inference_steps || "?"}步 · ${p.fps || "?"}fps</div>
                     </div>
                 </div>
                 <div class="pt-4 border-t border-gray-800">
-                    <div class="text-gray-400 text-xs mb-1">输入文案</div>
-                    <div class="text-gray-200 leading-relaxed">${batch.input_text || "-"}</div>
+                    <div class="text-gray-400 text-xs mb-1">缺陷分布（Top3）</div>
+                    <div class="text-gray-200">${defects}</div>
                 </div>
                 <div class="pt-4 border-t border-gray-800">
-                    <div class="text-gray-400 text-xs mb-1">视频路径</div>
-                    <div class="text-primary font-mono text-xs">${batch.video_path}</div>
+                    <div class="text-gray-400 text-xs mb-1">视频明细（前 5 条）</div>
+                    <div class="text-gray-200 text-xs font-mono leading-relaxed">
+                        ${(batch.videos || []).slice(0, 5).map(v => `${v.name} · ${v.score}分(${v.source})`).join("<br>") || "-"}
+                    </div>
                 </div>
             `;
             document.getElementById("detailModal").classList.remove("hidden");
@@ -484,20 +509,21 @@ changelog:
 
 #### 1. 本地部署验证
 
-1. 将上述 HTML 保存为 `dashboard/Ref2VA-流水线管理面板.html`
-2. 运行一次批次生产，确认 `dashboard/batches.json` 已生成
-3. 浏览器直接打开 HTML 文件，查看数据是否正常加载、图表是否渲染
+1. 将上述 HTML 保存为 `dashboard/panel-v2.html`（蓝图与现网面板并存，勿覆盖现网文件）
+2. 执行 `python3 scripts/pipeline-tools/export_dashboard_data.py`，确认 `dashboard/data/batches.json` 已生成
+3. `cd dashboard && python3 -m http.server 8080`，浏览器打开 `http://localhost:8080/panel-v2.html`，查看数据加载与图表渲染（评分应为 0-10 刻度）
 
 #### 2. NAS 多终端访问
 
-1. 确认前文 NAS 同步脚本已包含 `dashboard/` 目录
-2. 内网访问：挂载 NAS 后直接打开 HTML，或配置 NAS 静态站点访问
-3. 公网访问：复用 `api.0379.world` 网关代理 `/h3-dashboard/` 路径
+1. 确认前文 NAS 同步脚本已包含 `dashboard/` 目录（含 `data/batches.json`）
+2. 内网访问：NAS 静态站点 `dashboard-h3.0379.world`（数据于 `/data/batches.json`）
+3. 公网访问：复用 `api.0379.world` 网关代理 `/h3-dashboard/` 路径（数据于 `/h3-dashboard/data/batches.json`）
 
 ### 核心优化点
 
 - **视觉对齐**：暗金主题配色，对齐 YYC³ 品牌视觉体系与古文化风格质感
-- **单一数据源**：严格读取 `batches.json`，与流水线输出、NAS 同步唯一事实源一致
-- **全功能覆盖**：概览统计、双图表趋势分析、多维度筛选、详情弹窗、自动刷新
+- **契约对齐（P1-C2）**：数据层严格消费 `batchesPayloadSchema` envelope（`payload.batches`），0-10 评分刻度，与唯一写端 `export_dashboard_data.py` 输出逐字段一致
+- **派生与契约分离**：质量等级（qualityOf）、批次峰值内存等展示层指标均为前端派生，不污染契约字段
+- **全功能覆盖**：概览统计、双图表趋势分析、多维度筛选、详情弹窗（含缺陷分布与视频明细）、自动刷新
 - **零依赖部署**：单文件 HTML，仅通过 CDN 引入 ECharts 与 Tailwind，无需构建
 - **响应式适配**：适配桌面、平板多尺寸屏幕
