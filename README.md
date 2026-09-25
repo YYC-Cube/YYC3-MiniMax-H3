@@ -101,7 +101,13 @@ YYC3-MiniMax-H3/
 │   ├── YYC3-项目闭环-验收系统/          ← 验收标准体系（代码/功能/测试/安全/性能）
 │   ├── YYC3-MiniMax-H3-impl-expert-20260903/  ← 前轮会话工作区（审核报告/方案论证/总结）
 │   ├── YYC3-MiniMax-H3-impl-expert-20260925/  ← 本轮会话工作区（审核总结报告 v1.0.1 / 执行日志）
-│   └── YYC3-MiniMax-H3-生产闭环/        ← ★ 生产治理蓝图 16 篇（NAS/A2A/网关/告警/密钥/审计/红队；P0 已整改，P1-C2 契约归一待办）
+│   └── YYC3-MiniMax-H3-生产闭环/        ← ★ 生产治理蓝图 16 篇（NAS/A2A/网关/告警/密钥/审计/红队；P0 已整改 + P1-C2 契约归一完成）
+├── agent/                             ← ★ H3 多Agent 框架（漫剧阶段4 视听生成执行层）
+│   ├── README.md                      ← 框架总览 + 漫剧项目对齐映射表 + 快速开始
+│   ├── API.md                         ← A2A 消息契约 + REST 网关 + Agent Card
+│   ├── requirements.txt               ← redis/fastapi（均可选，自动降级）
+│   ├── h3_agent/                      ← config / security / protocol / base / agents×3 / orchestrator / gateway
+│   └── tests/test_smoke.py            ← 离线冒烟 12 用例（InMemory 传输，无 GPU/Redis 依赖）
 ├── dashboard/                         ← 可视化面板（管理面板 HTML + 数据桥 JSON）
 ├── prompts/
 │   └── README.md                      ← 提示词模板（Ref2VA/FL2VA/音色参考）+ 最佳实践
