@@ -10,6 +10,9 @@ next-env.d.ts
 .env.*
 !.env.example
 
+# 本机密钥保管（P0-S1：真实密钥只存此处，600 权限）
+.secrets/
+
 # ==== 引擎区（Python 产物与权重，禁入库）====
 models/
 checkpoints/
