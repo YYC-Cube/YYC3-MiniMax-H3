@@ -1,0 +1,67 @@
+name: pages-deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/console/**"
+      - "packages/manifest-schema/**"
+      - "dashboard/data/batches.json"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: 安装依赖（workspace 链接）
+        run: pnpm install --frozen-lockfile
+
+      - name: Pages 快照构建说明
+        run: |
+          echo "::notice::Pages 为静态快照：服务端 API（精修/流水线控制/SSE）不随 Pages 部署，
+          交互能力仍在本地/生产 3030。快照数据 = 入库的 dashboard/data/batches.json + 构建时刻 manifest。"
+
+      - name: 移除服务端 API 路由（output:export 不支持，交互功能保留在本地控制台）
+        run: rm -rf apps/console/src/app/api
+
+      - name: 快照模式剥离 force-dynamic（Pages = 构建时刻静态快照；本地/生产控制台不受影响）
+        run: sed -i '/export const dynamic = "force-dynamic"/d' apps/console/src/app/page.tsx
+
+      - name: 静态导出构建（PAGES_EXPORT=1 → next.config output:export）
+        run: PAGES_EXPORT=1 pnpm --filter console exec next build
+
+      - name: 注入自定义域名 CNAME（public/CNAME = h3.yyc3.top）
+        run: cp public/CNAME apps/console/out/CNAME
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/console/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

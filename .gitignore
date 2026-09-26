@@ -28,6 +28,8 @@ report_batch*.md
 analysis_result_batch*.md
 logs_*.log
 dashboard/data/
+# Pages 快照数据（GitHub Pages 部署随仓库分发；仅生产指标无敏感信息）
+!dashboard/data/batches.json
 *.safetensors
 *.pth
 *.ckpt

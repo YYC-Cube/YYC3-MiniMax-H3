@@ -33,6 +33,28 @@ export default function DashboardPage() {
   const avg = scores.length ? (scores.reduce((a, s) => a + s.score, 0) / scores.length).toFixed(2) : "-";
   const top = payload?.top10?.[0];
 
+  // batches.json 聚合（P1 KPI 扩展 + 趋势图数据源，契约见 packages/manifest-schema/src/batches.ts）
+  const bs = payload?.batches ?? [];
+  const completedN = bs.filter((b) => b.status === "completed").length;
+  const runningN = bs.length - completedN;
+  const clipW = bs.reduce((n, b) => n + b.success, 0);
+  const weightedAvg = clipW
+    ? (bs.reduce((a, b) => a + b.avgScore * b.success, 0) / clipW).toFixed(2)
+    : "-";
+  const totalHours = bs.length
+    ? (bs.reduce((a, b) => a + (b.durationMin ?? 0), 0) / 60).toFixed(1)
+    : "-";
+  const topDefect = Object.entries(
+    bs.reduce<Record<string, number>>((acc, b) => {
+      for (const [k, v] of Object.entries(b.defects)) acc[k] = (acc[k] ?? 0) + v;
+      return acc;
+    }, {})
+  ).sort((x, y) => y[1] - x[1])[0];
+  const trend = bs
+    .slice()
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .map((b) => ({ label: b.id, score: b.avgScore }));
+
   return (
     <div className="space-y-6">
       <RefreshOnChange />
@@ -45,6 +67,30 @@ export default function DashboardPage() {
           <Stat label="Top1" value={top ? `${top.seed}` : "-"} hint={top ? `${top.batch} · ${top.score} 分` : "暂无"} />
         </div>
       </section>
+
+      {payload ? (
+        <section>
+          <h2 className="font-semibold mb-3">
+            批次聚合（batches.json · 契约 v{payload.schema_version} · {payload.generated_at} 导出）
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Stat label="完成 / 运行" value={`${completedN} / ${runningN}`} />
+            <Stat label="加权均分（0-10）" value={weightedAvg} hint="按成功 clip 数加权" />
+            <Stat label="累计耗时（h）" value={totalHours} />
+            <Stat
+              label="Top 缺陷"
+              value={topDefect ? topDefect[0] : "-"}
+              hint={topDefect ? `累计 ${topDefect[1]} 次` : "暂无缺陷标签"}
+            />
+          </div>
+          {trend.length > 1 ? (
+            <div className="card mt-4">
+              <div className="text-xs text-(--muted) mb-2">批次均分趋势（0-10，按开始时间排序）</div>
+              <TrendChart points={trend} />
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {errors.length > 0 ? (
         <section className="card border-yellow-700">
@@ -132,4 +178,46 @@ export default function DashboardPage() {
       .filter((s) => s.source !== "none")
       .map((s) => s.score);
   }
+}
+
+/** 批次均分趋势图（纯 SVG，零依赖，RSC 直出） */
+function TrendChart({ points }: { points: { label: string; score: number }[] }) {
+  const W = 640;
+  const H = 160;
+  const PAD = { l: 32, r: 12, t: 12, b: 22 };
+  const iw = W - PAD.l - PAD.r;
+  const ih = H - PAD.t - PAD.b;
+  const max = 10;
+  const stepX = points.length > 1 ? iw / (points.length - 1) : 0;
+  const xy = points.map((p, i) => ({
+    x: PAD.l + i * stepX,
+    y: PAD.t + ih - (Math.min(p.score, max) / max) * ih,
+    ...p,
+  }));
+  const line = xy.map((p) => `${p.x},${p.y}`).join(" ");
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="批次均分趋势图">
+      {[0, 5, 10].map((v) => {
+        const y = PAD.t + ih - (v / max) * ih;
+        return (
+          <g key={v}>
+            <line x1={PAD.l} y1={y} x2={W - PAD.r} y2={y} stroke="var(--border)" strokeWidth="1" />
+            <text x={PAD.l - 6} y={y + 3} fontSize="9" textAnchor="end" fill="var(--muted)">
+              {v}
+            </text>
+          </g>
+        );
+      })}
+      <polyline points={line} fill="none" stroke="var(--accent)" strokeWidth="2" />
+      {xy.map((p) => (
+        <g key={p.label}>
+          <circle cx={p.x} cy={p.y} r="3" fill="var(--accent)" />
+          <text x={p.x} y={H - 6} fontSize="9" textAnchor="middle" fill="var(--muted)">
+            {p.label}
+          </text>
+          <title>{`${p.label}: ${p.score}`}</title>
+        </g>
+      ))}
+    </svg>
+  );
 }

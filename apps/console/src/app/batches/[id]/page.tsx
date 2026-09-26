@@ -1,10 +1,19 @@
 // /batches/[id] - batch detail: video grid + human refinement drawer (RSC reads manifest,
 // client drawer POSTs /api/score). Route: /batches/batch01 → id = "01".
-import { readManifests, displayScore } from "@/lib/manifest";
+import { displayScore, readBatchesPayload, readManifests } from "@/lib/manifest";
 import Link from "next/link";
 import RefineDrawer from "./refine-drawer";
 
-export const dynamic = "force-dynamic";
+// Pages 快照导出（PAGES_EXPORT=1）时由 generateStaticParams 枚举批次参数并静态渲染；
+// 非导出模式依赖 dynamicParams 默认 true → 未列举路径按需 SSR（保持本地/生产动态直读）
+export async function generateStaticParams() {
+  if (!process.env.PAGES_EXPORT) return [];
+  try {
+    return (readBatchesPayload()?.batches ?? []).map((b) => ({ id: b.id }));
+  } catch {
+    return []; // 快照数据缺失时降级为空详情（聚合页仍渲染）
+  }
+}
 
 export default async function BatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: raw } = await params;
