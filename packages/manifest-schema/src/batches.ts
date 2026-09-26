@@ -74,14 +74,25 @@ export const batchUnitSchema = z.object({
   durationMin: z.number().nullable(),
 });
 
+export const top10ItemSchema = z.object({
+  // 形状取自 export_dashboard_data.py top10 构造（快照实证：rank/batch/img/seed/score/tags）
+  rank: z.number().int(),
+  batch: z.string(),
+  img: z.string(),
+  seed: z.number().int(),
+  score: z.number(),
+  tags: z.array(z.string()),
+});
+
 export const batchesPayloadSchema = z.object({
   schema_version: z.literal(1),
   generated_at: z.string(), // ISO8601 seconds
   score_scale: z.string(),
   batches: z.array(batchUnitSchema),
-  top10: z.array(z.unknown()), // top10 单元结构待面板消费时细化（docs/16 P0 路线）
+  top10: z.array(top10ItemSchema),
 });
 
 export type BatchVideo = z.infer<typeof batchVideoSchema>;
 export type BatchUnit = z.infer<typeof batchUnitSchema>;
+export type Top10Item = z.infer<typeof top10ItemSchema>;
 export type BatchesPayload = z.infer<typeof batchesPayloadSchema>;

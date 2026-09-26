@@ -1,6 +1,6 @@
 // /batches/[id] - batch detail: video grid + human refinement drawer (RSC reads manifest,
 // client drawer POSTs /api/score). Route: /batches/batch01 → id = "01".
-import { displayScore, readBatchesPayload, readManifests } from "@/lib/manifest";
+import { readManifests, displayScore, readBatchesPayload } from "@/lib/manifest";
 import Link from "next/link";
 import RefineDrawer from "./refine-drawer";
 

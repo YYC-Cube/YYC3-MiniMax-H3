@@ -68,13 +68,19 @@
                 "type": "object",
                 "properties": {
                   "score_norm": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "av_offset": {
                     "type": "number"
                   },
                   "confidence": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "backend": {
                     "type": "string"

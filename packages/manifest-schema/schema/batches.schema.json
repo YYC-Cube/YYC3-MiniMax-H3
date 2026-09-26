@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "schema_version": {
-          "type": "integer"
+          "type": "number",
+          "const": 1
         },
         "generated_at": {
           "type": "string"
@@ -72,7 +73,10 @@
                       "type": "string"
                     },
                     "seed": {
-                      "type": "integer"
+                      "type": [
+                        "number",
+                        "null"
+                      ]
                     },
                     "score": {
                       "type": "number"
@@ -90,22 +94,31 @@
                       "type": "string"
                     },
                     "gen_seconds": {
-                      "type": "number"
+                      "type": [
+                        "number",
+                        "null"
+                      ]
                     },
                     "peak_rss_gb": {
-                      "type": "number"
+                      "type": [
+                        "number",
+                        "null"
+                      ]
                     },
                     "av_offset": {
-                      "type": "number"
+                      "type": [
+                        "number",
+                        "null"
+                      ]
                     }
                   },
                   "required": [
                     "name",
                     "ref",
-                    "seed",
                     "score",
                     "source",
-                    "tags"
+                    "tags",
+                    "video_path"
                   ],
                   "additionalProperties": false
                 }
@@ -118,7 +131,9 @@
               },
               "params": {
                 "type": "object",
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "type": "number"
+                }
               },
               "durationMin": {
                 "type": [
@@ -130,6 +145,7 @@
             "required": [
               "id",
               "time",
+              "ended",
               "model",
               "pipeline",
               "refImages",
@@ -142,7 +158,7 @@
               "status",
               "videos",
               "defects",
-              "params"
+              "durationMin"
             ],
             "additionalProperties": false
           }

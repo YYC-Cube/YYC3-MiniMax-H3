@@ -24,9 +24,9 @@ export const recordSchema = z
     mps_alloc_gb: z.number().optional(), // 写端扩展：MPS 统计
     lipsync: z
       .object({
-        score_norm: z.number().optional(),
+        score_norm: z.number().nullable().optional(), // heuristic 后端写 null（快照实证 batch92）
         av_offset: z.number().optional(),
-        confidence: z.number().optional(),
+        confidence: z.number().nullable().optional(), // 同上：不可计算时为 null 而非缺省
         backend: z.string().optional(), // syncnet | heuristic
         scored_at: z.string().optional(),
       })
@@ -58,57 +58,6 @@ export const manifestSchema = z
   .passthrough(); // schema_version 等写端扩展字段放行
 export type Manifest = z.infer<typeof manifestSchema>;
 
-/** 面板聚合数据（dashboard/data/batches.json，export_dashboard_data.py 写出） */
-export const batchesPayloadSchema = z.object({
-  schema_version: z.number().int(),
-  generated_at: z.string(),
-  score_scale: z.string(),
-  batches: z.array(
-    z.object({
-      id: z.string(),
-      time: z.string(),
-      ended: z.string().nullable().optional(),
-      model: z.string(),
-      pipeline: z.string(),
-      refImages: z.number().int(),
-      seeds: z.number().int(),
-      success: z.number().int(),
-      failed: z.number().int(),
-      skipped: z.number().int(),
-      avgScore: z.number(),
-      maxScore: z.number(),
-      status: z.string(),
-      videos: z.array(
-        z.object({
-          name: z.string(),
-          ref: z.string(),
-          seed: z.number().int(),
-          score: z.number(),
-          source: z.string(),
-          tags: z.array(z.string()),
-          video_path: z.string().optional(),
-          gen_seconds: z.number().optional(),
-          peak_rss_gb: z.number().optional(),
-          av_offset: z.number().optional(),
-        })
-      ),
-      defects: z.record(z.string(), z.number()),
-      params: z.record(z.string(), z.unknown()),
-      durationMin: z.number().nullable().optional(),
-    })
-  ),
-  top10: z.array(
-    z.object({
-      rank: z.number().int(),
-      batch: z.string(),
-      img: z.string(),
-      seed: z.number().int(),
-      score: z.number(),
-      tags: z.array(z.string()),
-    })
-  ),
-});
-export type BatchesPayload = z.infer<typeof batchesPayloadSchema>;
-
-// batches.json 面板数据源契约（docs/16 P0；写端 export_dashboard_data.py）
+// batches.json 面板聚合契约：唯一真源已迁至 ./batches（2026-09-26 去重，原内联定义移除；
+// 直接导出对 export * 具名遮蔽会静默生效，故不再保留内联副本）
 export * from "./batches";
