@@ -109,3 +109,6 @@ export const batchesPayloadSchema = z.object({
   ),
 });
 export type BatchesPayload = z.infer<typeof batchesPayloadSchema>;
+
+// batches.json 面板数据源契约（docs/16 P0；写端 export_dashboard_data.py）
+export * from "./batches";
