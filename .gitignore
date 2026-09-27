@@ -42,3 +42,20 @@ __pycache__/
 # 嵌套 git 参考克隆（上游 fp8 缓解进展跟进）
 docs/dgxspark_comfyui_minimax_h3/
 .venv/
+
+# ==== Agent Skills（npx skills CLI 管理）====
+# 唯一 canonical 入库：.agents/skills/（跨代理标准位）+ skills-lock.json
+# 其余代理目录为 CLI 本地副本，重装同步：npx skills add https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills --skill h3-prompt-writing --copy -y
+.aider-desk/
+.claude/
+.codebuddy/
+.continue/
+.crush/
+.goose/
+.hermes/
+.qoder/
+.reasonix/
+.trae/
+.zcode/
+# 根锚定：避免误伤 canonical 的 .agents/skills/
+/skills/

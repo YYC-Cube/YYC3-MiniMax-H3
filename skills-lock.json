@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "skills": {
+    "3d-animation-short-generator": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "c92817843da37e0eb217c0187fa288b5dc28b2a30cfa161c75b1da8fadb3b133",
+      "wellKnownDigest": "sha256:d9d769545307050468a4ad3d916f411a8f34ddbdbaa2e7d252a5a75f98d2702c"
+    },
+    "brand-promo-video-generator": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "b37c9eaa5e8a7dc5a69692114d85b2ae7f193e1c720b533161900badec3e9dc9",
+      "wellKnownDigest": "sha256:ec303814b6fe326fd5bcf326aa932002f9a83820e2a7e42c8eda888b6239334c"
+    },
+    "co-op-game-intro-generator": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "27cd6fd96599c2143f051124051c6e0e23dc9b66749cdb3ab84d7ee752a6a112",
+      "wellKnownDigest": "sha256:b149e098399a006a944793bc4c823a58be1449bb634a592aa0ad277a9b4e278c"
+    },
+    "h3-prompt-writing": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "eaac95ac8d15e6e6a16fb4ef06105b27bc77454e4932b28079718576d8b79b12",
+      "wellKnownDigest": "sha256:eb204b8954cb1a256e4ec24add95bcc22daa6b8f230e4fa9505d9b0e9a3efa2e"
+    },
+    "handdrawn-live-video-generator": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "c0b8035d272bd60d2cb019f4277010c074c4ac85fa49e0ca532becaa2d4e8283",
+      "wellKnownDigest": "sha256:130a00c29e3cf9d9fa69a730d22da0ab126d5e3a7038bba4d3d3e637e329d92e"
+    },
+    "minimalist-product-ad-generator": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "7e17ea490a33c1aeb931a1a2ed45abf50befb75973e75e690e852070ac4c2f8f",
+      "wellKnownDigest": "sha256:daf23d5584f41add384e94426fcba33437421a5d6c549541f0e31bb9943f8eba"
+    },
+    "mv-subtitle-skill-confirmed": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "78379449996ba0598ac55c5b08416d05f4c4681a6cce8dc82894f71197915ad1",
+      "wellKnownDigest": "sha256:dd0d25f8d88a92568b7504272b7f78001e9db296185f8f60616bbd708494c5aa"
+    },
+    "paper-collage-explainer-generator": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "0175b31e2af81d43be818e66daec188a854797b12a96b4ff39eedf241e27a22e",
+      "wellKnownDigest": "sha256:791be2967acdeb443c0fc4eef94853d154391699ef2012ee15e2d17f4f1fa89c"
+    },
+    "papercraft-stop-motion-explainer": {
+      "source": "modelscope.cn",
+      "sourceUrl": "https://modelscope.cn/collections/MiniMax/MiniMax-H3-Skills",
+      "sourceType": "well-known",
+      "computedHash": "fa4c9f0490fce8ee7a8de32f7d4da1b2d210f2dcdacda438fd5eb04cb55b97ff",
+      "wellKnownDigest": "sha256:20ae4fba1ad0d3e2204527aa2db37f7d2548011f1b960d1db06ef4b612567c34"
+    }
+  }
+}
