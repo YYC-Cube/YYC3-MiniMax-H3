@@ -89,7 +89,23 @@ def build_batch(m: dict) -> dict:
     started = m.get("started_at", "")
     ended = m.get("ended_at") or ""
     params = m.get("params", {})
-    return {
+
+    # 状态机（2026-09-27 扩展，借鉴数字人 AiTaskEnum 五态终态语义）：
+    #   ① reconcile_batches.py 已收敛的僵尸批次（SIGTERM/崩溃，ended 恒空）→ 直接采纳收敛态
+    #   ② 正常结束：有失败 seed → partial（部分成功）；全无成功 → failed；否则 completed
+    #   ③ ended 为空且未收敛 → running（真在跑或尚未被清扫）
+    reconciled = m.get("reconciled")
+    if reconciled and reconciled.get("status") in ("partial", "failed"):
+        status = reconciled["status"]
+    elif ended:
+        if len(failed) > 0:
+            status = "partial" if len(success) > 0 else "failed"
+        else:
+            status = "completed"
+    else:
+        status = "running"
+
+    unit = {
         "id": f"batch{m.get('batch', '00')}",
         "time": (started.replace("T", " ")[:16]) if started else "",
         "ended": ended.replace("T", " ")[:16] or None,
@@ -99,13 +115,16 @@ def build_batch(m: dict) -> dict:
         "seeds": len({r.get("seed") for r in records}),
         "success": len(success), "failed": len(failed), "skipped": len(skipped),
         "avgScore": avg, "maxScore": mx,
-        "status": "completed" if ended else "running",
+        "status": status,
         "videos": videos,
         "defects": dict(sorted(defect_counter.items(), key=lambda x: -x[1])),
         "params": {k: params.get(k) for k in
                    ("height", "width", "num_frames", "num_inference_steps", "fps") if k in params},
         "durationMin": _duration_min(started, ended),
     }
+    if reconciled:  # 仅收敛批次携带（契约 optional；at/status/reason/by/retry_hint 原样透传）
+        unit["reconciled"] = reconciled
+    return unit
 
 
 def _duration_min(started: str, ended: str) -> float | None:

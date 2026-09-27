@@ -10,6 +10,8 @@
  * 修改本文件前必须同步 Python 写端，或以 JSON Schema 双端生成（路线C）。
  */
 import { z } from "zod";
+// reconciledSchema 定义在 ./batches（index 末尾 export * batches，反向单向引用无循环）
+import { reconciledSchema } from "./batches";
 
 /** 单条生成记录（SUCCESS/SKIPPED/FAILED 等状态） */
 export const recordSchema = z
@@ -30,6 +32,7 @@ export const recordSchema = z
         backend: z.string().optional(), // syncnet | heuristic
         scored_at: z.string().optional(),
       })
+      .nullable() // h3_common.add_record 初始写 null，score_lipsync.py 回填后为对象
       .optional(),
     human: z
       .object({
@@ -54,6 +57,7 @@ export const manifestSchema = z
     }),
     params: z.record(z.string(), z.unknown()).default({}),
     records: z.array(recordSchema),
+    reconciled: reconciledSchema.optional(), // 僵尸批次收敛块（见 reconciledSchema 注释）
   })
   .passthrough(); // schema_version 等写端扩展字段放行
 export type Manifest = z.infer<typeof manifestSchema>;

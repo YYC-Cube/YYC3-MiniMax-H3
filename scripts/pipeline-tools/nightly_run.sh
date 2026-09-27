@@ -2,9 +2,9 @@
 # =============================================================================
 # @file scripts/pipeline-tools/nightly_run.sh
 # @author YanYuCloudCube Team <admin@0379.email>
-# @version v1.1.0
+# @version v1.2.0
 # @created 2026-09-14
-# @updated 2026-09-18
+# @updated 2026-09-27
 # @license MIT
 #
 # Phase 2.2 夜间批量编排（docs/11-第五能力衔接实施方案.md）
@@ -112,7 +112,13 @@ fi
 # ③ 补同步历史欠账（NAS 恢复后自愈）
 stage "③ 待队列补同步" bash "$SCRIPT_DIR/archive_to_nas.sh" --retry-pending --strict
 
-# 面板数据桥兜底刷新（manifest 可能被归档钩子更新过）
+# ③.5 僵尸批次收敛（TaskClear；借鉴数字人 TaskClearCrontab 兜底）：
+#   上一轮被 SIGTERM/崩溃杀死的批次 ended_at=null，面板会永久 running——
+#   仅当无存活生成进程时追加 reconciled 终态（partial/failed），不回改原始 manifest。
+#   另有 08:10 独立 cron 做窗口结束后兜底（见 reconcile_batches.py 头注）。
+stage "③.5 僵尸批次收敛（TaskClear）" "$PYTHON" scripts/pipeline-tools/reconcile_batches.py --apply
+
+# 面板数据桥兜底刷新（manifest 可能被归档钩子/收敛器更新过）
 stage "④ 面板数据刷新" "$PYTHON" scripts/pipeline-tools/export_dashboard_data.py
 
 # 收尾：raw 日志并入报告（2026-09-24 修复：原 && 链仅末命令重定向，raw 漏入 stdout/cron 日志）

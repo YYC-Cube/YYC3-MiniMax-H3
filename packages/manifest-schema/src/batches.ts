@@ -39,7 +39,22 @@ export const BATCH_UNIT_FIELDS = [
   "defects",
   "params",
   "durationMin",
+  "reconciled",
 ] as const;
+
+/**
+ * 僵尸批次收敛块（与 manifest.json 同名块同源；借鉴数字人 TaskClearCrontab 兜底，2026-09-27）
+ * 生成进程异常消失（SIGTERM/崩溃/窗口截止）导致 ended_at=null 时，
+ * 由 reconcile_batches.py 判定追加，面板把永久 running 收敛为 partial/failed。
+ */
+export const reconciledSchema = z.object({
+  at: z.string(), // 收敛时刻 ISO8601 seconds
+  status: z.enum(["partial", "failed"]), // partial=有成功产物；failed=无任何成功产物
+  reason: z.string(), // process_gone | window_timeout | manual
+  by: z.string(), // 收敛执行者（脚本名+版本）
+  retry_hint: z.string().optional(), // 断点续跑命令（SUCCESS seed 自动跳过）
+});
+export type Reconciled = z.infer<typeof reconciledSchema>;
 
 export const batchVideoSchema = z.object({
   name: z.string(),
@@ -67,11 +82,13 @@ export const batchUnitSchema = z.object({
   skipped: z.number().int(),
   avgScore: z.number(), // 0-10（score_scale 见 envelope）
   maxScore: z.number(),
-  status: z.string(), // completed | running
+  // completed=正常结束且全成功；running=进行中；partial=结束/收敛但有失败 seed；failed=无成功产物
+  status: z.enum(["completed", "running", "partial", "failed"]),
   videos: z.array(batchVideoSchema),
   defects: z.record(z.number()), // 缺陷标签 → 次数（降序）
   params: z.record(z.number()).optional(), // height/width/num_frames/num_inference_steps/fps 子集
   durationMin: z.number().nullable(),
+  reconciled: reconciledSchema.optional(), // 仅僵尸收敛批次携带（ended 仍为 null）
 });
 
 export const top10ItemSchema = z.object({

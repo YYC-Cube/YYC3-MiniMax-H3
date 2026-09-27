@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T02:05:41",
+  "generated_at": "2026-09-27T11:17:57",
   "score_scale": "0-10（lipsync score_norm×10 或 human 1~10）",
   "batches": [
     {
@@ -52,6 +52,51 @@
         "fps": 24
       },
       "durationMin": 450.6
+    },
+    {
+      "id": "batch1000",
+      "time": "2026-09-26 22:00",
+      "ended": null,
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 1,
+      "seeds": 1,
+      "success": 1,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 0.0,
+      "maxScore": 0.0,
+      "status": "partial",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 0.0,
+          "source": "none",
+          "tags": [],
+          "video_path": "output_batch1000/person_a/h3_seed_42.mp4",
+          "gen_seconds": 15754.33,
+          "peak_rss_gb": 18.033,
+          "av_offset": null
+        }
+      ],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": null,
+      "reconciled": {
+        "at": "2026-09-27T11:17:13",
+        "status": "partial",
+        "reason": "window_timeout",
+        "by": "reconcile_batches.py v1.0.0",
+        "retry_hint": "python scripts/batch_ref2va_nf4.py --batch 1000  # 断点续跑：SUCCESS seed 自动跳过，仅补跑失败/缺失 seed"
+      }
     },
     {
       "id": "batch90",
@@ -202,6 +247,70 @@
         "fps": 24
       },
       "durationMin": 431.8
+    },
+    {
+      "id": "batch998",
+      "time": "2026-09-26 05:01",
+      "ended": null,
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 0,
+      "seeds": 0,
+      "success": 0,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 0.0,
+      "maxScore": 0.0,
+      "status": "failed",
+      "videos": [],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": null,
+      "reconciled": {
+        "at": "2026-09-27T11:17:13",
+        "status": "failed",
+        "reason": "window_timeout",
+        "by": "reconcile_batches.py v1.0.0",
+        "retry_hint": "python scripts/batch_ref2va_nf4.py --batch 998  # 断点续跑：SUCCESS seed 自动跳过，仅补跑失败/缺失 seed"
+      }
+    },
+    {
+      "id": "batch999",
+      "time": "2026-09-26 05:01",
+      "ended": null,
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 0,
+      "seeds": 0,
+      "success": 0,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 0.0,
+      "maxScore": 0.0,
+      "status": "failed",
+      "videos": [],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": null,
+      "reconciled": {
+        "at": "2026-09-27T11:17:13",
+        "status": "failed",
+        "reason": "window_timeout",
+        "by": "reconcile_batches.py v1.0.0",
+        "retry_hint": "python scripts/batch_ref2va_nf4.py --batch 999  # 断点续跑：SUCCESS seed 自动跳过，仅补跑失败/缺失 seed"
+      }
     }
   ],
   "top10": [

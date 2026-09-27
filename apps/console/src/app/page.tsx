@@ -36,7 +36,8 @@ export default function DashboardPage() {
   // batches.json 聚合（P1 KPI 扩展 + 趋势图数据源，契约见 packages/manifest-schema/src/batches.ts）
   const bs = payload?.batches ?? [];
   const completedN = bs.filter((b) => b.status === "completed").length;
-  const runningN = bs.length - completedN;
+  const abnormalN = bs.filter((b) => b.status === "partial" || b.status === "failed").length;
+  const runningN = bs.filter((b) => b.status === "running").length;
   const clipW = bs.reduce((n, b) => n + b.success, 0);
   const weightedAvg = clipW
     ? (bs.reduce((a, b) => a + b.avgScore * b.success, 0) / clipW).toFixed(2)
@@ -74,7 +75,11 @@ export default function DashboardPage() {
             批次聚合（batches.json · 契约 v{payload.schema_version} · {payload.generated_at} 导出）
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Stat label="完成 / 运行" value={`${completedN} / ${runningN}`} />
+            <Stat
+              label="完成 / 异常 / 运行"
+              value={`${completedN} / ${abnormalN} / ${runningN}`}
+              hint={abnormalN > 0 ? "异常=partial/failed（含僵尸收敛）" : undefined}
+            />
             <Stat label="加权均分（0-10）" value={weightedAvg} hint="按成功 clip 数加权" />
             <Stat label="累计耗时（h）" value={totalHours} />
             <Stat
@@ -131,6 +136,16 @@ export default function DashboardPage() {
                   m.ended_at && m.started_at
                     ? ((new Date(m.ended_at).getTime() - new Date(m.started_at).getTime()) / 60000).toFixed(1)
                     : "-";
+                // 终态徽章：正常结束 / 僵尸收敛（reconcile_batches.py 追加）/ 真运行中
+                const rc = m.reconciled;
+                const badge = m.ended_at
+                  ? { text: "✅ 完成", title: "" }
+                  : rc
+                    ? {
+                      text: rc.status === "partial" ? "⚠ 部分完成" : "❌ 失败",
+                      title: `收敛于 ${rc.at} · 原因 ${rc.reason}（${rc.by}）`,
+                    }
+                    : { text: "🔄 运行中", title: "" };
                 return (
                   <tr key={m.batch} className="border-b border-(--border) last:border-0">
                     <td className="py-2 pr-4">
@@ -147,7 +162,9 @@ export default function DashboardPage() {
                     </td>
                     <td className="py-2 pr-4">{batchAvg}</td>
                     <td className="py-2 pr-4">{dur}</td>
-                    <td className="py-2">{m.ended_at ? "✅ 完成" : "🔄 运行中"}</td>
+                    <td className="py-2" title={badge.title}>
+                      {badge.text}
+                    </td>
                   </tr>
                 );
               })}

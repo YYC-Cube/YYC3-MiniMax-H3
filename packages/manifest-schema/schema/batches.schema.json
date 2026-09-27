@@ -59,7 +59,13 @@
                 "type": "number"
               },
               "status": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "completed",
+                  "running",
+                  "partial",
+                  "failed"
+                ]
               },
               "videos": {
                 "type": "array",
@@ -140,6 +146,37 @@
                   "number",
                   "null"
                 ]
+              },
+              "reconciled": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "partial",
+                      "failed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "by": {
+                    "type": "string"
+                  },
+                  "retry_hint": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "at",
+                  "status",
+                  "reason",
+                  "by"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [

@@ -27,7 +27,7 @@ WRITE_END_ENVELOPE = ["schema_version", "generated_at", "score_scale", "batches"
 WRITE_END_BATCH_UNIT = [
     "id", "time", "ended", "model", "pipeline", "refImages", "seeds",
     "success", "failed", "skipped", "avgScore", "maxScore", "status",
-    "videos", "defects", "params", "durationMin",
+    "videos", "defects", "params", "durationMin", "reconciled",
 ]
 
 

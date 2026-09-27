@@ -4,7 +4,7 @@ description: YYC3-MiniMax-H3 变更日志（Keep a Changelog 规范）
 author: YanYuCloudCube Team <admin@0379.email>
 version: v1.0.0
 created: 2026-09-03
-updated: 2026-09-03
+updated: 2026-09-27
 status: active
 tags: [changelog],[history],[release]
 category: meta
@@ -21,6 +21,14 @@ language: zh-CN
 
 ### Added
 
+- **僵尸批次终态收敛（TaskClear，借鉴数字人 ly_crontab 清扫器）**：修复 SIGTERM/崩溃后 `manifest.finish()` 未执行导致批次在面板永久 running 的缺口（实证：batch1000 seed10 于 08:00:53 被窗口截止杀死）
+  - 新增 `scripts/pipeline-tools/reconcile_batches.py`：扫描 `ended_at=null` 的 manifest，以 `ps` 存活进程（`--batch N` 精确匹配）为唯一活跃判据；无进程则按 SUCCESS 记录数追加 `reconciled` 终态块（partial/failed + reason + retry_hint），不回改 `ended_at`（保留原始事实），先 `.bak-时间戳` 备份再原子写；默认 dry-run，`--apply` 执行、`--check` 供 CI、全程幂等（ps 异常时宁漏不误）
+  - 契约扩展（`packages/manifest-schema`）：manifest 与 batches 单元新增可选 `reconciled` 块；批次状态机由 `completed|running` 扩为 **completed | running | partial | failed**（借鉴数字人 AiTaskEnum 五态终态语义）；`check_contract_sync.py` 字段清单同步至 18
+  - 写端 `export_dashboard_data.py` 状态推导：收敛态优先 → 正常结束按失败 seed 分 partial/failed → 其余 running
+  - 编排挂载：`nightly_run.sh` v1.2.0 新增 ③.5 收敛 stage（④ 面板刷新前）；另建议 08:10 独立 cron 兜底（安装行见脚本头注）
+  - console：批次明细新增 ⚠ 部分完成 / ❌ 失败 徽章（hover 显示收敛时间与原因），聚合 KPI 改「完成 / 异常 / 运行」
+  - 现场已收敛：batch1000→partial、batch998/999（09-26 白天空跑残留）→failed，各留 `.bak-20260927-111713` 可回滚
+
 - **GB10 部署包情报整合**（源：NVIDIA 论坛社区部署包克隆，分析见 docs/12，对标清单 docs/13）：
   - 快预览档 `batch_ref2va_nf4.py --preview`（360p/64帧/30步，白天窗口快速迭代）+ `--variant` 参数化（nf4/pruned 切换，CUDA 侧绕过 bnb）
   - int8 黑屏自检纳入 docs/10 §5.2 杠杆 0 与 §8 验收清单（GB10 硅缺陷风险：到货首日 `steps=1` 检查，受影响锁 fp8）
@@ -33,6 +41,7 @@ language: zh-CN
 
 ### Fixed
 
+- **manifest 契约 lipsync 外层缺 nullable**：写端 `h3_common.add_record` 初始写 `lipsync: null`（评分前），zod schema 仅内层字段 nullable、外层对象未放行，导致未评分批次（batch1000）契约校验失败 → 外层补 `.nullable()`，7 个真实批次全绿
 - **CI 供应链加固**：全部第三方 action 以 commit SHA 锁定（tag 可变、SHA 不可变，防 tag 劫持），同时消除 IDE「Unable to resolve action」报错
 - **CI 红灯三连修 → 五门禁全绿**：
   1. pnpm 11 `minimumReleaseAge`（24h 供应链冷却）拒绝 lockfile 中当日发布版本（`@types/react-dom@19.2.7`、`postcss@8.5.27`）→ workspace `overrides` pin 到合规版本（8.5.26 / 19.2.5），安全策略不放松
