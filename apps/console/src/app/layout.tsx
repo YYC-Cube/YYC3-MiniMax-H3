@@ -35,6 +35,7 @@ export default function RootLayout({
           <nav className="flex gap-4 text-sm">
             <a href="/" className="text-(--muted) hover:text-(--foreground)">仪表盘</a>
             <a href="/pipeline" className="text-(--muted) hover:text-(--foreground)">流水线控制</a>
+            <a href="/tasks" className="text-(--muted) hover:text-(--foreground)">任务中心</a>
           </nav>
           <span className="text-sm text-(--muted) ml-auto">路线B · Phase 2</span>
         </header>

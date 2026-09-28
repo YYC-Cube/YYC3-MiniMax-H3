@@ -1,6 +1,7 @@
 // /api/score - human refinement write-back (pipeline step ③ web form endpoint).
 // Parses report_batchXX.md pipe-table rows, matches by ref image + seed,
 // updates 评分(1~10) and 缺陷标签 columns in place, then refreshes dashboard data bridge.
+import { authorizePipeline } from "@/lib/api-auth";
 import { pipelineManager } from "@/lib/pipeline-manager";
 import { NextRequest, NextResponse } from "next/server";
 import { execFile } from "node:child_process";
@@ -37,6 +38,10 @@ function findRowIndex(lines: string[], ref: string, seed: number): number {
 }
 
 export async function POST(req: NextRequest) {
+  // 09-28 补强：写文件端点此前零鉴权（写操作面），与 /api/pipeline/run 同策略
+  if (!authorizePipeline(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   let body: ScoreBody;
   try {
     body = await req.json();
@@ -74,6 +79,9 @@ export async function POST(req: NextRequest) {
 
 /** GET: 读取某批次全部行的当前精评状态（表单初始值） */
 export async function GET(req: NextRequest) {
+  if (!authorizePipeline(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   const batch = new URL(req.url).searchParams.get("batch") ?? "";
   if (!/^\d{2}$/.test(batch)) return NextResponse.json({ error: "batch 须为两位数字" }, { status: 400 });
   const file = reportPath(batch);

@@ -21,6 +21,11 @@ language: zh-CN
 
 ### Added
 
+- **P2 任务闭环：面板 ↔ 网关队列全链路打通（/tasks 任务中心）**：实勘确认网关 Phase 2.3 任务闭环已存在（创建/列表/详情/下载 + claim/heartbeat/result/failure + 租约回收），唯一缺口是 console 零对接——本期补齐门面，不重造队列
+  - 新增 4 个代理路由：`GET/POST /api/tasks`（列表/创建，LAN 直连规避公网链 90s 499 实证坑）、`GET /api/tasks/[id]`（轮询详情）、`GET /api/tasks/[id]/result`（mp4 流式代理）；task id 沿用 runner 白名单 `^[0-9a-f]{6,16}$` 防投毒；`/api/tasks/**` 鉴权 = `TASKS_CLAIM_TOKEN`（X-Claim-Token 常量时间比较）或未配置时 loopback
+  - 新增 `lib/gateway.ts`（X-API-Key 仅存服务端）与 `lib/api-auth.ts`（共享鉴权）；**顺带补强 `/api/score` 零鉴权缺口**（写文件端点，GET/POST 双补，与 pipeline/run 同策略）
+  - 新增 `/tasks` 页面：任务列表（四态徽章/重试次数/错误）+ 提交表单（prompt/quality/seed/参考图 base64）+ 10s 轮询 + succeeded 内嵌视频预览/下载
+  - 验证：console build 全绿（4 路由+页面注册）；真网关 e2e 全链路——面板创建任务 `5d233e17d191` → `H3_FORCE=1` runner 干跑领取回报 → 面板详情 succeeded → result 代理流出合法 MP4（2.4MB）；score loopback 200 / 伪造 xff 401
 - **僵尸批次终态收敛（TaskClear，借鉴数字人 ly_crontab 清扫器）**：修复 SIGTERM/崩溃后 `manifest.finish()` 未执行导致批次在面板永久 running 的缺口（实证：batch1000 seed10 于 08:00:53 被窗口截止杀死）
   - 新增 `scripts/pipeline-tools/reconcile_batches.py`：扫描 `ended_at=null` 的 manifest，以 `ps` 存活进程（`--batch N` 精确匹配）为唯一活跃判据；无进程则按 SUCCESS 记录数追加 `reconciled` 终态块（partial/failed + reason + retry_hint），不回改 `ended_at`（保留原始事实），先 `.bak-时间戳` 备份再原子写；默认 dry-run，`--apply` 执行、`--check` 供 CI、全程幂等（ps 异常时宁漏不误）
   - 契约扩展（`packages/manifest-schema`）：manifest 与 batches 单元新增可选 `reconciled` 块；批次状态机由 `completed|running` 扩为 **completed | running | partial | failed**（借鉴数字人 AiTaskEnum 五态终态语义）；`check_contract_sync.py` 字段清单同步至 18
