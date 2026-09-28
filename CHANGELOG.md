@@ -41,6 +41,7 @@ language: zh-CN
 
 ### Fixed
 
+- **SIGTERM 僵尸批次根修（batch_ref2va v1.2.0）**：09-27 batch1000 seed10 被定向 SIGTERM 杀死（扩散 41/50）后 manifest `ended_at=null`、面板永久 running——九个自动化嫌疑面穷尽排除后定性为窗口结束人为清场，真正缺口是被终止时系统不优雅。现装 SIGTERM/SIGINT 优雅处理器：in-flight seed 记 FAILED（半成品删除）、未起跑记 SKIPPED、`finally` 必写 `ended_at`、exit 143/130；异常路径同样收敛（SIGKILL/断电仍由 reconcile_batches 兜底）。面板状态机同步增强：`SKIPPED>0` 与 `FAILED>0` 同判 partial/failed。验证：真模块信号 E2E（GRACEFUL + exit 143）、状态机八分支 ALL_PASS、真实批次 export 零漂移
 - **manifest 契约 lipsync 外层缺 nullable**：写端 `h3_common.add_record` 初始写 `lipsync: null`（评分前），zod schema 仅内层字段 nullable、外层对象未放行，导致未评分批次（batch1000）契约校验失败 → 外层补 `.nullable()`，7 个真实批次全绿
 - **CI 供应链加固**：全部第三方 action 以 commit SHA 锁定（tag 可变、SHA 不可变，防 tag 劫持），同时消除 IDE「Unable to resolve action」报错
 - **CI 红灯三连修 → 五门禁全绿**：

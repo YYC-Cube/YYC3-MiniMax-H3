@@ -98,7 +98,9 @@ def build_batch(m: dict) -> dict:
     if reconciled and reconciled.get("status") in ("partial", "failed"):
         status = reconciled["status"]
     elif ended:
-        if len(failed) > 0:
+        # 09-28：优雅终止批次（batch_ref2va v1.2.0）会有 SKIPPED 记录（未起跑），
+        # 与 FAILED 同属「未全量完成」→ 有成功 partial / 无成功 failed
+        if len(failed) > 0 or len(skipped) > 0:
             status = "partial" if len(success) > 0 else "failed"
         else:
             status = "completed"
