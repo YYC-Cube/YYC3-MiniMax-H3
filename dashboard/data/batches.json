@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-27T11:17:57",
+  "generated_at": "2026-09-28T13:00:02",
   "score_scale": "0-10（lipsync score_norm×10 或 human 1~10）",
   "batches": [
     {
@@ -97,6 +97,56 @@
         "by": "reconcile_batches.py v1.0.0",
         "retry_hint": "python scripts/batch_ref2va_nf4.py --batch 1000  # 断点续跑：SUCCESS seed 自动跳过，仅补跑失败/缺失 seed"
       }
+    },
+    {
+      "id": "batch1001",
+      "time": "2026-09-27 22:00",
+      "ended": "2026-09-28 06:17",
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 1,
+      "seeds": 2,
+      "success": 2,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 2.45,
+      "maxScore": 2.5,
+      "status": "completed",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 2.5,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1001/person_a/h3_seed_42.mp4",
+          "gen_seconds": 14776.793,
+          "peak_rss_gb": 32.812,
+          "av_offset": -11
+        },
+        {
+          "name": "h3_seed_10.mp4",
+          "ref": "person_a.png",
+          "seed": 10,
+          "score": 2.4,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1001/person_a/h3_seed_10.mp4",
+          "gen_seconds": 15026.45,
+          "peak_rss_gb": 32.812,
+          "av_offset": -15
+        }
+      ],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": 497.7
     },
     {
       "id": "batch90",
@@ -361,6 +411,22 @@
       "score": 2.5,
       "tags": [],
       "rank": 6
+    },
+    {
+      "batch": "batch1001",
+      "img": "person_a.png",
+      "seed": 42,
+      "score": 2.5,
+      "tags": [],
+      "rank": 7
+    },
+    {
+      "batch": "batch1001",
+      "img": "person_a.png",
+      "seed": 10,
+      "score": 2.4,
+      "tags": [],
+      "rank": 8
     }
   ]
 }
