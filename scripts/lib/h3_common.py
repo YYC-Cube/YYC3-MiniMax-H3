@@ -129,7 +129,12 @@ def load_pipeline(variant: str = "nf4", pipeline: str = "ref2va", vram_limit: in
 # ============================================================
 
 class PerformanceTimer:
-    """耗时 + 内存峰值。用法：with PerformanceTimer() as t: ..."""
+    """耗时 + 内存峰值。用法：with PerformanceTimer() as t: ...
+
+    注意：peak_rss_gb 取 resource.getrusage(RUSAGE_SELF).ru_maxrss，
+    是「本进程自启动以来的 RSS 单调水印」，非本段代码的独立占用——
+    同一进程内串行多 seed 时各 seed 读数只会持平或递增（勿当 per-seed 值解读）。
+    """
 
     def __init__(self):
         self.start: float = 0.0
@@ -295,14 +300,26 @@ def report_row(ref_img, seed, status, video_path, lipsync="-"):
 # ============================================================
 
 def extract_audio_wav(video_path: Path, wav_path: Path, sr: int = 16000) -> bool:
-    """用 ffmpeg 提取单声道 wav。失败返回 False。"""
+    """用 ffmpeg 提取单声道 wav。失败返回 False（原因打 stderr，不静默）。"""
+    import shutil
+    import sys as _sys
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        # 09-28 事故③：cron PATH 无 homebrew 时 ffmpeg 不可达，评分链曾全程静默
+        print("⚠️ extract_audio_wav：PATH 中找不到 ffmpeg（cron 场景见 nightly_run.sh "
+              "顶部 PATH 导出）", file=_sys.stderr)
+        return False
     try:
-        subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(video_path),
+        proc = subprocess.run(
+            [ffmpeg, "-y", "-loglevel", "error", "-i", str(video_path),
              "-ac", "1", "-ar", str(sr), "-vn", str(wav_path)],
             check=True, capture_output=True,
         )
         return wav_path.exists()
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ extract_audio_wav 失败：{video_path.name} → "
+              f"{(e.stderr or b'')[-200:]!r}", file=_sys.stderr)
+        return False
     except Exception:
         return False
 

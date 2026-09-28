@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T13:00:02",
+  "generated_at": "2026-09-28T13:42:17",
   "score_scale": "0-10（lipsync score_norm×10 或 human 1~10）",
   "batches": [
     {

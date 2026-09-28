@@ -175,6 +175,16 @@ def main():
                     write_video_audio(video=video, audio=audio, output_path=str(video_path),
                                       fps=24, audio_sample_rate=32000)
 
+                # seed 间释放 MPS 统一内存缓存：批量串行多 seed 时，不清理会让
+                # 进程 RSS 水印逐 seed 抬升（batch1000→1001 实测 18GB→32.8GB，
+                # ~15GB 为 seed 间未释放的缓存/碎片，非单 seed 真实占用）
+                try:
+                    import torch
+                    if torch.backends.mps.is_available():
+                        torch.mps.empty_cache()
+                except Exception:
+                    pass  # 清理失败不影响生成主链路
+
                 if existing:  # 重跑覆盖旧记录
                     existing.update(status="SUCCESS", video_path=rel_video,
                                     gen_seconds=t.seconds, peak_rss_gb=t.peak_rss_gb,

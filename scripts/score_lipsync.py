@@ -2,9 +2,9 @@
 """
 @file score_lipsync.py
 @author YanYuCloudCube Team <admin@0379.email>
-@version v1.1.0
+@version v1.2.0
 @created 2026-09-02
-@updated 2026-09-03
+@updated 2026-09-28
 @status stable
 @copyright Copyright (c) 2025-2026 YYC3 Team
 @license MIT
@@ -18,6 +18,13 @@ score_lipsync.py — 口型同步自动评分（Phase 2 · T2.1）
    置信度 conf≈10 为官方demo良好量级；score_norm = conf / (abs(conf)+5) ∈ (0,1)
 2. heuristic（降级）：音频RMS包络 × 口型区运动能量的分桶相关系数，[-1,1] → [0,1]
    仅需 ffmpeg + opencv，无需下载权重
+
+conf 度量基线（2026-09-28）：conf≈10 为官方 demo（正脸特写/25fps）量级；
+本项目 480×832 数字人生成口型区占比小，conf 绝对值系统性偏低（实测 1.5~2），
+**仅作同素材跨 seed 相对比较，勿对标 demo 绝对值**；经验参考带：
+<1.0 差 / 1~3 中 / >3 良（随人工抽检持续校准）。
+失败告警（v1.2.0）：任一样本 score_norm=None → stderr ⚠ + exit 1（编排标红），
+杜绝「失败静默成功」（09-28 事故③：cron 缺 PATH → ffmpeg 不可达 → 双后端全 None）。
 
 职责：
 - 读取 output_batchXX/manifest.json
@@ -108,6 +115,7 @@ def main():
 
     work_dir = output_root / "_scoring_work"
     done = 0
+    failed = 0
     for rec in todo:
         vp = Path(rec["video_path"])
         if not vp.exists():
@@ -131,12 +139,22 @@ def main():
         manifest.save()
         done += 1
         sn = result.get("score_norm")
-        print(f"{result['backend']} conf={result.get('confidence')} score_norm={sn}")
+        if sn is None:
+            # 09-28 事故③：cron 缺 homebrew PATH 时 ffmpeg 找不到，双后端静默回 None
+            # 曾被当成功打点 → 此处显式告警，且最终 exit 1 让编排 stage 标红
+            failed += 1
+            print(f"⚠️ 评分失败（score_norm=None，常见根因：PATH 缺 ffmpeg，或视频无音轨）", file=sys.stderr)
+        else:
+            print(f"{result['backend']} conf={result.get('confidence')} score_norm={sn}")
 
     refresh_report(report_md, manifest)
-    print(f"\n🎉 完成 {done}/{len(todo)} 条评分")
+    print(f"\n🎉 完成 {done}/{len(todo)} 条评分（失败 {failed}）")
     print(f"📄 manifest 已回填：{manifest_path}")
     print(f"📋 report 口型分列已刷新：{report_md} {VALID_TAGS_NOTE}")
+    if failed:
+        print(f"❌ {failed} 条评分失败：口型分缺失去命令行 exit 1（编排层会标红）；"
+              f"请排查 ffmpeg PATH / 音轨后重跑 --force", file=sys.stderr)
+        sys.exit(1)
     print(f"→ 下一步：人工打开 {report_md} 填写 评分/缺陷标签，然后 python analyze_report.py --batch {args.batch}")
 
 

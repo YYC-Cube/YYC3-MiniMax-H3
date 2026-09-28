@@ -2,9 +2,9 @@
 # =============================================================================
 # @file scripts/pipeline-tools/nightly_run.sh
 # @author YanYuCloudCube Team <admin@0379.email>
-# @version v1.2.0
+# @version v1.3.0
 # @created 2026-09-14
-# @updated 2026-09-27
+# @updated 2026-09-28
 # @license MIT
 #
 # Phase 2.2 夜间批量编排（docs/11-第五能力衔接实施方案.md）
@@ -30,6 +30,8 @@
 #      09-16 夜间阶段①/④全灭 → 显式锚定 h3-m4 env python
 #   ② 09-17 B 臂电池 1% 触发 Low Power Sleep 休眠 1h40m，生成中途冻结
 #      （pmset 实证 22:48 休眠 → 00:28 接电唤醒续跑）→ AC 电源守卫 + caffeinate
+#   ③ 09-28 定性：cron 默认 PATH 不含 /opt/homebrew/bin → 评分链 ffmpeg 找不到，
+#      syncnet/heuristic 双双静默回 None（batch1000/1001 score=0 根因）→ 显式导出 PATH
 # =============================================================================
 # set -u 注意：本机 PayGuard safe_rm 拦截器与 set -u 冲突（见 archive_to_nas.sh
 # 头注），故不用 set -u；关键路径变量在使用点显式判空。
@@ -37,6 +39,11 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)" || exit 1
 cd "$REPO_ROOT" || exit 1
+
+# —— PATH 导出：cron 默认 PATH=/usr/bin:/bin，缺 homebrew（ffmpeg/syncnet 权重脚本、
+#    rg 等），评分链会静默降级为 score_norm=None（09-28 事故③）。放在最前，
+#    保证 caffeinate re-exec 与全部子进程（含 pipeline_auto ② 评分）都继承。
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 TODAY="$(date +%Y%m%d)"
 REPORT="$REPO_ROOT/logs/nightly_$TODAY.md"
