@@ -238,9 +238,10 @@ def main():
     ap.add_argument("--gateway", default=os.environ.get("H3_VIDEO_GATEWAY", "https://api.0379.world"),
                     help="公共网关（预留：状态查询等只读操作）")
     ap.add_argument("--admin-gateway",
-                    default=os.environ.get("H3_VIDEO_ADMIN_GATEWAY", "http://192.168.3.45:8000"),
-                    help="管理面直连地址（claim/heartbeat/result 走 LAN，绕开公网链大上传瓶颈；"
-                         "09-24 e2e 实证 2.4MB multipart 经 ECS Traefik→Tailscale 90s 超时 499）")
+                    default=os.environ.get("H3_VIDEO_ADMIN_GATEWAY", "http://100.65.172.88:8000"),
+                    help="管理面直连地址（claim/heartbeat/result 走 Tailscale yyc3-45-1，跨网络可达；"
+                         "09-24 e2e 实证 2.4MB multipart 经 ECS Traefik→Tailscale 90s 超时 499；"
+                         "10-01 实证 LAN IP 192.168.3.45 断网时 Tailscale 路径仍健康）")
     ap.add_argument("--runner-name", default=os.uname().nodename)
     ap.add_argument("--once", action="store_true", help="领取一个任务后退出（无任务也退出）")
     ap.add_argument("--loop", action="store_true", help="循环模式（夜间窗口内等空闲领取，至 07:30 截止）")
