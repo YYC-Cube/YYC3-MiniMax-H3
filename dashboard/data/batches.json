@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T22:23:48",
+  "generated_at": "2026-10-01T09:45:26",
   "score_scale": "0-10（lipsync score_norm×10 或 human 1~10）",
   "batches": [
     {
@@ -151,18 +151,31 @@
     {
       "id": "batch1002",
       "time": "2026-09-28 22:00",
-      "ended": "2026-09-28 22:23",
+      "ended": "2026-09-30 11:55",
       "model": "NF4",
       "pipeline": "ref2va",
       "refImages": 1,
       "seeds": 2,
-      "success": 0,
+      "success": 1,
       "failed": 1,
-      "skipped": 1,
-      "avgScore": 0.0,
-      "maxScore": 0.0,
-      "status": "failed",
-      "videos": [],
+      "skipped": 0,
+      "avgScore": 2.5,
+      "maxScore": 2.5,
+      "status": "partial",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 2.5,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1002/person_a/h3_seed_42.mp4",
+          "gen_seconds": 28856.521,
+          "peak_rss_gb": 31.415,
+          "av_offset": -11
+        }
+      ],
       "defects": {},
       "params": {
         "height": 480,
@@ -171,7 +184,95 @@
         "num_inference_steps": 50,
         "fps": 24
       },
-      "durationMin": 23.7
+      "durationMin": 2275.4
+    },
+    {
+      "id": "batch1003",
+      "time": "2026-09-29 22:00",
+      "ended": "2026-09-30 11:55",
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 1,
+      "seeds": 2,
+      "success": 1,
+      "failed": 1,
+      "skipped": 0,
+      "avgScore": 2.5,
+      "maxScore": 2.5,
+      "status": "partial",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 2.5,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1003/person_a/h3_seed_42.mp4",
+          "gen_seconds": 31536.702,
+          "peak_rss_gb": 12.878,
+          "av_offset": -11
+        }
+      ],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": 835.5
+    },
+    {
+      "id": "batch1004",
+      "time": "2026-09-30 22:00",
+      "ended": "2026-10-01 05:12",
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 1,
+      "seeds": 2,
+      "success": 2,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 2.45,
+      "maxScore": 2.5,
+      "status": "completed",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 2.5,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1004/person_a/h3_seed_42.mp4",
+          "gen_seconds": 13042.19,
+          "peak_rss_gb": 32.812,
+          "av_offset": -11
+        },
+        {
+          "name": "h3_seed_10.mp4",
+          "ref": "person_a.png",
+          "seed": 10,
+          "score": 2.4,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1004/person_a/h3_seed_10.mp4",
+          "gen_seconds": 12860.441,
+          "peak_rss_gb": 32.812,
+          "av_offset": -15
+        }
+      ],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": 432.6
     },
     {
       "id": "batch90",
@@ -446,12 +547,28 @@
       "rank": 7
     },
     {
-      "batch": "batch1001",
+      "batch": "batch1002",
       "img": "person_a.png",
-      "seed": 10,
-      "score": 2.4,
+      "seed": 42,
+      "score": 2.5,
       "tags": [],
       "rank": 8
+    },
+    {
+      "batch": "batch1003",
+      "img": "person_a.png",
+      "seed": 42,
+      "score": 2.5,
+      "tags": [],
+      "rank": 9
+    },
+    {
+      "batch": "batch1004",
+      "img": "person_a.png",
+      "seed": 42,
+      "score": 2.5,
+      "tags": [],
+      "rank": 10
     }
   ]
 }
