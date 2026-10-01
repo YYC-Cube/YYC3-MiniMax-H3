@@ -2,9 +2,9 @@
 # =============================================================================
 # @file scripts/pipeline-tools/nightly_run.sh
 # @author YanYuCloudCube Team <admin@0379.email>
-# @version v1.3.0
+# @version v1.4.0
 # @created 2026-09-14
-# @updated 2026-09-28
+# @updated 2026-10-01
 # @license MIT
 #
 # Phase 2.2 夜间批量编排（docs/11-第五能力衔接实施方案.md）
@@ -32,6 +32,9 @@
 #      （pmset 实证 22:48 休眠 → 00:28 接电唤醒续跑）→ AC 电源守卫 + caffeinate
 #   ③ 09-28 定性：cron 默认 PATH 不含 /opt/homebrew/bin → 评分链 ffmpeg 找不到，
 #      syncnet/heuristic 双双静默回 None（batch1000/1001 score=0 根因）→ 显式导出 PATH
+#   ④ 09-29 定性：cron 22:00 盲启 batch1003 与手动 batch1002 双流水线争用 GPU，
+#      两个 seed10 同时 MPS 内存压力 FAILED；且报告 nightly_YYYYMMDD.md 被 `>` 覆盖
+#      → v1.4.0：并发守卫（无条件拒绝）+ 报告按批次命名
 # =============================================================================
 # set -u 注意：本机 PayGuard safe_rm 拦截器与 set -u 冲突（见 archive_to_nas.sh
 # 头注），故不用 set -u；关键路径变量在使用点显式判空。
@@ -46,7 +49,10 @@ cd "$REPO_ROOT" || exit 1
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 TODAY="$(date +%Y%m%d)"
-REPORT="$REPO_ROOT/logs/nightly_$TODAY.md"
+# 报告按批次命名（v1.4.0）：同日手动续跑与 cron 自动跑不再互相覆盖（09-29 事故④）
+#   cron auto → nightly_20261001_bauto.md；手动 → nightly_20261001_b1002.md
+BATCH_TAG="${H3_BATCH:-auto}"
+REPORT="$REPO_ROOT/logs/nightly_${TODAY}_b${BATCH_TAG}.md"
 NIGHT_START="22"   # 夜间窗口起始小时（硬约束，见审核论证修正 1）
 NIGHT_END="08"     # 窗口结束小时
 
@@ -82,8 +88,18 @@ if [ "${H3_FORCE:-0}" != "1" ] && [ "$hour" -ge "$NIGHT_END" ] && [ "$hour" -lt 
   exit 1
 fi
 
+# —— 并发守卫：生成进程存活时拒绝再起一轮（v1.4.0，09-29 事故④）——
+#   铁律②（batch_busy）只在 video_task_runner 侧，编排层此前无自守：
+#   cron 22:00 盲启会与手动续跑双流水线争 GPU（两个 seed10 同时 FAILED 实证）。
+#   无逃生阀：H3_FORCE=1 也拒绝——双生成对双方都是慢 2 倍以上，无赢家。
+if pgrep -f "pipeline_auto\.py" >/dev/null 2>&1 || pgrep -f "batch_ref2va_nf4\.py" >/dev/null 2>&1; then
+  echo "[$(date '+%F %T')] ⛔ 检测到生成进程仍在运行（pipeline_auto/batch_ref2va），拒绝并发起跑（09-29 事故④防线）。"
+  echo "            待其结束后重跑；被杀残留的僵尸批次由 reconcile（③.5/08:10 cron）收敛终态。"
+  exit 1
+fi
+
 {
-  echo "# 🌙 夜间批量报告 batch${H3_BATCH:-auto}（$TODAY）"
+  echo "# 🌙 夜间批量报告 batch${BATCH_TAG}（$TODAY）"
   echo ""
   echo "| 阶段 | 开始时间 | 结果 |"
   echo "| ---- | -------- | ---- |"
