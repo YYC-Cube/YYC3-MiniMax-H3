@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T16:40:11",
+  "generated_at": "2026-10-02T00:52:03",
   "score_scale": "0-10（lipsync score_norm×10 或 human 1~10）",
   "batches": [
     {
@@ -285,6 +285,56 @@
         "fps": 24
       },
       "durationMin": 432.6
+    },
+    {
+      "id": "batch1005",
+      "time": "2026-10-01 16:50",
+      "ended": "2026-10-02 00:44",
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 1,
+      "seeds": 2,
+      "success": 2,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 2.45,
+      "maxScore": 2.5,
+      "status": "completed",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 2.5,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1005/person_a/h3_seed_42.mp4",
+          "gen_seconds": 14186.16,
+          "peak_rss_gb": 32.828,
+          "av_offset": -11
+        },
+        {
+          "name": "h3_seed_10.mp4",
+          "ref": "person_a.png",
+          "seed": 10,
+          "score": 2.4,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1005/person_a/h3_seed_10.mp4",
+          "gen_seconds": 14278.939,
+          "peak_rss_gb": 32.828,
+          "av_offset": -15
+        }
+      ],
+      "defects": {},
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": 474.7
     },
     {
       "id": "batch90",
