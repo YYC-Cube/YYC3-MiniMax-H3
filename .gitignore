@@ -59,3 +59,6 @@ docs/dgxspark_comfyui_minimax_h3/
 .zcode/
 # 根锚定：避免误伤 canonical 的 .agents/skills/
 /skills/
+
+# update_seed_list 写回备份
+*.bak
