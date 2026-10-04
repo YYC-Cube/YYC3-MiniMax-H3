@@ -18,8 +18,9 @@ cd YYC3-MiniMax-H3
 # 2. 建分支（命名：feat|fix|docs|chore/<主题>）
 git checkout -b feat/my-topic
 
-# 3. 安装（Python ≥3.10，GPU 节点参考部署指南）
-pip install -r requirements.txt
+# 3. 安装
+pip install -r requirements.txt        # Python ≥3.10，GPU 节点参考部署指南
+pnpm install                           # 前端工作台：Node ≥20 + pnpm 11（docs/08 §2.4）
 ```
 
 ## 三、提交前必须通过的门禁
@@ -29,6 +30,7 @@ pip install -r requirements.txt
 | 语法编译 | `python3 -m py_compile <改动文件>` | 0 错误 |
 | 核心回归 | `python3 -m unittest discover scripts/pipeline-tools -v` | 全绿 |
 | 冒烟（涉及流水线） | `bash scripts/pipeline-tools/pipeline_smoke_mac.sh` | 4 步 PASS |
+| 前端构建（涉 apps/console·packages） | `pnpm --filter console build` | 全绿（vite build + 双端 tsc，CI 同款） |
 | 安全红线 | 改动中无 `shell=True` 拼接用户输入、无明文密钥 | 零容忍 |
 | 秘密检查 | 提交不含 `.env`/`.secrets/`/密钥（git diff 自查） | 零容忍 |
 
@@ -47,6 +49,6 @@ pip install -r requirements.txt
 
 ## 六、行为准则
 
-互相尊重、对事不对人；安全相关问题请走私下渠道（admin@0379.email）而非公开 issue。
+互相尊重、对事不对人；安全漏洞按 [SECURITY.md](SECURITY.md) 私下渠道（admin@0379.email）报告，勿开公开 issue。
 
 > 「言启千行代码，语枢万物智能」——欢迎你的 PR。

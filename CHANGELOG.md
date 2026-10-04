@@ -21,6 +21,7 @@ language: zh-CN
 
 ### Changed
 
+- **开发者文档对齐实况 + 开源五件套补全**：docs/08 升 v1.3.0——新增 §1.3 可视化与工作台层架构图（Vite SPA/Hono BFF/agent/dashboard/落地页全景）、§2.4 前端快速上手（pnpm dev/build/start/landing 四命令）、§3.3 工作台 BFF HTTP API（11 端点 + 鉴权矩阵 + zod 消费契约）；§9 索引补 16-17 与 console/agent 代码入口；§10 门禁由五项扩为六项（新增前端构建门禁）；FM 补 language/changelog。**CONTRIBUTING 同步**（pnpm 环境 + 前端门禁 + SECURITY 链接）；**新增 SECURITY.md**（漏洞报告渠道/支持版本/安全范围/密钥纪律/加固基线）——根目录开源五件套（README·LICENSE·CONTRIBUTING·CHANGELOG·SECURITY）齐备
 - **AI 助手网关实测通过（Phase 2B）**：0379-World 网关确认提供 OpenAI 兼容 LLM 端点（多后端代理：智谱 GLM/DeepSeek/Qwen/Llama 等 16 模型）——`GET /v1/models`（X-API-Key 与 Bearer 双通道 200）、`POST /v1/chat/completions` 非流式/流式（SSE + `yyc3-flush` 哨兵）契约达标；`createOpenAICompatible` 适配器零改动可用
   - 默认模型 `minimax-h3` → **`glm-4-flash`**（128k 上下文，实测往返正常）；`H3_LLM_API_KEY` 缺省复用 `H3_GATEWAY_API_KEY`（同一业务键双通道）
   - 端到端验证：工作台 `/api/chat` 输出 AI SDK v7 UIMessageStream（`text-delta` 逐字流式）；`/api/tasks` 带业务键 200
