@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-03T15:08:04",
+  "generated_at": "2026-10-04T11:47:38",
   "score_scale": "0-10（lipsync score_norm×10 或 human 1~10）",
   "batches": [
     {
@@ -353,17 +353,19 @@
       "success": 5,
       "failed": 0,
       "skipped": 0,
-      "avgScore": 2.12,
-      "maxScore": 2.6,
+      "avgScore": 6.2,
+      "maxScore": 8.0,
       "status": "completed",
       "videos": [
         {
           "name": "h3_seed_42.mp4",
           "ref": "person_a.png",
           "seed": 42,
-          "score": 2.5,
-          "source": "lipsync",
-          "tags": [],
+          "score": 7.0,
+          "source": "human",
+          "tags": [
+            "口型错位"
+          ],
           "video_path": "output_batch1006/person_a/h3_seed_42.mp4",
           "gen_seconds": 13968.59,
           "peak_rss_gb": 32.879,
@@ -373,9 +375,11 @@
           "name": "h3_seed_10.mp4",
           "ref": "person_a.png",
           "seed": 10,
-          "score": 2.4,
-          "source": "lipsync",
-          "tags": [],
+          "score": 7.0,
+          "source": "human",
+          "tags": [
+            "口型错位"
+          ],
           "video_path": "output_batch1006/person_a/h3_seed_10.mp4",
           "gen_seconds": 13740.56,
           "peak_rss_gb": 32.879,
@@ -385,9 +389,11 @@
           "name": "h3_seed_7.mp4",
           "ref": "person_a.png",
           "seed": 7,
-          "score": 2.6,
-          "source": "lipsync",
-          "tags": [],
+          "score": 8.0,
+          "source": "human",
+          "tags": [
+            "口型偏移(轻)"
+          ],
           "video_path": "output_batch1006/person_a/h3_seed_7.mp4",
           "gen_seconds": 13745.161,
           "peak_rss_gb": 32.879,
@@ -397,9 +403,11 @@
           "name": "h3_seed_3.mp4",
           "ref": "person_a.png",
           "seed": 3,
-          "score": 1.7,
-          "source": "lipsync",
-          "tags": [],
+          "score": 5.0,
+          "source": "human",
+          "tags": [
+            "口型错位(明显)"
+          ],
           "video_path": "output_batch1006/person_a/h3_seed_3.mp4",
           "gen_seconds": 14256.492,
           "peak_rss_gb": 32.879,
@@ -409,13 +417,58 @@
           "name": "h3_seed_5.mp4",
           "ref": "person_a.png",
           "seed": 5,
-          "score": 1.4,
-          "source": "lipsync",
-          "tags": [],
+          "score": 4.0,
+          "source": "human",
+          "tags": [
+            "口型错位(明显)+动作过强"
+          ],
           "video_path": "output_batch1006/person_a/h3_seed_5.mp4",
           "gen_seconds": 13906.045,
           "peak_rss_gb": 32.879,
           "av_offset": -10
+        }
+      ],
+      "defects": {
+        "口型错位": 2,
+        "口型偏移(轻)": 1,
+        "口型错位(明显)": 1,
+        "口型错位(明显)+动作过强": 1
+      },
+      "params": {
+        "height": 480,
+        "width": 832,
+        "num_frames": 124,
+        "num_inference_steps": 50,
+        "fps": 24
+      },
+      "durationMin": 1160.9
+    },
+    {
+      "id": "batch1007",
+      "time": "2026-10-03 22:00",
+      "ended": "2026-10-04 01:52",
+      "model": "NF4",
+      "pipeline": "ref2va",
+      "refImages": 1,
+      "seeds": 1,
+      "success": 1,
+      "failed": 0,
+      "skipped": 0,
+      "avgScore": 2.5,
+      "maxScore": 2.5,
+      "status": "completed",
+      "videos": [
+        {
+          "name": "h3_seed_42.mp4",
+          "ref": "person_a.png",
+          "seed": 42,
+          "score": 2.5,
+          "source": "lipsync",
+          "tags": [],
+          "video_path": "output_batch1007/person_a/h3_seed_42.mp4",
+          "gen_seconds": 13924.08,
+          "peak_rss_gb": 32.812,
+          "av_offset": -11
         }
       ],
       "defects": {},
@@ -426,7 +479,7 @@
         "num_inference_steps": 50,
         "fps": 24
       },
-      "durationMin": 1160.9
+      "durationMin": 232.8
     },
     {
       "id": "batch90",
@@ -645,19 +698,19 @@
   ],
   "top10": [
     {
-      "batch": "batch1005",
+      "batch": "batch1006",
       "img": "person_a.png",
-      "seed": 42,
-      "score": 7.0,
+      "seed": 7,
+      "score": 8.0,
       "tags": [
-        "口型错位"
+        "口型偏移(轻)"
       ],
       "rank": 1
     },
     {
       "batch": "batch1005",
       "img": "person_a.png",
-      "seed": 10,
+      "seed": 42,
       "score": 7.0,
       "tags": [
         "口型错位"
@@ -665,12 +718,42 @@
       "rank": 2
     },
     {
+      "batch": "batch1005",
+      "img": "person_a.png",
+      "seed": 10,
+      "score": 7.0,
+      "tags": [
+        "口型错位"
+      ],
+      "rank": 3
+    },
+    {
+      "batch": "batch1006",
+      "img": "person_a.png",
+      "seed": 42,
+      "score": 7.0,
+      "tags": [
+        "口型错位"
+      ],
+      "rank": 4
+    },
+    {
+      "batch": "batch1006",
+      "img": "person_a.png",
+      "seed": 10,
+      "score": 7.0,
+      "tags": [
+        "口型错位"
+      ],
+      "rank": 5
+    },
+    {
       "batch": "batch91",
       "img": "person_a.png",
       "seed": 10,
       "score": 5.6,
       "tags": [],
-      "rank": 3
+      "rank": 6
     },
     {
       "batch": "batch90",
@@ -678,7 +761,7 @@
       "seed": 10,
       "score": 5.5,
       "tags": [],
-      "rank": 4
+      "rank": 7
     },
     {
       "batch": "batch91",
@@ -686,7 +769,7 @@
       "seed": 42,
       "score": 5.5,
       "tags": [],
-      "rank": 5
+      "rank": 8
     },
     {
       "batch": "batch90",
@@ -694,38 +777,16 @@
       "seed": 42,
       "score": 5.3,
       "tags": [],
-      "rank": 6
-    },
-    {
-      "batch": "batch01",
-      "img": "person_a.png",
-      "seed": 42,
-      "score": 2.7,
-      "tags": [],
-      "rank": 7
+      "rank": 9
     },
     {
       "batch": "batch1006",
       "img": "person_a.png",
-      "seed": 7,
-      "score": 2.6,
-      "tags": [],
-      "rank": 8
-    },
-    {
-      "batch": "batch01",
-      "img": "person_a.png",
-      "seed": 10,
-      "score": 2.5,
-      "tags": [],
-      "rank": 9
-    },
-    {
-      "batch": "batch1001",
-      "img": "person_a.png",
-      "seed": 42,
-      "score": 2.5,
-      "tags": [],
+      "seed": 3,
+      "score": 5.0,
+      "tags": [
+        "口型错位(明显)"
+      ],
       "rank": 10
     }
   ]

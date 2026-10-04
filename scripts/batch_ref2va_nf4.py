@@ -45,7 +45,7 @@ VARIANT = "nf4"          # nf4 | pruned
 REF_IMAGES_DIR = Path("./ref_images")
 SUPPORTED_EXTS = [".jpg", ".jpeg", ".png", ".webp"]
 
-SEED_LIST = [42]   # ⚠️ 保持单行，update_seed_list.py 依赖此格式；首次验证控制规模
+SEED_LIST = [7]   # ⚠️ 保持单行，update_seed_list.py 依赖此格式；首次验证控制规模
 
 PROMPT = """
 主体定义：<Subject1>是参考图中的人物，面部五官、发型、服装全程保持不变，脸型稳定，不会变脸。
