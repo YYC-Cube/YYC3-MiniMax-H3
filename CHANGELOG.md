@@ -34,6 +34,7 @@ language: zh-CN
   - **Pages CI 转型**：h3.yyc3.top 由控制台快照 → **落地页/文档站**（`vite.landing.config.ts` → `dist-landing/`，曝光 + 预期管理 + 文档价值）
   - 验证：console build（vite + 双端 tsc）全绿；prod 冒烟 /api/health·dashboard·session·score·SSE·SPA fallback 全通；dev 双进程代理链路通（SSE 经 http-proxy 透传）；鉴权矩阵——远程无令牌 401 / 有效会话令牌放行 / 伪造拒收 / 回环直连
 - **manifest 契约补强（性能字段 nullable）**：`recordSchema` 的 `gen_seconds/peak_rss_gb/mps_alloc_gb` 补 `.nullable()`——FAILED/中断记录写端初始为 null（batch1003 实证，同 lipsync 外层 nullable 先例）；`gen-json-schema.ts` 同步再生成；schema 冒烟测试 EXIT 0、双端契约同步 PASS
+- **工作台品质闭环（③可访问 + ④性能）**：可访问——原生 select/checkbox 焦点环与 label 关联强化、AI 助手输入框 label 关联、任务视频 aria-label、SSE 徽章装饰点 aria-hidden；性能——vite manualChunks 稳定 vendor 拆分（react/motion/virtual），主包降至 500KB 以下、批次明细表 `@tanstack/react-virtual` 窗口化（sticky 表头 + overscan 8）；docs/16 增补 ADR-FE-002 栈变更记录（Next.js→Vite 决策定稿）
 
 ### Fixed
 

@@ -7,6 +7,7 @@ import { Bot, Eraser, Loader2, Send, Square, User } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/stores/chatSlice";
@@ -107,19 +108,25 @@ export default function AssistantPage() {
         ) : null}
 
         <div className="flex items-end gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            placeholder="如：生成一位古风女子在雨中撑伞回眸的数字人视频，需要口型同步"
-            rows={2}
-            className="flex-1"
-          />
+          <div className="flex flex-1 flex-col gap-1.5">
+            <Label htmlFor="assistant-input" className="text-xs text-muted-foreground">
+              输入诉求（Enter 发送 · Shift+Enter 换行）
+            </Label>
+            <Textarea
+              id="assistant-input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              placeholder="如：生成一位古风女子在雨中撑伞回眸的数字人视频，需要口型同步"
+              rows={2}
+              className="min-h-14"
+            />
+          </div>
           {streaming ? (
             <Button variant="outline" onClick={() => chat.stop()} aria-label="停止生成">
               <Square />

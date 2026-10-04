@@ -46,6 +46,7 @@ export function PipelineControls() {
             type="checkbox"
             checked={dryRun}
             onChange={(e) => setDryRun(e.target.checked)}
+            className="size-4 rounded accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
           演练模式（不实际生成，联调用）
         </label>

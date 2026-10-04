@@ -49,7 +49,7 @@ export function AppHeader() {
         <div className="ml-auto flex items-center gap-3">
           {connected ? (
             <Badge variant="success">
-              <span className="relative flex size-1.5">
+              <span aria-hidden="true" className="relative flex size-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
                 <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
               </span>

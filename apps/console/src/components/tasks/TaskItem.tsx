@@ -85,7 +85,13 @@ export function TaskItem({ task }: { task: TaskView }) {
         <div className="mt-3 flex flex-col gap-2">
           {videoUrl ? (
             <>
-              <video src={videoUrl} controls preload="metadata" className="w-72 rounded-md border border-border" />
+              <video
+                src={videoUrl}
+                controls
+                preload="metadata"
+                aria-label={`任务 ${task.id} 生成视频预览`}
+                className="w-72 rounded-md border border-border"
+              />
               <a
                 href={videoUrl}
                 download={`yyc3_video_${task.id}.mp4`}

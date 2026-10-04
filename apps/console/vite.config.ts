@@ -17,6 +17,16 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        // 稳定 vendor 独立 chunk：主包降到 500KB 以下 + 长缓存复用
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          motion: ["motion"],
+          virtual: ["@tanstack/react-virtual"],
+        },
+      },
+    },
   },
   server: {
     port: 3030,

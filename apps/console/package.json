@@ -12,11 +12,12 @@
     "landing:build": "vite build --config vite.landing.config.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "@radix-ui/react-slot": "^1.1.2",
-    "@yyc3/manifest-schema": "workspace:*",
     "@ai-sdk/openai-compatible": "^3.0.0",
     "@ai-sdk/react": "^4.0.0",
+    "@hono/node-server": "^1.13.7",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@tanstack/react-virtual": "^3.14.13",
+    "@yyc3/manifest-schema": "workspace:*",
     "ai": "^7.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
