@@ -10,6 +10,11 @@ on:
       - "public/CNAME"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "预发验证的分支/commit（默认 main；灰度 SOP 见 docs/17 §五）"
+        default: main
+        required: false
 
 permissions:
   contents: read
@@ -25,6 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # workflow_dispatch 可指定任意分支/commit 做预发验证（ref 输入）；push 触发恒为 main
+          ref: ${{ inputs.ref || 'main' }}
 
       - uses: pnpm/action-setup@v4
 

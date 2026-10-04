@@ -21,6 +21,12 @@ language: zh-CN
 
 ### Changed
 
+- **终审遗留五项落地（P2×3 + P3×2）**：
+  - **路由全量懒加载**：Pipeline/Tasks/BatchDetail 与 AI 助手同列按需 chunk（页面级 ×5）——主包 382→359KB（gzip 114→108KB），Dashboard 首屏 eager 保 TTFB
+  - **工作台看门狗**（`scripts/pipeline-tools/console_health_check.py`）：探活矩阵 = BFF health + SSE 首事件 + 线上 TTFB P95 采样（5 样本），JSONL 落 `logs/console_watch.jsonl` 供次晨报告聚合；退出码 0/1/2（在线全过/本地探活失败/仅线上抖动）——实测在线 exit 0（health 14ms·SSE 2ms·P95 2.2s）、离线 exit 1 ✓；cron 接入行见 docs/17 §5.3
+  - **Pages 灰度通道**：pages-deploy `workflow_dispatch` 新增 `ref` 输入（任意分支/commit 预发验证部署）——静态原子切换的灰度替代 SOP + 四通道回滚表落 docs/17 §五
+  - **B2 漫剧 E2E 接线清单**：docs/17 §六固化（env 双变量 + runner 心跳前置 + 验收链五步）；本机现状：`agent_claim.env` 在位、`H3_AGENT_GATEWAY` 待接线（真机触发）
+  - **线上 TTFB 抖动观测**：纳入看门狗 P95 基线（warn 阈 5s，只记录不告警）——数据驱动后续 CDN 决策
 - **开发者文档对齐实况 + 开源五件套补全**：docs/08 升 v1.3.0——新增 §1.3 可视化与工作台层架构图（Vite SPA/Hono BFF/agent/dashboard/落地页全景）、§2.4 前端快速上手（pnpm dev/build/start/landing 四命令）、§3.3 工作台 BFF HTTP API（11 端点 + 鉴权矩阵 + zod 消费契约）；§9 索引补 16-17 与 console/agent 代码入口；§10 门禁由五项扩为六项（新增前端构建门禁）；FM 补 language/changelog。**CONTRIBUTING 同步**（pnpm 环境 + 前端门禁 + SECURITY 链接）；**新增 SECURITY.md**（漏洞报告渠道/支持版本/安全范围/密钥纪律/加固基线）——根目录开源五件套（README·LICENSE·CONTRIBUTING·CHANGELOG·SECURITY）齐备
 - **AI 助手网关实测通过（Phase 2B）**：0379-World 网关确认提供 OpenAI 兼容 LLM 端点（多后端代理：智谱 GLM/DeepSeek/Qwen/Llama 等 16 模型）——`GET /v1/models`（X-API-Key 与 Bearer 双通道 200）、`POST /v1/chat/completions` 非流式/流式（SSE + `yyc3-flush` 哨兵）契约达标；`createOpenAICompatible` 适配器零改动可用
   - 默认模型 `minimax-h3` → **`glm-4-flash`**（128k 上下文，实测往返正常）；`H3_LLM_API_KEY` 缺省复用 `H3_GATEWAY_API_KEY`（同一业务键双通道）
