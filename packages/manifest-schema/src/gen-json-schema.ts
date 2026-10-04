@@ -5,10 +5,11 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { batchesPayloadSchema, manifestSchema } from "./index";
 
-const outDir = path.join(__dirname, "..", "schema");
+const outDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "schema");
 fs.mkdirSync(outDir, { recursive: true });
 
 for (const [name, schema] of [

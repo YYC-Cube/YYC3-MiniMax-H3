@@ -2,6 +2,7 @@
   "name": "@yyc3/manifest-schema",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "manifest.json 双端契约（Python 导出与 TS 读取共用）— 三形态并存唯一强约束",
   "main": "./src/index.ts",
   "types": "./src/index.ts",

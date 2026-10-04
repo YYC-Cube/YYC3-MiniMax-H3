@@ -53,16 +53,25 @@
                 "type": "string"
               },
               "gen_seconds": {
-                "type": "number"
+                "type": [
+                  "number",
+                  "null"
+                ]
               },
               "peak_rss_gb": {
-                "type": "number"
+                "type": [
+                  "number",
+                  "null"
+                ]
               },
               "time": {
                 "type": "string"
               },
               "mps_alloc_gb": {
-                "type": "number"
+                "type": [
+                  "number",
+                  "null"
+                ]
               },
               "lipsync": {
                 "anyOf": [

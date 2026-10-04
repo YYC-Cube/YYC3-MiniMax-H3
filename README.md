@@ -42,7 +42,7 @@ _万象归元于云枢 | 深栈智启新纪元_
 flowchart TB
     subgraph UI["🖥️ 可视化层"]
         PANEL["Ref2VA 管理面板<br/>ECharts · dashboard/"]
-        CONSOLE["Next.js 控制台<br/>Phase 2 规划"]
+        CONSOLE["Vite 6 工作台<br/>Hono BFF · 单端口"]
     end
     subgraph PIPE["⚙️ 闭环流水线"]
         A["① batch_ref2va_nf4<br/>批量生成"] --> B["② score_lipsync<br/>SyncNet 口型评分"]
@@ -146,7 +146,7 @@ python scripts/pipeline-tools/pipeline_auto.py --batch 01 --auto
 
 # 5. 可视化面板
 open dashboard/Ref2VA-流水线管理面板.html
-# 或开发控制台（Next.js 15，端口 3030）
+# 或开发工作台（Vite 6 + React 19 + Hono BFF，端口 3030）
 pnpm --filter console dev
 ```
 

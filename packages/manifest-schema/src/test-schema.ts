@@ -9,9 +9,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { manifestSchema } from "./index";
 
-const repoRoot = path.resolve(__dirname, "..", "..", "..");
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 let checked = 0;
 for (const d of fs.readdirSync(repoRoot).filter((d) => /^output_batch/.test(d)).sort()) {
   const file = path.join(repoRoot, d, "manifest.json");

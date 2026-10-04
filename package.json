@@ -11,6 +11,7 @@
     "console:dev": "pnpm --filter console dev",
     "console:build": "pnpm --filter console build",
     "console:start": "pnpm --filter console start",
+    "console:landing:build": "pnpm --filter console landing:build",
     "schema:test": "pnpm --filter @yyc3/manifest-schema test",
     "dashboard:export": "python3 scripts/pipeline-tools/export_dashboard_data.py"
   },

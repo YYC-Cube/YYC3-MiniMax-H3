@@ -19,6 +19,18 @@ language: zh-CN
 
 ## [Unreleased]
 
+### Changed
+
+- **前端工作台迁移 Vite 6（apps/console 全量重构）**：Next.js 15 → **Vite 6 + React 19 + TS strict + Tailwind 4 + shadcn/ui + Zustand slice + Lucide + Motion + Vercel AI SDK v7**
+  - 单端口架构：Hono BFF（`server/`）——dev 双进程（Vite 3030 代理 `/api` → API 127.0.0.1:3031，`scripts/dev.mjs` 编排）；prod 同进程托管 `/api` + `dist/` 静态 + SPA fallback（3030）
+  - 服务端 lib 全量平移：`manifest`（/api/dashboard 取代 RSC fs 直读）/ `pipeline-manager`（spawn 白名单 + 环形日志 + fs.watch 文件总线 + SSE 回填/心跳）/ `gateway` / `api-auth`
+  - 鉴权升级：新增 `/api/session` 短时会话令牌（HMAC-SHA256 12h，私网签发或 `H3_SESSION_KEY`，内存持有不落 URL——P1-S3 铁律延续）；令牌配置时全端点 fail-closed
+  - 客户端：Zustand 四 slice（dashboard/pipeline/tasks/chat）+ 全 API/SSE 响应 zod 运行时校验（坏数据降级不崩 UI）+ 类型化 `createSSE`（命名事件/3s 重连/注销清理）
+  - 页面：仪表盘（KPI/聚合卡/SVG 趋势/批次表）、流水线（SSE 日志台 + Motion 末行淡入 + memo 行）、任务中心（提交表单 8MB 预检 + blob 预览解决鉴权头注入）、批次详情精评抽屉（sonner 通知）、AI 助手（`/assistant`，useChat + streamText，0379-World OpenAI 兼容端点适配——**待 Phase 2B 网关实测**，env：`H3_LLM_BASE_URL/H3_LLM_API_KEY/H3_LLM_MODEL`，路由懒加载隔离 AI SDK 体积）
+  - **Pages CI 转型**：h3.yyc3.top 由控制台快照 → **落地页/文档站**（`vite.landing.config.ts` → `dist-landing/`，曝光 + 预期管理 + 文档价值）
+  - 验证：console build（vite + 双端 tsc）全绿；prod 冒烟 /api/health·dashboard·session·score·SSE·SPA fallback 全通；dev 双进程代理链路通（SSE 经 http-proxy 透传）；鉴权矩阵——远程无令牌 401 / 有效会话令牌放行 / 伪造拒收 / 回环直连
+- **manifest 契约补强（性能字段 nullable）**：`recordSchema` 的 `gen_seconds/peak_rss_gb/mps_alloc_gb` 补 `.nullable()`——FAILED/中断记录写端初始为 null（batch1003 实证，同 lipsync 外层 nullable 先例）；`gen-json-schema.ts` 同步再生成；schema 冒烟测试 EXIT 0、双端契约同步 PASS
+
 ### Added
 
 - **P2 任务闭环：面板 ↔ 网关队列全链路打通（/tasks 任务中心）**：实勘确认网关 Phase 2.3 任务闭环已存在（创建/列表/详情/下载 + claim/heartbeat/result/failure + 租约回收），唯一缺口是 console 零对接——本期补齐门面，不重造队列

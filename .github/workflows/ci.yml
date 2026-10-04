@@ -46,8 +46,8 @@ jobs:
           git diff --exit-code -- packages/manifest-schema/schema/ \
             || (echo "::error::schema 漂移：请运行 gen-json-schema.ts 并提交生成物" && exit 1)
 
-      # ---- console 构建门禁 ----
-      - name: Next.js 控制台构建
+      # ---- console 构建门禁（Vite 工作台 + 双端 tsc）----
+      - name: 工作台构建
         run: pnpm --filter console build
 
       # ---- 引擎白名单完整性 ----

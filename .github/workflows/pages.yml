@@ -36,26 +36,20 @@ jobs:
       - name: 安装依赖（workspace 链接）
         run: pnpm install --frozen-lockfile
 
-      - name: Pages 快照构建说明
+      - name: 落地页构建说明
         run: |
-          echo "::notice::Pages 为静态快照：服务端 API（精修/流水线控制/SSE）不随 Pages 部署，
-          交互能力仍在本地/生产 3030。快照数据 = 入库的 dashboard/data/batches.json + 构建时刻 manifest。"
+          echo "::notice::Pages 已转型为落地页/文档站（曝光 + 预期管理 + 文档价值）。
+          交互工作台（流水线控制/任务中心/AI 助手）由部署侧单端口服务承载（本地/私网 3030）。"
 
-      - name: 移除服务端 API 路由（output:export 不支持，交互功能保留在本地控制台）
-        run: rm -rf apps/console/src/app/api
-
-      - name: 快照模式剥离 force-dynamic（Pages = 构建时刻静态快照；本地/生产控制台不受影响）
-        run: sed -i '/export const dynamic = "force-dynamic"/d' apps/console/src/app/page.tsx
-
-      - name: 静态导出构建（PAGES_EXPORT=1 → next.config output:export）
-        run: PAGES_EXPORT=1 pnpm --filter console exec next build
+      - name: 落地页静态构建（vite.landing.config.ts → dist-landing）
+        run: pnpm --filter console landing:build
 
       - name: 注入自定义域名 CNAME（public/CNAME = h3.yyc3.top）
-        run: cp public/CNAME apps/console/out/CNAME
+        run: cp public/CNAME apps/console/dist-landing/CNAME
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/console/out
+          path: apps/console/dist-landing
 
   deploy:
     needs: build

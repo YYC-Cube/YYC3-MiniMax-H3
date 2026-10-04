@@ -11,7 +11,7 @@
  */
 import { z } from "zod";
 // reconciledSchema 定义在 ./batches（index 末尾 export * batches，反向单向引用无循环）
-import { reconciledSchema } from "./batches";
+import { reconciledSchema } from "./batches.js";
 
 /** 单条生成记录（SUCCESS/SKIPPED/FAILED 等状态） */
 export const recordSchema = z
@@ -20,10 +20,10 @@ export const recordSchema = z
     seed: z.number().int(),
     status: z.string(), // SUCCESS | SKIPPED | FAILED | ...
     video_path: z.string().optional(),
-    gen_seconds: z.number().optional(),
-    peak_rss_gb: z.number().optional(),
+    gen_seconds: z.number().nullable().optional(), // FAILED/中断记录写端初始 null（同 lipsync 先例）
+    peak_rss_gb: z.number().nullable().optional(),
     time: z.string().optional(), // 写端扩展：完成时刻 HH:MM:SS
-    mps_alloc_gb: z.number().optional(), // 写端扩展：MPS 统计
+    mps_alloc_gb: z.number().nullable().optional(), // 写端扩展：MPS 统计
     lipsync: z
       .object({
         score_norm: z.number().nullable().optional(), // heuristic 后端写 null（快照实证 batch92）
@@ -64,4 +64,4 @@ export type Manifest = z.infer<typeof manifestSchema>;
 
 // batches.json 面板聚合契约：唯一真源已迁至 ./batches（2026-09-26 去重，原内联定义移除；
 // 直接导出对 export * 具名遮蔽会静默生效，故不再保留内联副本）
-export * from "./batches";
+export * from "./batches.js";
