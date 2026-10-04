@@ -20,7 +20,9 @@ agent/data/
 models/
 checkpoints/
 ref_images/
-data/
+# 锚定根目录：裸 data/ 会命中任意层级 data 目录（含 dashboard/data），
+# 使下方 !batches.json 否定失效——根 data/ 才是引擎数据目录
+/data/
 output_batch*/
 output_logs/
 
@@ -29,7 +31,9 @@ logs/
 report_batch*.md
 analysis_result_batch*.md
 logs_*.log
-dashboard/data/
+# 仅排除 dashboard/data/ 的内容而非目录本身：否则父目录排除会在路径遍历层剪枝，
+# 使下方 !batches.json 否定无法重新包含（git add 报 "paths are ignored"）
+dashboard/data/*
 # Pages 快照数据（GitHub Pages 部署随仓库分发；仅生产指标无敏感信息）
 !dashboard/data/batches.json
 *.safetensors
