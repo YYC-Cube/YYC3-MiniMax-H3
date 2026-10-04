@@ -9,7 +9,9 @@ allowBuilds:
 
 # 版本 pin：pnpm 11 默认 minimumReleaseAge（24h 冷却）会拒绝 lockfile 中发布不足一天的版本
 # postcss 8.5.27 / @types/react-dom 19.2.6-7 均为 2026-09-03 当日发布 → pin 到合规旧版
+# hono 4.13.13 为 2026-10-04 发布（<24h 被 CI 拒）→ pin 4.13.12（09-30，功能等价）
 # 后续升级时请选择发布已超过 24h 的版本，或解除本 overrides
 overrides:
   postcss: 8.5.26
   "@types/react-dom": 19.2.5
+  hono: 4.13.12
