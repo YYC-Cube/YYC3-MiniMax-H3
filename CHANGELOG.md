@@ -39,6 +39,7 @@ language: zh-CN
 
 ### Fixed
 
+- **终审整改：CI 核心回归空集根修**——原门禁命令 `unittest discover scripts/pipeline-tools` 实为 0 用例（全仓唯一测试集在 `agent/tests/test_smoke.py` 12 用例，此前 CI 从未执行任何 Python 单测）。ci.yml 新增「核心回归（agent 冒烟 12 用例）」步骤（working-directory: agent）；docs/08 §10.2 与 CONTRIBUTING 门禁命令同步纠正
 - **CI 供应链冷却补 pin（hono 4.13.13 <24h 被拒）**：pages-deploy 在 `pnpm install --frozen-lockfile` 阶段被 pnpm 11 `minimumReleaseAge` 拦截（hono@4.13.13 于 2026-10-04 发布，距 CI 运行不足 24h）——workspace overrides 追加 `hono: 4.13.12`（09-30 发布，功能等价），本地 frozen 复验通过
 - **gitignore 否定失效修复（batches.json git add 失败）**：`dashboard/data/` 目录排除在路径遍历层剪枝，使 `!dashboard/data/batches.json` 无法重新包含；另裸 `data/` 模式命中任意层级（含 dashboard/data）。改为 `dashboard/data/*`（只排除内容）+ `/data/` 根锚定——batches.json 恢复免 `-f` 正常 add，根 data/ 与其他 dashboard 数据仍隔离
 

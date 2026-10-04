@@ -28,7 +28,7 @@ pnpm install                           # 前端工作台：Node ≥20 + pnpm 11�
 | 门禁 | 命令 | 标准 |
 | ---- | ---- | ---- |
 | 语法编译 | `python3 -m py_compile <改动文件>` | 0 错误 |
-| 核心回归 | `python3 -m unittest discover scripts/pipeline-tools -v` | 全绿 |
+| 核心回归 | `cd agent && python3 -m unittest tests.test_smoke -v`（12 用例，CI 同款） | 全绿 |
 | 冒烟（涉及流水线） | `bash scripts/pipeline-tools/pipeline_smoke_mac.sh` | 4 步 PASS |
 | 前端构建（涉 apps/console·packages） | `pnpm --filter console build` | 全绿（vite build + 双端 tsc，CI 同款） |
 | 安全红线 | 改动中无 `shell=True` 拼接用户输入、无明文密钥 | 零容忍 |
