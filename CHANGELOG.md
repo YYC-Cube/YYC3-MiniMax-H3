@@ -25,9 +25,6 @@ language: zh-CN
   - 默认模型 `minimax-h3` → **`glm-4-flash`**（128k 上下文，实测往返正常）；`H3_LLM_API_KEY` 缺省复用 `H3_GATEWAY_API_KEY`（同一业务键双通道）
   - 端到端验证：工作台 `/api/chat` 输出 AI SDK v7 UIMessageStream（`text-delta` 逐字流式）；`/api/tasks` 带业务键 200
   - 新增部署 env 清单：docs/17-工作台部署环境清单.md + apps/console/.env.example（占位模板，真值 .secrets/ 隔离）
-
-### Changed
-
 - **前端工作台迁移 Vite 6（apps/console 全量重构）**：Next.js 15 → **Vite 6 + React 19 + TS strict + Tailwind 4 + shadcn/ui + Zustand slice + Lucide + Motion + Vercel AI SDK v7**
   - 单端口架构：Hono BFF（`server/`）——dev 双进程（Vite 3030 代理 `/api` → API 127.0.0.1:3031，`scripts/dev.mjs` 编排）；prod 同进程托管 `/api` + `dist/` 静态 + SPA fallback（3030）
   - 服务端 lib 全量平移：`manifest`（/api/dashboard 取代 RSC fs 直读）/ `pipeline-manager`（spawn 白名单 + 环形日志 + fs.watch 文件总线 + SSE 回填/心跳）/ `gateway` / `api-auth`
