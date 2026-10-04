@@ -1,6 +1,8 @@
 // server/routes/chat.ts — /api/chat：AI 助手（Vercel AI SDK streamText → UIMessageStream）
-// 提供商：0379-World 网关的 OpenAI 兼容端点（环境变量可覆盖）。
-// ⚠️ 适配器契约待 Phase 2B 与网关实测确认（H3_LLM_BASE_URL/H3_LLM_API_KEY/H3_LLM_MODEL）。
+// 提供商：0379-World 网关 OpenAI 兼容端点（2026-10-05 Phase 2B 实测通过）：
+//   - GET /v1/models 200（X-API-Key 与 Bearer 双通道，16 模型：glm-4-flash/glm-4-plus/deepseek-* 等）
+//   - POST /v1/chat/completions 非流式/流式（OpenAI SSE + yyc3-flush 哨兵）契约达标
+// 默认模型 glm-4-flash（128k 上下文）；H3_LLM_API_KEY 缺省复用 H3_GATEWAY_API_KEY（同一业务键）。
 import { Hono } from "hono";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
@@ -8,6 +10,8 @@ import { authorizePipeline } from "../lib/api-auth.js";
 import { GATEWAY_URL } from "../lib/gateway.js";
 
 export const chatRoutes = new Hono();
+
+const DEFAULT_MODEL = "glm-4-flash";
 
 const SYSTEM_PROMPT = `你是 YYC3-MiniMax-H3 的提示词优化助手。
 项目背景：MiniMax-H3 本地视频/数字人生成生产线（Ref2VA 参考图口型同步 / FL2VA 文生音视频）。
@@ -20,8 +24,8 @@ const SYSTEM_PROMPT = `你是 YYC3-MiniMax-H3 的提示词优化助手。
 
 function makeProvider() {
   const baseURL = (process.env.H3_LLM_BASE_URL ?? `${GATEWAY_URL}/v1`).replace(/\/$/, "");
-  const apiKey = process.env.H3_LLM_API_KEY ?? "";
-  if (!apiKey) throw new Error("H3_LLM_API_KEY 未配置（LLM 走 0379-World 网关 OpenAI 兼容端点）");
+  const apiKey = process.env.H3_LLM_API_KEY ?? process.env.H3_GATEWAY_API_KEY ?? "";
+  if (!apiKey) throw new Error("H3_LLM_API_KEY/H3_GATEWAY_API_KEY 未配置（LLM 走 0379-World 网关 OpenAI 兼容端点）");
   return createOpenAICompatible({ name: "h3-gateway", baseURL, apiKey });
 }
 
@@ -39,7 +43,7 @@ chatRoutes.post("/", async (c) => {
 
   try {
     const provider = makeProvider();
-    const modelId = process.env.H3_LLM_MODEL ?? "minimax-h3";
+    const modelId = process.env.H3_LLM_MODEL ?? DEFAULT_MODEL;
     const result = streamText({
       model: provider.chatModel(modelId),
       system: SYSTEM_PROMPT,

@@ -21,6 +21,11 @@ language: zh-CN
 
 ### Changed
 
+- **AI 助手网关实测通过（Phase 2B）**：0379-World 网关确认提供 OpenAI 兼容 LLM 端点（多后端代理：智谱 GLM/DeepSeek/Qwen/Llama 等 16 模型）——`GET /v1/models`（X-API-Key 与 Bearer 双通道 200）、`POST /v1/chat/completions` 非流式/流式（SSE + `yyc3-flush` 哨兵）契约达标；`createOpenAICompatible` 适配器零改动可用
+  - 默认模型 `minimax-h3` → **`glm-4-flash`**（128k 上下文，实测往返正常）；`H3_LLM_API_KEY` 缺省复用 `H3_GATEWAY_API_KEY`（同一业务键双通道）
+  - 端到端验证：工作台 `/api/chat` 输出 AI SDK v7 UIMessageStream（`text-delta` 逐字流式）；`/api/tasks` 带业务键 200
+  - 新增部署 env 清单：docs/17-工作台部署环境清单.md + apps/console/.env.example（占位模板，真值 .secrets/ 隔离）
+
 - **前端工作台迁移 Vite 6（apps/console 全量重构）**：Next.js 15 → **Vite 6 + React 19 + TS strict + Tailwind 4 + shadcn/ui + Zustand slice + Lucide + Motion + Vercel AI SDK v7**
   - 单端口架构：Hono BFF（`server/`）——dev 双进程（Vite 3030 代理 `/api` → API 127.0.0.1:3031，`scripts/dev.mjs` 编排）；prod 同进程托管 `/api` + `dist/` 静态 + SPA fallback（3030）
   - 服务端 lib 全量平移：`manifest`（/api/dashboard 取代 RSC fs 直读）/ `pipeline-manager`（spawn 白名单 + 环形日志 + fs.watch 文件总线 + SSE 回填/心跳）/ `gateway` / `api-auth`
