@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 CONSOLE_URL = os.environ.get("CONSOLE_URL", "http://127.0.0.1:3030")
+AGENT_URL = os.environ.get("AGENT_URL", "http://127.0.0.1:8300")  # agent 网关（引擎层心脏，P3 增强探点）
 LANDING_URL = "https://h3.yyc3.top"
 LOG_FILE = Path(__file__).resolve().parents[2] / "logs" / "console_watch.jsonl"
 SSE_TIMEOUT_S = 5.0
@@ -64,6 +65,24 @@ def probe_sse() -> tuple[bool, float]:
         return ok, time.monotonic() - start
     except Exception:
         return False, time.monotonic() - start
+
+
+def probe_agent() -> dict:
+    """agent 网关 /api/healthz（引擎层心脏，docs/21 §一链路 ③）。
+
+    网关为会话式常驻（B2/漫剧会话时启动），非常驻=正常态：
+    探活结果仅记录（record.agent），不计入退出码判定——避免未起网关时看门狗误报。
+    """
+    start = time.monotonic()
+    try:
+        with urllib.request.urlopen(f"{AGENT_URL}/api/healthz", timeout=3) as r:
+            data = json.loads(r.read())
+            return {"ok": r.status == 200 and data.get("status") == "ok",
+                    "claim_ready": bool(data.get("claim_ready")),
+                    "transport": data.get("transport"),
+                    "seconds": round(time.monotonic() - start, 3)}
+    except Exception:
+        return {"ok": False, "seconds": round(time.monotonic() - start, 3)}
 
 
 def probe_landing_p95() -> tuple[float, list[float]]:
@@ -114,6 +133,7 @@ def main() -> int:
         "console": CONSOLE_URL,
         "health": {"ok": health_ok, "seconds": round(health_ms, 3)},
         "sse": {"ok": sse_ok, "ttfb_s": round(sse_ms, 3)},
+        "agent": probe_agent(),  # P3 增强探点（docs/21 §一）：仅记录不判失败（网关非常驻）
         "landing": {"p95_s": p95, "samples": samples, "warn": p95 > TTFB_P95_WARN_S},
     }
     log(record)

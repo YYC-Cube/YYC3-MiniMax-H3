@@ -24,6 +24,12 @@ changelog:
 
 ### Changed
 
+- **智能化运维脚本闭环（docs/21 · B4 正式收口）**：
+  - **install_watchdog.sh（看门狗一键安装器）**：launchd 用户域（gui/$UID）替代 setuid crontab 特权写——受限执行环境（沙箱/CI）可完成挂载；幂等（先卸后装）+ bootstrap/load 兼容回退 + `--status/--uninstall` 完整生命周期 + kickstart 试跑 JSONL 增长验证；前置自检退出码分级（exit 1 本地失败阻断 / exit 2 线上抖动放行——v1.0.0 曾误阻断已修）
+  - **aggregate_watch_report.py（次晨聚合器）**：兑现 console_health_check「次晨报告可聚合」输出承诺——探测次数/模式分布/本地失败/agent 探活/P95 均值峰值+warn 聚合为 Markdown 段；nightly_run.sh **④.6 挂载**，坏行跳过不炸
+  - **看门狗 agent 探点（P3）**：full 模式探 `AGENT_URL /api/healthz`（ok/claim_ready/transport 入 JSONL `record.agent`）；网关会话式常驻——`ok:false` 仅记录不判失败（零误报）；`--landing-only` 口径不变
+  - **实测 8 用例全绿**（TC-O1~O8，docs/21 §四）：聚合器 8 行真数据/双模式回归/agent 正向/launchd 挂载回滚重挂/kickstart JSONL 14→15/exit2 分级实证——**launchd 挂载终态在位（600s 周期），无需设备前手工执行**
+  - docs/21 编号入列（README 树/docs/05 地图/docs/09 矩阵三处同步，01~21 无缺号）
 - **全局文档治理（2026-10-05 · 20 篇矩阵合规达标）**：
   - **FM 11 字段全库合规**：docs/01-07/09-15（9 篇）+ agent/API.md 补 `language`/`updated` 等缺项；README/CONTRIBUTING/SECURITY/agent-README 从零补齐全套 FM（YYC³ 文档硬约束闭环）
   - **编号化入列**：非编号论证文档 → `docs/19-第五能力审核论证.md`（docs/11 拍板依据）+ `docs/20-结构衔接可行性分析.md`（原方案准源）——引用全为书名号级零破坏，git 识别 rename 历史保留

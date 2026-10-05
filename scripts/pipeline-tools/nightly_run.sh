@@ -165,6 +165,11 @@ print(f"  失败模式 reason: {dict(reason_c) if reason_c else '（无失败记
 print(f"  生成模式 video_mode: {dict(mode_c) if mode_c else '（暂无标记——写端 P1-2 接入后生效）'}")
 PYEOF
 
+# ④.6 看门狗聚合（docs/21 §三）：console_watch.jsonl 近 24h 探测记录聚合为 Markdown 段
+#   兑现 console_health_check.py「次晨报告可聚合」的输出承诺——探测次数/本地失败/
+#   agent 网关探活/线上 TTFB P95 均值峰值 + warn 计数
+stage "④.6 看门狗聚合" "$PYTHON" scripts/pipeline-tools/aggregate_watch_report.py
+
 # 收尾：raw 日志并入报告（2026-09-24 修复：原 && 链仅末命令重定向，raw 漏入 stdout/cron 日志）
 if [ -f "$REPORT.raw" ]; then
   {
