@@ -51,6 +51,14 @@ is_loaded() {
 }
 
 write_plist() {
+  local hook_script="$SCRIPT_DIR/watchdog_alert_hook.py"
+  [ -f "$hook_script" ] || hook_script=""
+  # 链式调用（docs/21 §五）：探活退出后携退出码跑告警钩子（exit 1 连续 3 次→升级通知，
+  # 对齐告警纪律：指纹+6h 静默+连续 3 次）；钩子缺失时退化为纯探活（兼容旧布局）
+  local chain="\"$PYTHON\" \"$WATCH_SCRIPT\" --landing-only --quiet; rc=\$?;"
+  if [ -n "$hook_script" ]; then
+    chain+=" \"$PYTHON\" \"$hook_script\" --last-exit \"\$rc\" --quiet"
+  fi
   cat > "$PLIST" <<PLISTEOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -59,10 +67,9 @@ write_plist() {
   <key>Label</key><string>${LABEL}</string>
   <key>ProgramArguments</key>
   <array>
-    <string>${PYTHON}</string>
-    <string>${WATCH_SCRIPT}</string>
-    <string>--landing-only</string>
-    <string>--quiet</string>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <string>${chain}</string>
   </array>
   <key>StartInterval</key><integer>${INTERVAL_S}</integer>
   <key>RunAtLoad</key><true/>

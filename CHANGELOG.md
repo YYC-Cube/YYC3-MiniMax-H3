@@ -22,6 +22,13 @@ changelog:
 
 ## [Unreleased]
 
+### Added
+
+- **看门狗扩展件二连（docs/21 v1.1.0 · 告警钩子 + NAS 轮转归档）**：
+  - **watchdog_alert_hook.py（告警钩子）**：告警纪律落地——指纹（模式:目标）+ 6h 静默窗口 + 连续 3 次升级（L1@3 提醒/L2@6 升级/L3@9 严重封顶）+ recovery 恢复通知；exit 2（线上抖动）不计数不通知防轰炸；三渠道独立降级（osascript 通知中心/H3_ALERT_WEBHOOK env/审计流 watchdog_alerts.jsonl）；**plist 链式升级**（探活→携退出码跑钩子，install_watchdog 重装生效）
+  - **rotate_watch_jsonl.py（JSONL 轮转归档）**：主文件保留近 7 天（--keep-days/--dry-run）→ 按月切片 logs/archive/watch_YYYYMM.jsonl + rsync 幂等同步 NAS（yyc3-45:/Volume1/yyc3_hd/logs/watch/，不可达降级下次补传）；nightly_run.sh **④.7 挂载**；原子写防半行
+  - **实测 TC-E1~E6 全绿**（docs/21 §4.1）：状态机全序（L1@3→4/5 静默→L2@6→exit2 不计数→recovery 清零；升级公式 `(n-1)//3+1`→`n//3` bug 修复实证）+ 轮转 dry-run/真跑/NAS **真实同步成功**/幂等 + 链式 launchd 全链（state 文件生成实证）
+
 ### Changed
 
 - **智能化运维脚本闭环（docs/21 · B4 正式收口）**：

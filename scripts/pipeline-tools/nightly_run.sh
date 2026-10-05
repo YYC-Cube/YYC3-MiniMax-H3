@@ -170,6 +170,10 @@ PYEOF
 #   agent 网关探活/线上 TTFB P95 均值峰值 + warn 计数
 stage "④.6 看门狗聚合" "$PYTHON" scripts/pipeline-tools/aggregate_watch_report.py
 
+# ④.7 看门狗 JSONL 轮转归档（docs/21 §六）：超保留窗口（默认 7 天）切片至
+#   logs/archive/watch_YYYYMM.jsonl + rsync 幂等同步 NAS（不可达跳过，下次补传）
+stage "④.7 看门狗 JSONL 轮转归档" "$PYTHON" scripts/pipeline-tools/rotate_watch_jsonl.py
+
 # 收尾：raw 日志并入报告（2026-09-24 修复：原 && 链仅末命令重定向，raw 漏入 stdout/cron 日志）
 if [ -f "$REPORT.raw" ]; then
   {
