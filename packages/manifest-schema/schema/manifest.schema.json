@@ -130,6 +130,20 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "video_mode": {
+                "type": "string",
+                "enum": [
+                  "ref2va",
+                  "fl2va",
+                  "frames"
+                ]
+              },
+              "asset_ref": {
+                "type": "string"
+              },
+              "pacing": {
+                "type": "string"
               }
             },
             "required": [

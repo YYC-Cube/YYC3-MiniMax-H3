@@ -41,6 +41,13 @@ export const recordSchema = z
         notes: z.string().nullable().optional(),
       })
       .optional(),
+    // ---- P0-1 演进扩展（docs/18 §四，2026-10-05）：全部 optional 向后兼容，旧 manifest 零影响 ----
+    // 写端（h3_common.add_record）尚未产出：P1-2 分镜确认流接入时启用；当前由读端/资产工具预填
+    video_mode: z
+      .enum(["ref2va", "fl2va", "frames"])
+      .optional(), // 生成模式路由（OnlyShot 四模对位；frames=首尾帧插值，P2-1 探测后才启用写端）
+    asset_ref: z.string().optional(), // Ref 资产库关联路径（ref_images/{characters,scenes,props}/…，见 assets.ts 清单）
+    pacing: z.string().optional(), // 节奏元数据（grid 标识/爆点标记等，创作层回传分析用，本仓不实现节奏逻辑）
   })
   .passthrough(); // 写端可携带扩展字段，读端不强拒（契约只锁定已知关键字段）
 export type Record = z.infer<typeof recordSchema>;
@@ -65,3 +72,6 @@ export type Manifest = z.infer<typeof manifestSchema>;
 // batches.json 面板聚合契约：唯一真源已迁至 ./batches（2026-09-26 去重，原内联定义移除；
 // 直接导出对 export * 具名遮蔽会静默生效，故不再保留内联副本）
 export * from "./batches.js";
+
+// Ref 资产库清单契约（docs/18 P0-2，2026-10-05）
+export * from "./assets.js";

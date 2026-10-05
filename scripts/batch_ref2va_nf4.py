@@ -188,8 +188,13 @@ def main():
         # ---------- 扫描参考图 ----------
         if not REF_IMAGES_DIR.exists():
             raise FileNotFoundError(f"参考图片目录不存在：{REF_IMAGES_DIR}")
-        image_files = [f for f in os.listdir(REF_IMAGES_DIR)
-                       if Path(f).suffix.lower() in SUPPORTED_EXTS]
+        # P0-2 资产库结构化适配（docs/18）：递归扫描 {characters,scenes,props}/ 三类子目录，
+        # 排除清单 assets.json（ext 过滤天然排除）；ref_img 记录为相对路径（含子目录前缀）
+        image_files = sorted(
+            str(p.relative_to(REF_IMAGES_DIR))
+            for p in REF_IMAGES_DIR.rglob("*")
+            if p.is_file() and p.suffix.lower() in SUPPORTED_EXTS
+        )
         if not image_files:
             raise FileNotFoundError(f"{REF_IMAGES_DIR} 中未找到图片，支持：{', '.join(SUPPORTED_EXTS)}")
         print(f"🖼️ 参考图 {len(image_files)} 张 × seed {len(SEED_LIST)} 个 = {len(image_files)*len(SEED_LIST)} 任务")

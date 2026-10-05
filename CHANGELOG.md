@@ -54,6 +54,11 @@ language: zh-CN
 
 ### Added
 
+- **演进路线 P0 落地（docs/18 §四：契约扩展 + Ref 资产库结构化）**：
+  - **P0-1 manifest 契约扩展**：`recordSchema` 增 `video_mode`（枚举 ref2va/fl2va/frames——frames 为首尾帧插值预留，P2-1 探测后启用写端）/ `asset_ref`（Ref 资产关联）/ `pacing`（节奏元数据回传位），全部 optional 向后兼容（15 真实批次回归零影响）；JSON Schema 再生成 +14 行漂移一致
+  - **P0-2 Ref 资产库结构化**：新增 `packages/manifest-schema/src/assets.ts`（assetsManifest 契约：characters/scenes/props 三类，id/kind/name/files/tags，BigBanana 衣橱思路 tags 对位）；`organize_ref_assets.py` 迁移脚本（dry-run 默认/幂等/结构自检，实测 person_a → characters/ 入位 + assets.json 清单生成）
+  - **引擎适配（关键兼容修复）**：`batch_ref2va_nf4.py` 参考图扫描 `os.listdir` 顶层 → `rglob` 递归（资产库三类子目录可直接被引擎消费；ref_img 记录相对路径含子目录前缀，report/score 写回链路一致）
+  - test-schema 增 3 fixture（演进字段通过/非法 video_mode 拒绝/资产清单契约）；契约同步门禁/console build 全绿
 - **P2 任务闭环：面板 ↔ 网关队列全链路打通（/tasks 任务中心）**：实勘确认网关 Phase 2.3 任务闭环已存在（创建/列表/详情/下载 + claim/heartbeat/result/failure + 租约回收），唯一缺口是 console 零对接——本期补齐门面，不重造队列
   - 新增 4 个代理路由：`GET/POST /api/tasks`（列表/创建，LAN 直连规避公网链 90s 499 实证坑）、`GET /api/tasks/[id]`（轮询详情）、`GET /api/tasks/[id]/result`（mp4 流式代理）；task id 沿用 runner 白名单 `^[0-9a-f]{6,16}$` 防投毒；`/api/tasks/**` 鉴权 = `TASKS_CLAIM_TOKEN`（X-Claim-Token 常量时间比较）或未配置时 loopback
   - 新增 `lib/gateway.ts`（X-API-Key 仅存服务端）与 `lib/api-auth.ts`（共享鉴权）；**顺带补强 `/api/score` 零鉴权缺口**（写文件端点，GET/POST 双补，与 pipeline/run 同策略）
