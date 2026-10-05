@@ -24,6 +24,11 @@ changelog:
 
 ### Added
 
+- **终审遗留三项闭环（P3×2 + P2×1）**：
+  - **TTFB 根因确诊 + CDN 接入 SOP（docs/17 §七 v1.1.0）**：110 样本分布（≥10s 慢尾占 14%）+ curl 阶段分解（**瓶颈=跨境 TLS 握手**，round3 tls=11.0s 占 99%；落地页 1.8MB 无辜）——「30 天后决策」等待条件提前满足；Cloudflare 接入四步 + 同源验证命令 + 5 分钟回滚；DNS 执行权留域名管理员（自动化不越权）
+  - **agent 网关常驻可选能力（install_agent_gateway.sh）**：launchd KeepAlive 一键常驻/状态/回滚三命令；claim 密钥从 .secrets/agent_claim.env 注入（plist 600 权限收敛）；默认不激活（会话式默认态不变）——实测 install→healthz claim_ready:true→uninstall 全链
+  - **dgxspark 上游实勘**：gitee origin fetch 比对——本地 HEAD（7c9aad7 fp8 unet 缓解）即上游最新，09-02 后无新提交；跟进结论固化
+  - 修复：bash 双引号内 `$VAR` 后紧跟全角字符被解析为延伸变量名（set -u unbound 假报错）——三处改 `${VAR}` 花括号形式
 - **看门狗扩展件二连（docs/21 v1.1.0 · 告警钩子 + NAS 轮转归档）**：
   - **watchdog_alert_hook.py（告警钩子）**：告警纪律落地——指纹（模式:目标）+ 6h 静默窗口 + 连续 3 次升级（L1@3 提醒/L2@6 升级/L3@9 严重封顶）+ recovery 恢复通知；exit 2（线上抖动）不计数不通知防轰炸；三渠道独立降级（osascript 通知中心/H3_ALERT_WEBHOOK env/审计流 watchdog_alerts.jsonl）；**plist 链式升级**（探活→携退出码跑钩子，install_watchdog 重装生效）
   - **rotate_watch_jsonl.py（JSONL 轮转归档）**：主文件保留近 7 天（--keep-days/--dry-run）→ 按月切片 logs/archive/watch_YYYYMM.jsonl + rsync 幂等同步 NAS（yyc3-45:/Volume1/yyc3_hd/logs/watch/，不可达降级下次补传）；nightly_run.sh **④.7 挂载**；原子写防半行
