@@ -24,6 +24,7 @@ changelog:
 
 ### Added
 
+- **CDN 接入 SOP 独立文档（docs/22 v1.0.0，编号入列 01~22）**：由 docs/17 §七扩展为执行级 SOP——选型对比（Cloudflare 免费主案/EdgeOne 备案后备）、前置检查清单（DNS 全量盘点防丢）、六步接入（含 **Flexible 模式无限重定向陷阱警示**）、验证五项标准（tls<0.3s/P95<3s 且 warn=0）、<5 分钟回滚、风险表、执行记录回填表；docs/17 §7.5 收敛为诊断摘要并指向本文（单一执行真源）
 - **终审遗留三项闭环（P3×2 + P2×1）**：
   - **TTFB 根因确诊 + CDN 接入 SOP（docs/17 §七 v1.1.0）**：110 样本分布（≥10s 慢尾占 14%）+ curl 阶段分解（**瓶颈=跨境 TLS 握手**，round3 tls=11.0s 占 99%；落地页 1.8MB 无辜）——「30 天后决策」等待条件提前满足；Cloudflare 接入四步 + 同源验证命令 + 5 分钟回滚；DNS 执行权留域名管理员（自动化不越权）
   - **agent 网关常驻可选能力（install_agent_gateway.sh）**：launchd KeepAlive 一键常驻/状态/回滚三命令；claim 密钥从 .secrets/agent_claim.env 注入（plist 600 权限收敛）；默认不激活（会话式默认态不变）——实测 install→healthz claim_ready:true→uninstall 全链

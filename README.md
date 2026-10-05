@@ -39,7 +39,7 @@ _万象归元于云枢 | 深栈智启新纪元_
 [![PyTorch](https://img.shields.io/badge/PyTorch-MPS-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](docs/01-环境部署指南.md)
 [![Workbench](https://img.shields.io/badge/Workbench-React19_·_Vite6_·_Hono-61DAFB?style=for-the-badge&logo=react&logoColor=black)](docs/08-开发者文档.md)
 [![Pipeline](https://img.shields.io/badge/Pipeline-Closed--Loop-9B59B6?style=for-the-badge)](docs/03-批量迭代流水线说明.md)
-[![Docs](https://img.shields.io/badge/Docs-21_Guides-2EA043?style=for-the-badge)](docs/08-开发者文档.md)
+[![Docs](https://img.shields.io/badge/Docs-22_Guides-2EA043?style=for-the-badge)](docs/08-开发者文档.md)
 
 </div>
 
@@ -122,6 +122,7 @@ YYC3-MiniMax-H3/
 │   ├── 19-第五能力审核论证.md            ← docs/11 拍板依据（第五能力 API 设计与结论修正）
 │   ├── 20-结构衔接可行性分析.md          ← 第五能力原方案（经 19 号审核修订后为准源）
 │   ├── 21-智能化运维脚本闭环说明.md      ← ★ 看门狗 launchd 挂载 + 次晨聚合 + agent 探活（B4 收口 + 实测记录）
+│   ├── 22-CDN接入SOP.md                 ← ★ h3.yyc3.top 加速：诊断证据 + Cloudflare 分步执行 + 验证/回滚 + 执行记录表
 │   ├── YYC-CUBE-HUB.html                ← 家族全景分析中心单文件应用（docs/16 §三参照资产）
 │   ├── YYC3-Cube-APP-HUB.html           ← APP-HUB 项目全景镜像（与父仓副本同源，会话区引用）
 │   ├── dgxspark_comfyui_minimax_h3/     ← GB10 部署包参考克隆（.gitignore，上游跟进用）
