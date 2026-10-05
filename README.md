@@ -1,20 +1,3 @@
----
-file: README.md
-description: MiniMax-H3 · DiffSynth 本地版 AI 数字人生产线——项目总览与文档总索引
-author: YanYuCloudCube Team <admin@0379.email>
-version: v2.5.0
-created: 2026-09-02
-updated: 2026-10-05
-status: active
-tags: [readme],[index],[minimax-h3],[digital-human]
-category: meta
-language: zh-CN
-changelog:
-  - 2026-10-05 v2.5.0 徽章系统完善（CI/Pages/工作台栈 + Version 对齐 v2.4.0）+ 目录树 19/20 号文档 + agent 17 用例对齐 + FM 合规补全
-  - 2026-09-26 v2.4.0 开发者文档开源全套
-  - 2026-09-02 v1.0.0 初始版本（源文档整理归档）
----
-
 <div align="center">
 
 <img src="docs/assets/yyc3-family.png" alt="YYC³ Family" width="100%" />
