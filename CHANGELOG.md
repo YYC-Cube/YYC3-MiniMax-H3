@@ -21,6 +21,7 @@ language: zh-CN
 
 ### Changed
 
+- **AI 漫剧/短剧功能演进方案（docs/18 v1.0.0）**：基于 MiraFrame/OnlyShot 双仓库实勘（gh api 交叉验证）+ 同类横向检索（ArcReel 5.2k★/Toonflow 10k+★/BigBanana；修正 Toonflow 协议为 AGPL-3.0）——适配矩阵 15 项判定（✅4 同构互证/🔧5 补强/➕3 新建/⛔3 不采纳附因）；确立**双层一致性**差异化定位（Ref 控身份 × seed 控稳定，行业独有）；演进路线 P0（契约扩展 video_mode/asset_ref/pacing + Ref 资产库结构化）→ P1（编排器第六态 waiting_feedback + console 分镜确认闸门 + 失败模式结构化）→ P2（首尾帧插值探测 + 分级生成策略）；含 Mermaid 全景流程图/闸门时序/依赖序三图
 - **B2 漫剧 E2E 实测通过 + dry_run 透传事故根修（agent 网关）**：本机 h3-m4 实测 agent 网关全链（8300 启动 → 三 Agent 注册 → CLI claim 签发 → POST /api/tasks generate_batch dry_run）——首测暴露 🔴 `TaskRequest` 顶层 `dry_run` 被 pydantic 静默丢弃 → 生产官真实 spawn `pipeline_auto --batch 99 --auto`（即时止损：0 视频产物、误建 output_batch99/report 清理、git 零污染）；根修 = 快捷字段声明并入 + `merge_task_payload` 纯函数抽出 + **3 用例防回归**（test_smoke 12→**15**）；复测 argv=`--batch 99 --auto --dry-run` 秒回 completed。CI 核心回归同步装 fastapi（gateway 测试依赖，不装 redis 保 InMemory）。实测记录固化 docs/17 §5.4
 - **看门狗增强（--landing-only）**：纯线上 TTFB P95 观测模式（BFF 按需启动时 cron 零误报）；基线采样 P95 = 1.94/2.59/1.96s（远低于 warn 阈 5s，无需 CDN 动作）；docs/17 §5.3 更新双模式用法
 - **终审遗留五项落地（P2×3 + P3×2）**：
