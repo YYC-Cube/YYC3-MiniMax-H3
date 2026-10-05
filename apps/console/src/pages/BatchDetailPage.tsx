@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { RefineDrawer } from "@/components/batches/RefineDrawer";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { displayScore } from "@/lib/dashboard-selectors";
@@ -38,6 +39,14 @@ export default function BatchDetailPage() {
   }
 
   const success = manifest.records.filter((r) => r.status === "SUCCESS");
+  const failed = manifest.records.filter(
+    (r) => r.status !== "SUCCESS" && r.status !== "SKIPPED"
+  );
+  const REASON_TEXT: Record<string, string> = {
+    sigterm: "终止信号", window_timeout: "窗口截止", oom: "资源溢出",
+    model_error: "模型异常", score_backend_missing: "评分后端缺失",
+    ref_missing: "参考图缺失", unknown: "未归类",
+  };
 
   return (
     <PageTransition>
@@ -53,6 +62,30 @@ export default function BatchDetailPage() {
             {manifest.started_at.replace("T", " ").slice(0, 16)} 启动
           </span>
         </div>
+
+        {failed.length > 0 ? (
+          <section>
+            <div className="mb-2 flex items-baseline gap-3">
+              <h2 className="font-semibold text-destructive">失败记录（{failed.length}）</h2>
+              <span className="text-xs text-muted-foreground">
+                P1-3 失败模式结构化：按 reason 过滤定位；重跑走流水线页（断点续跑自动跳过 SUCCESS）
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {failed.map((r) => (
+                <span
+                  key={`${r.ref_img}-${r.seed}`}
+                  className="mono inline-flex items-center gap-2 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1 text-xs"
+                >
+                  seed {r.seed} · {r.ref_img}
+                  <Badge variant="destructive">
+                    {REASON_TEXT[r.reason ?? "unknown"] ?? (r.reason ?? "未归类")}
+                  </Badge>
+                </span>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {success.map((r) => {

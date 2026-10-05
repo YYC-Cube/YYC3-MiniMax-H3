@@ -51,7 +51,7 @@ if (!checked) {
   if (!parsed.success) process.exitCode = 1;
 }
 
-// P0-1/P0-2 契约扩展冒烟（docs/18，2026-10-05）：record 演进字段 + assets 清单 fixture
+// P0-1/P0-2/P1-3 契约扩展冒烟（docs/18，2026-10-05）：record 演进字段 + reason + assets 清单 fixture
 {
   const rec = recordSchema.safeParse({
     ref_img: "characters/person-a.png", seed: 7, status: "SUCCESS",
@@ -59,6 +59,7 @@ if (!checked) {
   });
   console.log(`fixture(evolution-record): ${rec.success ? "✅ video_mode/asset_ref/pacing OK" : "❌ " + JSON.stringify(rec.error.issues.slice(0, 2))}`);
   if (!rec.success) process.exitCode = 1;
+
   const bad = recordSchema.safeParse({ ref_img: "x.png", seed: 1, status: "SUCCESS", video_mode: "t2v" });
   if (bad.success) {
     console.log("fixture(evolution-record): ❌ 非法 video_mode 未被拒绝");
@@ -66,6 +67,17 @@ if (!checked) {
   } else {
     console.log("fixture(evolution-record): ✅ 非法 video_mode 正确拒绝");
   }
+
+  // P1-3 失败模式枚举
+  const fail = recordSchema.safeParse({ ref_img: "x.png", seed: 1, status: "FAILED", reason: "sigterm" });
+  const failBad = recordSchema.safeParse({ ref_img: "x.png", seed: 1, status: "FAILED", reason: "crash_x" });
+  if (fail.success && !failBad.success) {
+    console.log("fixture(evolution-record): ✅ reason 枚举通过/非法拒绝");
+  } else {
+    console.log("fixture(evolution-record): ❌ reason 枚举校验异常");
+    process.exitCode = 1;
+  }
+
   const assets = assetsManifestSchema.safeParse({
     schema_version: 1, generated_at: "2026-10-05T00:00:00",
     assets: [

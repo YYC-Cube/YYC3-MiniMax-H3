@@ -54,6 +54,13 @@ language: zh-CN
 
 ### Added
 
+- **演进路线 P1+P2 全量落地（docs/18 §八执行记录，同日交付）**：
+  - **P1-1 分镜确认闸门**：`StageStatus` 第六态 `waiting_feedback`（上游五态契约不动）+ 编排器 `submit_storyboard`（候选 1-4 张/路径穿越防护/批次白名单）→ `confirm_storyboard`（selected∈候选集 → asset_ref → 复用阶段4 闭环）+ 网关三端点（confirm 默认 dry_run 安全默认）；test_smoke 15→**17**（六态全链 + 四类约束拒绝）
+  - **P1-2 console 分镜确认页**：BFF `/api/storyboard` 三端点（代理 agent 网关，claim 头透传 + authorizePipeline 双层门禁）+ 候选图静态 `/api/storyboard/ref/*`（穿越防护）；前端 `/storyboard`（9:16 候选网格 radiogroup 单选 → 档位选择 + 演练默认勾选 → 确认触发；导航"分镜确认"入口）
+  - **P1-3 失败模式结构化**：契约 `record.reason` 七值枚举（optional 兼容）；写端三处（add_record 条件附加/SIGTERM→sigterm/种子级 except→model_error）；面板批次详情失败记录区（reason 中文徽章）；nightly ④.5 reason+video_mode 分布统计入次晨报告
+  - **P2-1 首尾帧插值探测（结论可行）**：vendor `minimax_h3_audio_video.__call__` 实勘——`keyframes+keyframe_indices`（官方约束 {0,-1}）= **首尾帧原生支持**，`video_mode:"frames"` 引擎封装透传即启用；>2 帧当前版本不支持；**额外发现 `retake_video` 局部重拍能力**（后续独立评估）
+  - **P2-2 分级生成**：`confirm_storyboard(quality=)` → 生产官 payload → `pipeline_auto --preview`（新增参数）→ batch 脚本快预览档；E2E 修出两边界：rework 打回循环丢失 quality（已根修保留档位）、无产物批次质检 500（已改结构化降级 verdict=blocked+reason=manifest_missing）
+  - **E2E 全链实证**（console BFF→agent 网关）：submit→waiting_feedback→confirm(dry_run+preview)→argv=[--batch,97,--auto,--dry-run,**--preview**]+asset_ref+qc.reason ✓；无 claim 写操作 401 ✓；17 用例/console build/schema 回归全绿
 - **演进路线 P0 落地（docs/18 §四：契约扩展 + Ref 资产库结构化）**：
   - **P0-1 manifest 契约扩展**：`recordSchema` 增 `video_mode`（枚举 ref2va/fl2va/frames——frames 为首尾帧插值预留，P2-1 探测后启用写端）/ `asset_ref`（Ref 资产关联）/ `pacing`（节奏元数据回传位），全部 optional 向后兼容（15 真实批次回归零影响）；JSON Schema 再生成 +14 行漂移一致
   - **P0-2 Ref 资产库结构化**：新增 `packages/manifest-schema/src/assets.ts`（assetsManifest 契约：characters/scenes/props 三类，id/kind/name/files/tags，BigBanana 衣橱思路 tags 对位）；`organize_ref_assets.py` 迁移脚本（dry-run 默认/幂等/结构自检，实测 person_a → characters/ 入位 + assets.json 清单生成）

@@ -70,6 +70,15 @@ export const scoreRowsSchema = z.object({
 });
 export type ScoreRows = z.infer<typeof scoreRowsSchema>;
 
+/** 分镜确认闸门（P1-1，agent 网关 /api/stages/storyboard） */
+export const storyboardStatusSchema = z.object({
+  batch: z.string().nullable(),
+  status: z.string(), // 六态：pending/running/passed/rework/blocked/waiting_feedback
+  candidates: z.array(z.string()),
+  selected: z.string().nullable().optional(),
+});
+export type StoryboardStatus = z.infer<typeof storyboardStatusSchema>;
+
 /** 解析并校验 JSON 字符串；失败返回 null（SSE 坏数据降级不崩 UI） */
 export function safeParseJson<T>(raw: string, schema: z.ZodType<T>): T | null {
   try {

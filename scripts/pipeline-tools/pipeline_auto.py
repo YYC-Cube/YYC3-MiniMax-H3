@@ -59,12 +59,12 @@ def get_next_batch_id() -> int:
     return max_b + 1
 
 
-def run_script(script_path: Path, desc: str, batch_id: str):
+def run_script(script_path: Path, desc: str, batch_id: str, extra_args: list[str] | None = None):
     if not script_path.exists():
         print(f"\n❌ 【{desc}】文件不存在：{script_path}")
         sys.exit(1)
-    print(f"\n===== {desc} 【{script_path.name} --batch {batch_id}】 =====")
-    ret = subprocess.run([sys.executable, str(script_path), "--batch", batch_id])
+    print(f"\n===== {desc} 【{script_path.name} --batch {batch_id}{' ' + ' '.join(extra_args) if extra_args else ''}】 =====")
+    ret = subprocess.run([sys.executable, str(script_path), "--batch", batch_id, *(extra_args or [])])
     if ret.returncode != 0:
         print(f"\n❌ 【{desc}】执行失败，退出码：{ret.returncode}")
         sys.exit(ret.returncode)
@@ -76,6 +76,8 @@ def main():
     parser.add_argument("--batch", help="指定批次号（如 03），默认自动递增")
     parser.add_argument("--auto", action="store_true", help="跳过人工精评暂停（非交互/远程触发必加）")
     parser.add_argument("--dry-run", action="store_true", help="演练模式：只打印执行计划")
+    # P2-2 分级生成（docs/18）：preview 档透传 batch 脚本（360p/64帧/30步快预览；pacing 驱动）
+    parser.add_argument("--preview", action="store_true", help="快预览档（透传 batch_ref2va_nf4 --preview）")
     args = parser.parse_args()
 
     print("=" * 80)
@@ -98,7 +100,8 @@ def main():
         return
 
     # ① 生成（manifest + 性能基线）
-    run_script(MAIN_GENERATE_SCRIPT, "① 批量视频生成", batch)
+    run_script(MAIN_GENERATE_SCRIPT, "① 批量视频生成", batch,
+               extra_args=["--preview"] if args.preview else None)
     # ② 自动口型评分（SyncNet优先，降级启发式）
     run_script(SCORE_SCRIPT, "② SyncNet自动口型评分", batch)
 

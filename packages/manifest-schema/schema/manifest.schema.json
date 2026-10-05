@@ -144,6 +144,18 @@
               },
               "pacing": {
                 "type": "string"
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "sigterm",
+                  "window_timeout",
+                  "oom",
+                  "model_error",
+                  "score_backend_missing",
+                  "ref_missing",
+                  "unknown"
+                ]
               }
             },
             "required": [

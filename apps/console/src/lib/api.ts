@@ -6,11 +6,13 @@ import {
   dashboardSchema,
   runStatusSchema,
   scoreRowsSchema,
+  storyboardStatusSchema,
   taskListSchema,
   type CreateTaskResult,
   type DashboardData,
   type RunStatus,
   type ScoreRows,
+  type StoryboardStatus,
   type TaskView,
 } from "./validators";
 
@@ -124,4 +126,41 @@ export async function saveScore(input: ScoreInput): Promise<void> {
 export async function getScoreRows(batch: string): Promise<ScoreRows> {
   const res = await apiFetch(`/api/score?batch=${encodeURIComponent(batch)}`);
   return jsonOrThrow(scoreRowsSchema, res);
+}
+
+// ---- 分镜确认闸门（P1-1/P1-2） ----
+
+export async function getStoryboard(): Promise<StoryboardStatus> {
+  const res = await apiFetch("/api/storyboard");
+  return jsonOrThrow(storyboardStatusSchema, res);
+}
+
+export async function submitStoryboard(batch: string, candidates: string[]): Promise<void> {
+  const res = await apiFetch("/api/storyboard/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ batch, candidates }),
+  });
+  if (!res.ok) {
+    const data: unknown = await res.json().catch(() => null);
+    throw new Error((data as { error?: string } | null)?.error ?? `HTTP ${res.status}`);
+  }
+}
+
+export interface ConfirmInput {
+  selected: string;
+  asset_ref?: string;
+  quality?: "preview" | "full";
+  dry_run?: boolean;
+}
+
+export async function confirmStoryboard(input: ConfirmInput): Promise<{ verdict?: string }> {
+  const res = await apiFetch("/api/storyboard/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data: unknown = await res.json().catch(() => null);
+  if (!res.ok) throw new Error((data as { error?: string } | null)?.error ?? `HTTP ${res.status}`);
+  return (data as { verdict?: string }) ?? {};
 }

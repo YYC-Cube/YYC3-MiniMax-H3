@@ -97,9 +97,10 @@ def _record_interrupted(manifest, img_file, seed, existing, video_path):
     except OSError:
         pass
     if existing:
-        existing.update(status="FAILED", video_path="-")
+        existing.update(status="FAILED", video_path="-",
+                        reason="sigterm")  # P1-3：SIGTERM/SIGINT 统一路径
     else:
-        manifest.add_record(img_file, seed, "FAILED", "-")
+        manifest.add_record(img_file, seed, "FAILED", "-", reason="sigterm")
     manifest.save()
 
 
@@ -283,9 +284,11 @@ def main():
                 except Exception as e:
                     print(f"❌ Seed {seed} 失败：{e}")
                     if existing:
-                        existing.update(status="FAILED", video_path=rel_video)
+                        existing.update(status="FAILED", video_path=rel_video,
+                                        reason="model_error")  # P1-3：模型/推理异常
                     else:
-                        manifest.add_record(img_file, seed, "FAILED", rel_video)
+                        manifest.add_record(img_file, seed, "FAILED", rel_video,
+                                            reason="model_error")
                     manifest.save()
                     with open(report_md, "a", encoding="utf-8") as f:
                         f.write(report_row(img_file, seed, "FAILED", rel_video))

@@ -144,6 +144,27 @@ stage "③.5 僵尸批次收敛（TaskClear）" "$PYTHON" scripts/pipeline-tools
 # 面板数据桥兜底刷新（manifest 可能被归档钩子/收敛器更新过）
 stage "④ 面板数据刷新" "$PYTHON" scripts/pipeline-tools/export_dashboard_data.py
 
+# ④.5 演进字段分布统计（P1-3/P2-2，docs/18）：reason 失败模式 + video_mode/quality 分布
+#   只读聚合入次晨报告——失败模式趋势与 pacing 分级覆盖率的观测位
+stage "④.5 演进字段分布统计" "$PYTHON" - <<'PYEOF'
+import glob, json
+from collections import Counter
+reason_c, mode_c = Counter(), Counter()
+for mf in glob.glob("output_batch*/manifest.json"):
+    try:
+        m = json.load(open(mf, encoding="utf-8"))
+    except Exception:
+        continue
+    for r in m.get("records", []):
+        if r.get("status") not in ("SUCCESS", "SKIPPED"):
+            reason_c[r.get("reason", "unknown(历史)")] += 1
+        if r.get("video_mode"):
+            mode_c[r["video_mode"]] += 1
+print("演进字段分布（全量批次）:")
+print(f"  失败模式 reason: {dict(reason_c) if reason_c else '（无失败记录）'}")
+print(f"  生成模式 video_mode: {dict(mode_c) if mode_c else '（暂无标记——写端 P1-2 接入后生效）'}")
+PYEOF
+
 # 收尾：raw 日志并入报告（2026-09-24 修复：原 && 链仅末命令重定向，raw 漏入 stdout/cron 日志）
 if [ -f "$REPORT.raw" ]; then
   {

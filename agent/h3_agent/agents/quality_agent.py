@@ -40,7 +40,12 @@ class H3QualityAgent(H3BaseAgent):
         batch = str(payload["batch"])
         mf = config.REPO_ROOT / f"output_batch{batch}" / "manifest.json"
         if not mf.exists():
-            raise FileNotFoundError(f"manifest 不存在：{mf}")
+            # P1-1 分镜闸门边界（docs/18）：dry_run 演练无产物批次——结构化降级而非 500
+            # （verdict=blocked：无产物可检；调用方可凭 dry_run 上下文判读）
+            return {"passed": False, "verdict": "blocked",
+                    "qc_score": None, "detail": {"success": 0, "failed": 0},
+                    "reason": "manifest_missing",
+                    "hint": f"dry-run 演练或批次未生成（{mf.name} 不存在）"}
         manifest = json.loads(mf.read_text(encoding="utf-8"))
         return self.check_records(manifest, batch=batch, trace_id=trace_id)
 

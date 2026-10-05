@@ -48,6 +48,18 @@ export const recordSchema = z
       .optional(), // 生成模式路由（OnlyShot 四模对位；frames=首尾帧插值，P2-1 探测后才启用写端）
     asset_ref: z.string().optional(), // Ref 资产库关联路径（ref_images/{characters,scenes,props}/…，见 assets.ts 清单）
     pacing: z.string().optional(), // 节奏元数据（grid 标识/爆点标记等，创作层回传分析用，本仓不实现节奏逻辑）
+    // P1-3 失败模式结构化（docs/18，2026-10-05）：FAILED 记录失败原因枚举（OnlyShot 17 式的引擎子集起步）
+    reason: z
+      .enum([
+        "sigterm",          // SIGTERM/SIGINT 优雅终止（窗口截止人工清场/kill）
+        "window_timeout",   // 夜间窗口截止（夜间编排判定，预留）
+        "oom",              // 显存/内存溢出（预留）
+        "model_error",      // 模型推理异常（通用种子级 except）
+        "score_backend_missing", // SyncNet 权重缺失降级失败（预留）
+        "ref_missing",      // 参考图缺失/越界（预留）
+        "unknown",          // 历史记录/未归类（读端兜底）
+      ])
+      .optional(),
   })
   .passthrough(); // 写端可携带扩展字段，读端不强拒（契约只锁定已知关键字段）
 export type Record = z.infer<typeof recordSchema>;

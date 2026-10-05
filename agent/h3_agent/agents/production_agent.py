@@ -67,11 +67,17 @@ class H3ProductionAgent(H3BaseAgent):
         return handler(payload, trace_id)
 
     def _task_generate_batch(self, payload: dict, trace_id: str) -> dict:
-        """批次闭环：pipeline_auto --batch N --auto（远程触发必加 --auto）"""
+        """批次闭环：pipeline_auto --batch N --auto（远程触发必加 --auto）
+
+        P2-2 分级生成（docs/18）：quality=preview → 追加 --preview（360p/64帧/30步快预览；
+        pacing 驱动——爆点 grid full / 常规 grid preview）
+        """
         batch = payload["batch"]
         argv = ["--batch", str(batch), "--auto"]
         if payload.get("dry_run"):
             argv.append("--dry-run")
+        if payload.get("quality") == "preview":
+            argv.append("--preview")
         run = self._executor("pipeline_auto", argv,
                              timeout=payload.get("timeout"))
         manifest = self._read_manifest(batch)

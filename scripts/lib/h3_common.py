@@ -217,6 +217,9 @@ class Manifest:
             "lipsync": None,   # 由 score_lipsync.py 回填
             "human": {"score": None, "tags": ""},  # 人工打分回填
         }
+        # P1-3 失败模式结构化（docs/18）：FAILED 可选失败原因（契约 reason 枚举；缺省不写）
+        if perf.get("reason"):
+            rec["reason"] = perf["reason"]
         self.records.append(rec)
         return rec
 

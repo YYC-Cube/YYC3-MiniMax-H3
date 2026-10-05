@@ -1,6 +1,6 @@
 // src/components/layout/AppHeader.tsx — 顶栏（品牌 + 导航 + 在线状态）
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, ListTodo, Sparkles, Workflow } from "lucide-react";
+import { Clapperboard, LayoutDashboard, ListTodo, Sparkles, Workflow } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { usePipelineStore } from "@/stores/pipelineSlice";
@@ -9,6 +9,7 @@ const NAV = [
   { to: "/", label: "仪表盘", icon: LayoutDashboard, end: true },
   { to: "/pipeline", label: "流水线", icon: Workflow, end: false },
   { to: "/tasks", label: "任务中心", icon: ListTodo, end: false },
+  { to: "/storyboard", label: "分镜确认", icon: Clapperboard, end: false },
   { to: "/assistant", label: "AI 助手", icon: Sparkles, end: false },
 ] as const;
 

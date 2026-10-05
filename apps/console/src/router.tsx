@@ -10,6 +10,7 @@ const PipelinePage = lazy(() => import("@/pages/PipelinePage"));
 const TasksPage = lazy(() => import("@/pages/TasksPage"));
 const BatchDetailPage = lazy(() => import("@/pages/BatchDetailPage"));
 const AssistantPage = lazy(() => import("@/pages/AssistantPage"));
+const StoryboardPage = lazy(() => import("@/pages/StoryboardPage"));
 
 function PageFallback() {
   return (
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: "/tasks", element: lazyPage(TasksPage) },
       { path: "/batches/:id", element: lazyPage(BatchDetailPage) },
       { path: "/assistant", element: lazyPage(AssistantPage) },
+      { path: "/storyboard", element: lazyPage(StoryboardPage) },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },

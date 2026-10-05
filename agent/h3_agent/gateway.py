@@ -138,6 +138,51 @@ def run_audiovisual_stage(request: Request, batch: str, dry_run: bool = False):
         raise HTTPException(400, str(e)) from e
 
 
+# ---------------- 分镜确认闸门（P1-1，docs/18：MiraFrame Human-in-the-Loop 对位） ----------------
+class StoryboardSubmit(BaseModel):
+    batch: str
+    candidates: list[str]              # 相对 ref_images/ 路径，1-4 张
+
+
+class StoryboardConfirm(BaseModel):
+    selected: str                      # 须 ∈ 提交候选集
+    asset_ref: str | None = None       # P0-2 资产库关联（缺省=selected）
+    quality: str | None = None         # P2-2 档位 preview/full（pacing 驱动）
+    dry_run: bool = True               # 确认触发默认演练（安全默认；真实生成显式 false）
+
+
+@app.post("/api/stages/storyboard")
+def storyboard_submit(req: StoryboardSubmit, request: Request):
+    """漫剧侧提交分镜候选 → 闸门 waiting_feedback（console 确认页可拉取）"""
+    _check_write_auth(request, "generate_batch")
+    try:
+        result = _orchestrator.submit_storyboard(req.batch, req.candidates)
+        return {"trace_id": f"sb-{uuid.uuid4().hex[:8]}", **result,
+                "snapshot": _orchestrator.snapshot()}
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+
+
+@app.get("/api/stages/storyboard")
+def storyboard_status():
+    """闸门当前状态（console 轮询；只读无鉴权）"""
+    return _orchestrator.storyboard_status()
+
+
+@app.post("/api/stages/storyboard/confirm")
+def storyboard_confirm(req: StoryboardConfirm, request: Request):
+    """人工选定候选 → 触发阶段4 闭环（dry_run 默认 true 安全默认）"""
+    _check_write_auth(request, "generate_batch")
+    try:
+        result = _orchestrator.confirm_storyboard(
+            req.selected, asset_ref=req.asset_ref,
+            quality=req.quality, dry_run=req.dry_run)
+        return {"trace_id": f"sb-{uuid.uuid4().hex[:8]}", **result,
+                "snapshot": _orchestrator.snapshot()}
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+
+
 # ---------------- 独立启动（开发调试） ----------------
 if __name__ == "__main__":
     import uvicorn

@@ -200,8 +200,79 @@ class TestOrchestrator(unittest.TestCase):
                                  StageStatus.PASSED)
                 snap = orch.snapshot()
                 self.assertEqual(snap["stage"], "04_audiovisual_gen")
-                self.assertTrue((tdp / "projects/unit_proj/state/"
-                                     "audiovisual_state.json").exists())
+                self.assertTrue(
+                    (tdp / "projects/unit_proj/state/audiovisual_state.json").exists())
+            finally:
+                config.REPO_ROOT = orig_root
+
+
+class TestStoryboardGate(unittest.TestCase):
+    """P1-1 分镜确认闸门（docs/18，2026-10-05）：第六态 + submit/confirm 闭环"""
+
+    def _orch(self, tdp: Path):
+        fake_manifest(tdp, "95")
+        orch = H3StageOrchestrator("sb_proj", transport=InMemoryTransport())
+        orch.production._executor = dry_executor  # 生成侧 dry；质检官直读 fake_manifest
+        return orch
+
+    def test_gate_full_flow_and_sixth_state(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            cand_dir = tdp / "ref_images" / "characters"
+            cand_dir.mkdir(parents=True)
+            for n in ("g1_c1.png", "g1_c2.png"):
+                (cand_dir / n).write_bytes(b"x")
+            orig_root = config.REPO_ROOT
+            config.REPO_ROOT = tdp
+            try:
+                orch = self._orch(tdp)
+                # 未提交就确认 → 拒绝
+                with self.assertRaises(ValueError):
+                    orch.confirm_storyboard("characters/g1_c1.png")
+                # 提交 → 第六态
+                sb = orch.submit_storyboard("95", ["characters/g1_c1.png",
+                                                   "characters/g1_c2.png"])
+                self.assertEqual(sb["status"], "waiting_feedback")
+                self.assertEqual(orch.storyboard_status()["status"],
+                                 "waiting_feedback")
+                # 非法选定 → 拒绝
+                with self.assertRaises(ValueError):
+                    orch.confirm_storyboard("characters/other.png")
+                # 确认 → 阶段4 闭环（dry executor → passed）
+                result = orch.confirm_storyboard("characters/g1_c1.png",
+                                                 quality="preview", dry_run=True)
+                self.assertEqual(result["verdict"], "passed")
+                self.assertEqual(result["storyboard"]["asset_ref"],
+                                 "characters/g1_c1.png")
+                # quality=preview 透传 argv（P2-2）
+                argv = result["generate"]["run"]["argv"]
+                self.assertIn("--preview", argv)
+                self.assertIn("--dry-run", argv)
+            finally:
+                config.REPO_ROOT = orig_root
+
+    def test_gate_candidate_constraints(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            d = tdp / "ref_images" / "characters"
+            d.mkdir(parents=True)
+            (d / "a.png").write_bytes(b"x")
+            orig_root = config.REPO_ROOT
+            config.REPO_ROOT = tdp
+            try:
+                orch = self._orch(tdp)
+                # 越界路径（路径穿越防护）
+                with self.assertRaises(ValueError):
+                    orch.submit_storyboard("95", ["../../etc/hosts"])
+                # 不存在候选
+                with self.assertRaises(ValueError):
+                    orch.submit_storyboard("95", ["characters/ghost.png"])
+                # 超 4 张
+                with self.assertRaises(ValueError):
+                    orch.submit_storyboard("95", [f"characters/a.png"] * 5)
+                # 批次名违规
+                with self.assertRaises(ValueError):
+                    orch.submit_storyboard("../evil", ["characters/a.png"])
             finally:
                 config.REPO_ROOT = orig_root
 

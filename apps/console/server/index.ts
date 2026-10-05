@@ -12,6 +12,7 @@ import { tasksRoutes } from "./routes/tasks.js";
 import { scoreRoutes } from "./routes/score.js";
 import { chatRoutes } from "./routes/chat.js";
 import { sessionRoutes } from "./routes/session.js";
+import { storyboardRoutes } from "./routes/storyboard.js";
 
 const isProd = process.env.NODE_ENV === "production";
 const PORT = Number(process.env.CONSOLE_PORT ?? 3030);
@@ -29,6 +30,7 @@ app.route("/api/tasks", tasksRoutes);
 app.route("/api/score", scoreRoutes);
 app.route("/api/chat", chatRoutes);
 app.route("/api/session", sessionRoutes);
+app.route("/api/storyboard", storyboardRoutes);
 
 app.notFound((c) =>
   c.req.path.startsWith("/api") ? c.json({ error: "not found" }, 404) : c.text("Not Found", 404)
