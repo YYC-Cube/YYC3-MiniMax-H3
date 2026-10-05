@@ -1,3 +1,19 @@
+---
+file: CONTRIBUTING.md
+description: YYC3-MiniMax-H3 贡献指南——开发流程、六项门禁、提交规范与密钥纪律
+author: YanYuCloudCube Team <admin@0379.email>
+version: v1.1.0
+created: 2026-09-26
+updated: 2026-10-05
+status: active
+tags: [contributing],[guide],[governance]
+category: meta
+language: zh-CN
+changelog:
+  - 2026-10-05 v1.1.0 FM 合规补全 + 核心回归用例数对齐（12→17）
+  - 2026-09-26 v1.0.0 初始版（pnpm 环境 + 六门禁）
+---
+
 # 贡献指南（Contributing）
 
 > 感谢你对 MiniMax-H3 本地生产线的关注。本指南面向外部贡献者；团队内部协作用户规则见仓库根 `README.md` 与 `docs/YYC3-团队通用-标规文档/`。
@@ -28,7 +44,7 @@ pnpm install                           # 前端工作台：Node ≥20 + pnpm 11�
 | 门禁 | 命令 | 标准 |
 | ---- | ---- | ---- |
 | 语法编译 | `python3 -m py_compile <改动文件>` | 0 错误 |
-| 核心回归 | `cd agent && python3 -m unittest tests.test_smoke -v`（12 用例，CI 同款） | 全绿 |
+| 核心回归 | `cd agent && python3 -m unittest tests.test_smoke -v`（17 用例，CI 同款） | 全绿 |
 | 冒烟（涉及流水线） | `bash scripts/pipeline-tools/pipeline_smoke_mac.sh` | 4 步 PASS |
 | 前端构建（涉 apps/console·packages） | `pnpm --filter console build` | 全绿（vite build + 双端 tsc，CI 同款） |
 | 安全红线 | 改动中无 `shell=True` 拼接用户输入、无明文密钥 | 零容忍 |

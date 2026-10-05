@@ -1,3 +1,19 @@
+---
+file: agent/README.md
+description: YYC3 MiniMax-H3 多Agent 框架——漫剧阶段4 视听生成执行层（A2A 协议 + 三官架构）
+author: YanYuCloudCube Team <admin@0379.email>
+version: v1.1.0
+created: 2026-09-26
+updated: 2026-10-05
+status: active
+tags: [agent],[a2a],[framework],[h3]
+category: readme
+language: zh-CN
+changelog:
+  - 2026-10-05 v1.1.0 FM 合规补全（11 字段，YYC³ 硬约束）
+  - 2026-09-26 v1.0.0 初始版（三官架构 + 漫剧对齐映射）
+---
+
 # YYC3 MiniMax-H3 多Agent 框架（H3 Agent Family）v1.0
 
 > 言启象限 · 语枢未来 —— H3 视听生成层接入 YYC³ AI Family 多Agent 协同体系

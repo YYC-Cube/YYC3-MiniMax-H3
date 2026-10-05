@@ -2,12 +2,16 @@
 file: docs/12-DGXSpark-ComfyUI-H3部署包深度分析.md
 description: dgxspark_comfyui_minimax_h3 克隆仓库深度分析——对 Phase 4 DGX 迁移与路线C ComfyUI 生态的战略情报
 author: Intelligent Application Implementation Expert
-version: v1.0.0
+version: v1.0.1
 created: 2026-09-15
-updated: 2026-09-15
+updated: 2026-10-05
 status: active
 tags: [analysis],[dgx-spark],[comfyui],[benchmark]
 category: analysis
+language: zh-CN
+changelog:
+  - 2026-10-05 v1.0.1 FM 合规补全：补 language 字段（全局文档治理，YYC³ 硬约束）
+  - （此前版本沿革见正文「变更历史」表）
 ---
 
 # 🔍 DGX Spark ComfyUI + MiniMax H3 部署包深度分析

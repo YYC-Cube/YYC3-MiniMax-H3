@@ -2,12 +2,16 @@
 file: 10-DGX-Spark部署生产运维指南.md
 description: MiniMax-H3 生产线 NVIDIA DGX Spark (GB10) 完整可用性生产运维指南 - 迁移路径/环境部署/代码适配/运维体系
 author: Intelligent Application Implementation Expert
-version: v1.0.1
+version: v1.0.2
 created: 2026-09-03
-updated: 2026-09-03
+updated: 2026-10-05
 status: active
 tags: [guide],[deployment],[dgx-spark]
 category: guide
+language: zh-CN
+changelog:
+  - 2026-10-05 v1.0.2 FM 合规补全：补 language 字段（全局文档治理，YYC³ 硬约束）
+  - （此前版本沿革见正文「变更历史」表）
 ---
 
 # 🚀 DGX Spark (GB10) 部署生产运维指南：MiniMax-H3 生产线

@@ -47,7 +47,13 @@ __pycache__/
 
 # 嵌套 git 参考克隆（上游 fp8 缓解进展跟进）
 docs/dgxspark_comfyui_minimax_h3/
+# 推理引擎克隆（docs/01 §4 获取；P2-1 首尾帧探测读取其 minimax_h3 管线）
+vendor/DiffSynth-Studio/
 .venv/
+
+# agent 运行时状态（编排器快照 / NAS 待归档队列）
+projects/
+.nas_pending
 
 # ==== Agent Skills（npx skills CLI 管理）====
 # 唯一 canonical 入库：.agents/skills/（跨代理标准位）+ skills-lock.json

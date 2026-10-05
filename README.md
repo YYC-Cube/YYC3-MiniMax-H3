@@ -1,3 +1,20 @@
+---
+file: README.md
+description: MiniMax-H3 · DiffSynth 本地版 AI 数字人生产线——项目总览与文档总索引
+author: YanYuCloudCube Team <admin@0379.email>
+version: v2.5.0
+created: 2026-09-02
+updated: 2026-10-05
+status: active
+tags: [readme],[index],[minimax-h3],[digital-human]
+category: meta
+language: zh-CN
+changelog:
+  - 2026-10-05 v2.5.0 徽章系统完善（CI/Pages/工作台栈 + Version 对齐 v2.4.0）+ 目录树 19/20 号文档 + agent 17 用例对齐 + FM 合规补全
+  - 2026-09-26 v2.4.0 开发者文档开源全套
+  - 2026-09-02 v1.0.0 初始版本（源文档整理归档）
+---
+
 <div align="center">
 
 <img src="docs/assets/yyc3-family.png" alt="YYC³ Family" width="100%" />
@@ -12,14 +29,17 @@ _万象归元于云枢 | 深栈智启新纪元_
 ---
 
 <!-- BADGES -->
+[![CI](https://github.com/YYC-Cube/YYC3-MiniMax-H3/actions/workflows/ci.yml/badge.svg)](https://github.com/YYC-Cube/YYC3-MiniMax-H3/actions/workflows/ci.yml)
+[![Pages Deploy](https://github.com/YYC-Cube/YYC3-MiniMax-H3/actions/workflows/pages.yml/badge.svg)](https://github.com/YYC-Cube/YYC3-MiniMax-H3/actions/workflows/pages.yml)
 [![Team](https://img.shields.io/badge/Team-YanYuCloudCube-00d4aa?style=for-the-badge)](https://github.com/YanYuCloudCube)
-[![Version](https://img.shields.io/badge/Version-v2.2.0-00b4d8?style=for-the-badge)](#-变更历史)
+[![Version](https://img.shields.io/badge/Version-v2.5.0-00b4d8?style=for-the-badge)](#-变更历史)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-M4_Max_128GB_/_DGX_Spark-black?style=for-the-badge&logo=apple)](docs/10-DGX-Spark部署生产运维指南.md)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](docs/01-环境部署指南.md)
 [![PyTorch](https://img.shields.io/badge/PyTorch-MPS-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](docs/01-环境部署指南.md)
+[![Workbench](https://img.shields.io/badge/Workbench-React19_·_Vite6_·_Hono-61DAFB?style=for-the-badge&logo=react&logoColor=black)](docs/08-开发者文档.md)
 [![Pipeline](https://img.shields.io/badge/Pipeline-Closed--Loop-9B59B6?style=for-the-badge)](docs/03-批量迭代流水线说明.md)
-[![Docs](https://img.shields.io/badge/Docs-10+_Guides-2EA043?style=for-the-badge)](docs/05-全局释义与指导文档.md)
+[![Docs](https://img.shields.io/badge/Docs-20_Guides-2EA043?style=for-the-badge)](docs/08-开发者文档.md)
 
 </div>
 
@@ -99,6 +119,10 @@ YYC3-MiniMax-H3/
 │   ├── 16-前端技术选型与可视化建议.md    ← 双阵营开源分析 + 方案 A 定型（Next.js+shadcn/ui+Tremor）+ 四阶段路线 + ADR-FE-002 栈变更
 │   ├── 17-工作台部署环境清单.md          ← ★ 工作台 env/密钥映射 + 灰度回滚 SOP + B2 实测记录 + 看门狗
 │   ├── 18-AI漫剧生成功能演进方案.md      ← ★ MiraFrame/OnlyShot 实勘适配矩阵 + P0-P2 路线 + 推进流程图
+│   ├── 19-第五能力审核论证.md            ← docs/11 拍板依据（第五能力 API 设计与结论修正）
+│   ├── 20-结构衔接可行性分析.md          ← 第五能力原方案（经 19 号审核修订后为准源）
+│   ├── YYC-CUBE-HUB.html                ← 家族全景分析中心单文件应用（docs/16 §三参照资产）
+│   ├── YYC3-Cube-APP-HUB.html           ← APP-HUB 项目全景镜像（与父仓副本同源，会话区引用）
 │   ├── dgxspark_comfyui_minimax_h3/     ← GB10 部署包参考克隆（.gitignore，上游跟进用）
 │   ├── YYC3-团队通用-标规文档/          ← 团队规范标准（开发标准/五维驱动/文档闭环）
 │   ├── YYC3-项目闭环-验收系统/          ← 验收标准体系（代码/功能/测试/安全/性能）
@@ -110,7 +134,7 @@ YYC3-MiniMax-H3/
 │   ├── API.md                         ← A2A 消息契约 + REST 网关 + Agent Card
 │   ├── requirements.txt               ← redis/fastapi（均可选，自动降级）
 │   ├── h3_agent/                      ← config / security / protocol / base / agents×3 / orchestrator / gateway
-│   └── tests/test_smoke.py            ← 离线冒烟 12 用例（InMemory 传输，无 GPU/Redis 依赖）
+│   └── tests/test_smoke.py            ← 离线冒烟 17 用例（InMemory 传输，无 GPU/Redis 依赖）
 ├── dashboard/                         ← 可视化面板（管理面板 HTML + 数据桥 JSON）
 ├── prompts/
 │   └── README.md                      ← 提示词模板（Ref2VA/FL2VA/音色参考）+ 最佳实践
@@ -126,7 +150,7 @@ YYC3-MiniMax-H3/
 ├── models/syncnet/                    ← 口型评分双权重（sfd_face.pth / syncnet_v2.model）
 ├── output_batchXX/                    ← 批次产物（manifest.json 单一事实源 + 视频 + 帧）
 ├── ref_images/                        ← 参考图（数字人形象）
-└── vendor/DiffSynth-Studio/           ← 第三方推理引擎（内嵌未改动）
+└── vendor/DiffSynth-Studio/           ← 第三方推理引擎（.gitignore，按 docs/01 §4 克隆）
 ```
 
 ---
@@ -199,6 +223,7 @@ Released under the MIT License.
 | v2.3.0 | 2026-09-25 | 文档矩阵收录「生产闭环」16 篇蓝图（P0 密钥脱敏/注入修复/超时修正 + P1-D1 规范化：FM 补齐/腐蚀链接修复/尾巴清理）；新增会话工作区 20260925 | Impl Expert　　　　 |
 | v2.4.0 | 2026-09-26 | 开发者文档开源全套：补齐 LICENSE（MIT，对齐既有 badge）+ CONTRIBUTING.md + docs/08 v1.2.0 新增「10. 开源协作指南」（五门禁/密钥纪律/docs 导航） | Impl Expert　　　　 |
 | v2.4.1 | 2026-09-26 | docs/08 目录补「10. 开源协作指南」锚点（标题去版本后缀保证 TOC 跳转）；开源文档结构闭环 | Impl Expert　　　　 |
+| v2.5.0 | 2026-10-05 | 全局文档治理：徽章系统完善（CI/Pages/Workbench 实况徽章 + Version 对齐）+ 目录树 19/20 号编号化 + 两 HTML 角色注释 + agent 17 用例对齐 + 全库 FM 合规补全（language/changelog） | Impl Expert　　　　 |
 | v2.2.0 | 2026-09-16 | 文档矩阵补 14-15（生产落地闭环 + Pruned A/B 升格方案）；A2 升格启动（h3_common pruned 修复） | Impl Expert　　　　 |
 | v2.1.0 | 2026-09-15 | 文档矩阵补 11-13；快速开始对齐实况（--auto/快预览档/console dev）；目录结构补工具链五件套 | Impl Expert　　　　 |
 | v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/　 | Impl Expert　　　　 |

@@ -2,12 +2,16 @@
 file: API.md
 description: YYC3 MiniMax-H3 多Agent 框架 API 契约（A2A 消息 / Agent Card / REST 网关）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.0.0
+version: v1.0.1
 created: 2026-09-26
+updated: 2026-10-05
 status: active
 tags: [api],[a2a],[contract],[multi-agent]
 category: api
 language: zh-CN
+changelog:
+  - 2026-10-05 v1.0.1 FM 合规补全（补 language/updated 字段，全局文档治理）
+  - （此前版本沿革见正文「变更历史」表）
 ---
 
 # YYC3 MiniMax-H3 多Agent 框架 · API 契约 v1.0

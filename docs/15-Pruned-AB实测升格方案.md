@@ -2,12 +2,16 @@
 file: 15-Pruned-AB实测升格方案.md
 description: Pruned vs NF4 A/B 实测升格方案——基线驱动、零下载、夜间窗口执行、量化决策规则
 author: Intelligent Application Implementation Expert
-version: v1.0.0
+version: v1.0.1
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-10-05
 status: active
 tags: [plan],[benchmark],[pruned],[ab-test],[optimization]
 category: plan
+language: zh-CN
+changelog:
+  - 2026-10-05 v1.0.1 FM 合规补全：补 language 字段（全局文档治理，YYC³ 硬约束）
+  - （此前版本沿革见正文「变更历史」表）
 ---
 
 # 🧪 Pruned vs NF4 A/B 实测升格方案

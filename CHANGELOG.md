@@ -9,6 +9,9 @@ status: active
 tags: [changelog],[history],[release]
 category: meta
 language: zh-CN
+changelog:
+  - 2026-10-05 v1.0.1 FM 合规补全（补 changelog 字段，全局文档治理）
+  - 2026-09-03 v1.0.0 初始版
 ---
 
 # 变更日志
@@ -21,6 +24,14 @@ language: zh-CN
 
 ### Changed
 
+- **全局文档治理（2026-10-05 · 20 篇矩阵合规达标）**：
+  - **FM 11 字段全库合规**：docs/01-07/09-15（9 篇）+ agent/API.md 补 `language`/`updated` 等缺项；README/CONTRIBUTING/SECURITY/agent-README 从零补齐全套 FM（YYC³ 文档硬约束闭环）
+  - **编号化入列**：非编号论证文档 → `docs/19-第五能力审核论证.md`（docs/11 拍板依据）+ `docs/20-结构衔接可行性分析.md`（原方案准源）——引用全为书名号级零破坏，git 识别 rename 历史保留
+  - **徽章系统完善（README v2.5.0）**：新增 CI/Pages Deploy 实况徽章 + Workbench 栈徽章（React19·Vite6·Hono）；Version 徽章 v2.2.0→v2.5.0 对齐变更史；Docs 徽章 10+→20_Guides；目录树补 19/20 + 双 HTML 角色注释 + vendor/dgxspark 克隆来源注释
+  - **文档矩阵三处同步**：docs/05 §四 文档地图 07→20 号、docs/09 §1.1 矩阵 09→20 号 + §1.2 审核结论复审（01~20 无缺号/FM 全合规）、README 目录树
+  - **一致性修正**：agent 冒烟用例数 12→17 三处（README/docs/08 §10.2/CONTRIBUTING）
+  - **活文档刷新**：docs/06 §1.0.3 工程快照（漫剧 P0-P2 落地/工作台/门禁/供应链）+ §五 TOP3 刷新（A 系列闭环 → B4 cron 挂载/B5 视觉验证/治理常态化）
+  - **git 卫生**：.gitignore 补 `vendor/DiffSynth-Studio/`（引擎克隆，对齐 dgxspark 先例）+ `projects/` + `.nas_pending/`（agent/NAS 运行时态）——git status 清零 untracked 噪音
 - **供应链加固收口：GitHub Actions 引用全量 commit SHA 锁定（ci.yml + pages.yml 共 9 处）**：pnpm/action-setup→`a7487c7`（v4.1.0）/setup-node→`49933ea`（v4.4.0）/upload-pages-artifact→`56afc60`（v3.0.1）/deploy-pages→`d6db901`（v4.0.5），与既有 checkout/setup-python 对齐——补齐「tag 可变→SHA 不可变」供应链纪律的声明缺口（grep 复核零 tag 残留）
 - **分镜闸门文档/env 对齐 + E2E 复验（docs/18 P1 收尾）**：docs/08 升 **v1.4.0**（§3.3 补 `/api/storyboard` 四端点行 + agent 网关侧映射 + §1.3 架构图补分镜代理行）；docs/17 §2.4 与 console `.env.example` 补 `H3_AGENT_URL` 运行参数；闸门 curl 全链复验通过——submit→`waiting_feedback`→confirm（dry_run+preview）→生产官 argv 含 `--dry-run --preview` →质检结构化降级 verdict=blocked/manifest_missing（非 500）；无 claim 负路径 401 fail-closed。遗留登记：①浏览器视觉验证待本机执行；②看门狗 cron 挂载因沙箱阻断 crontab 特权写（setuid 进程 3 次挂死），待设备前按 docs/17 §5.3 命令手动执行
 - **AI 漫剧/短剧功能演进方案（docs/18 v1.0.0）**：基于 MiraFrame/OnlyShot 双仓库实勘（gh api 交叉验证）+ 同类横向检索（ArcReel 5.2k★/Toonflow 10k+★/BigBanana；修正 Toonflow 协议为 AGPL-3.0）——适配矩阵 15 项判定（✅4 同构互证/🔧5 补强/➕3 新建/⛔3 不采纳附因）；确立**双层一致性**差异化定位（Ref 控身份 × seed 控稳定，行业独有）；演进路线 P0（契约扩展 video_mode/asset_ref/pacing + Ref 资产库结构化）→ P1（编排器第六态 waiting_feedback + console 分镜确认闸门 + 失败模式结构化）→ P2（首尾帧插值探测 + 分级生成策略）；含 Mermaid 全景流程图/闸门时序/依赖序三图

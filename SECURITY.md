@@ -1,3 +1,19 @@
+---
+file: SECURITY.md
+description: YYC3-MiniMax-H3 安全策略——漏洞报告渠道、支持版本、安全范围与密钥纪律
+author: YanYuCloudCube Team <admin@0379.email>
+version: v1.1.0
+created: 2026-09-26
+updated: 2026-10-05
+status: active
+tags: [security],[policy],[vulnerability]
+category: meta
+language: zh-CN
+changelog:
+  - 2026-10-05 v1.1.0 FM 合规补全（11 字段，YYC³ 硬约束）
+  - 2026-09-26 v1.0.0 初始版（漏洞渠道/支持版本/密钥纪律/加固基线）
+---
+
 # 安全策略（Security Policy）
 
 > YanYuCloudCube · YYC3-MiniMax-H3。本仓库以 MIT 许可开源；安全纪律继承「生产闭环」治理蓝图（docs/YYC3-MiniMax-H3-生产闭环/）。
