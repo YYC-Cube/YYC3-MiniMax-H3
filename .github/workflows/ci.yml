@@ -25,9 +25,12 @@ jobs:
         run: python3 -m compileall -q scripts/
       # 终审整改（2026-10-05）：原 `discover scripts/pipeline-tools` 实为 0 用例空集（门禁虚设）——
       # 全仓唯一测试集在 agent/tests/test_smoke.py（12 用例，InMemory 传输零依赖）
-      - name: 核心回归（agent 冒烟 12 用例）
+      # gateway 测试需 fastapi（不装 redis 保持 InMemory 模式）
+      - name: 核心回归（agent 冒烟 15 用例）
         working-directory: agent
-        run: python3 -m unittest tests.test_smoke -v
+        run: |
+          pip install -q fastapi uvicorn pydantic python-dotenv
+          python3 -m unittest tests.test_smoke -v
       - name: manifest 双端契约校验（结构快检模式）
         run: python3 scripts/pipeline-tools/validate_manifest.py --all || true
 

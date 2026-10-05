@@ -88,6 +88,22 @@ def probe_landing_p95() -> tuple[float, list[float]]:
 
 def main() -> int:
     quiet = "--quiet" in sys.argv
+    landing_only = "--landing-only" in sys.argv  # 纯线上观测模式（本地 BFF 未常驻时零误报）
+
+    if landing_only:
+        p95, samples = probe_landing_p95()
+        record = {"ts": ts(), "mode": "landing-only",
+                  "landing": {"p95_s": p95, "samples": samples, "warn": p95 > TTFB_P95_WARN_S}}
+        log(record)
+        if not quiet:
+            print(json.dumps(record, ensure_ascii=False, indent=2))
+        if p95 < 0:
+            print(f"❌ [console-watch] 线上探活失败：{LANDING_URL}", file=sys.stderr)
+            return 1
+        if p95 > TTFB_P95_WARN_S:
+            print(f"⚠ [console-watch] 线上 TTFB P95={p95}s 超观测基线 {TTFB_P95_WARN_S}s", file=sys.stderr)
+            return 2
+        return 0
 
     health_ok, health_ms = probe_health()
     sse_ok, sse_ms = probe_sse()

@@ -104,6 +104,30 @@ class TestSecurity(unittest.TestCase):
             self.assertEqual(audit.tail(1)[0]["action"], "unit")
 
 
+class TestGatewayPayloadMerge(unittest.TestCase):
+    """B2 实测事故防回归（2026-10-05）：顶层 dry_run 曾被 pydantic 静默丢弃致真实执行"""
+
+    def test_top_level_dry_run_merged_into_payload(self):
+        from agent.h3_agent.gateway import TaskRequest, merge_task_payload
+        req = TaskRequest(task_type="generate_batch", batch="99", dry_run=True)
+        payload = merge_task_payload(req)
+        self.assertIs(payload.get("dry_run"), True)
+        self.assertEqual(payload.get("batch"), "99")
+
+    def test_dry_run_absent_stays_untouched(self):
+        from agent.h3_agent.gateway import TaskRequest, merge_task_payload
+        payload = merge_task_payload(TaskRequest(task_type="quality_check", batch="91"))
+        self.assertNotIn("dry_run", payload)   # 未声明不注入（保持显式）
+
+    def test_nested_payload_not_clobbered(self):
+        from agent.h3_agent.gateway import TaskRequest, merge_task_payload
+        req = TaskRequest(task_type="generate_single", payload={"seeds": "42,10"},
+                          batch="94", dry_run=False)
+        payload = merge_task_payload(req)
+        self.assertEqual(payload["seeds"], "42,10")
+        self.assertIs(payload["dry_run"], False)
+
+
 class TestAgents(unittest.TestCase):
     def test_production_agent_whitelist_and_dry_run(self):
         from agent.h3_agent.agents import H3ProductionAgent

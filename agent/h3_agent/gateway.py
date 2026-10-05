@@ -50,6 +50,19 @@ class TaskRequest(BaseModel):
     task_type: str                     # generate_batch | quality_check | security_audit | ...
     payload: dict = {}
     batch: str | None = None           # 快捷字段，自动并入 payload
+    dry_run: bool | None = None        # 快捷字段，自动并入 payload
+    # ⚠ B2 实测事故（2026-10-05）：顶层 dry_run 曾被 pydantic 静默丢弃 → 生产官真实
+    #   执行 pipeline_auto（幸 0 产物止损）。顶层快捷字段必须在此声明并入，勿再加裸字段。
+
+
+def merge_task_payload(req: "TaskRequest") -> dict:
+    """快捷字段并入 payload（纯函数，供单测防回归）"""
+    payload = dict(req.payload)
+    if req.batch:
+        payload["batch"] = req.batch
+    if req.dry_run is not None:
+        payload["dry_run"] = req.dry_run
+    return payload
 
 
 def _check_write_auth(request: Request, task_type: str):
@@ -83,9 +96,7 @@ def agents():
 def submit_task(req: TaskRequest, request: Request):
     _check_write_auth(request, req.task_type)
     trace_id = f"trace-{time.strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
-    payload = dict(req.payload)
-    if req.batch:
-        payload["batch"] = req.batch
+    payload = merge_task_payload(req)
     _TASKS[trace_id] = {"status": "running", "task_type": req.task_type,
                         "created_at": time.time()}
     try:

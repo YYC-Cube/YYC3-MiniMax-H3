@@ -21,6 +21,8 @@ language: zh-CN
 
 ### Changed
 
+- **B2 漫剧 E2E 实测通过 + dry_run 透传事故根修（agent 网关）**：本机 h3-m4 实测 agent 网关全链（8300 启动 → 三 Agent 注册 → CLI claim 签发 → POST /api/tasks generate_batch dry_run）——首测暴露 🔴 `TaskRequest` 顶层 `dry_run` 被 pydantic 静默丢弃 → 生产官真实 spawn `pipeline_auto --batch 99 --auto`（即时止损：0 视频产物、误建 output_batch99/report 清理、git 零污染）；根修 = 快捷字段声明并入 + `merge_task_payload` 纯函数抽出 + **3 用例防回归**（test_smoke 12→**15**）；复测 argv=`--batch 99 --auto --dry-run` 秒回 completed。CI 核心回归同步装 fastapi（gateway 测试依赖，不装 redis 保 InMemory）。实测记录固化 docs/17 §5.4
+- **看门狗增强（--landing-only）**：纯线上 TTFB P95 观测模式（BFF 按需启动时 cron 零误报）；基线采样 P95 = 1.94/2.59/1.96s（远低于 warn 阈 5s，无需 CDN 动作）；docs/17 §5.3 更新双模式用法
 - **终审遗留五项落地（P2×3 + P3×2）**：
   - **路由全量懒加载**：Pipeline/Tasks/BatchDetail 与 AI 助手同列按需 chunk（页面级 ×5）——主包 382→359KB（gzip 114→108KB），Dashboard 首屏 eager 保 TTFB
   - **工作台看门狗**（`scripts/pipeline-tools/console_health_check.py`）：探活矩阵 = BFF health + SSE 首事件 + 线上 TTFB P95 采样（5 样本），JSONL 落 `logs/console_watch.jsonl` 供次晨报告聚合；退出码 0/1/2（在线全过/本地探活失败/仅线上抖动）——实测在线 exit 0（health 14ms·SSE 2ms·P95 2.2s）、离线 exit 1 ✓；cron 接入行见 docs/17 §5.3
