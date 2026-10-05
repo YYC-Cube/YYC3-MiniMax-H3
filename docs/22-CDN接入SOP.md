@@ -2,7 +2,7 @@
 file: 22-CDN接入SOP.md
 description: h3.yyc3.top 线上加速 Cloudflare 接入标准作业程序——诊断证据、选型、分步执行、验证、回滚与执行记录表
 author: YanYuCloudCube Team <admin@0379.email>
-version: v1.0.0
+version: v1.1.0
 created: 2026-10-05
 updated: 2026-10-05
 status: active
@@ -10,6 +10,7 @@ tags: [cdn],[cloudflare],[ops],[ttfb],[sop]
 category: guide
 language: zh-CN
 changelog:
+  - 2026-10-05 v1.1.0 首次执行归档：§三新增 NS TTL 预降硬性步骤（双 CA 卡 pending 根因）；§八 8.1 执行记录（回滚）+ 8.2 重切计划；§十（§九后）排障实录索引 logs/visual/cdn_baseline/
   - 2026-10-05 v1.0.0 初始版：由 docs/17 §七扩展为独立执行级 SOP（选型对比/重定向陷阱/缓存规则/执行记录表）
 ---
 
@@ -55,6 +56,7 @@ for i in 1 2 3 4 5; do curl -s -o /dev/null -m 20 -w "dns=%{time_namelookup} tls
 ## 三、前置检查清单（逐项确认后才开始）
 
 - [ ] 域名 `yyc3.top` 管理权限（注册商后台可改 NS）
+- [ ] **NS TTL 预降（⚠ 2026-10-05 首次执行血泪教训，新增硬性步骤）**：切换前 **≥48h** 在阿里云解析设置中把 **NS 记录 TTL 降至 300-600s**，等满一个旧 TTL 周期再执行 §四——否则旧 48h TTL 使国际递归（8.8.8.8/1.1.1.1）在切换后长达 48h 处于权威混乱中间态，**CA（Let's Encrypt/GTS）DCV 验证器查不到 `_acme-challenge` TXT → 证书卡 pending_validation**（本次双 CA 同卡 4h+ 实证，详见 §十）
 - [ ] 盘点 yyc3.top 现有全部 DNS 记录（`dig yyc3.top ANY` + 注册商后台导出/截图——**NS 切换后记录要在 Cloudflare 重建，漏一条断一个服务**）
 - [ ] GitHub Pages 现状：`public/CNAME` = `h3.yyc3.top`（仓库已配置，无需变更）
 - [ ] 本 SOP §一 基线已留存
@@ -148,14 +150,31 @@ dig +short h3.yyc3.top | head -4
 
 ## 八、执行记录表（接入后回填）
 
+### 8.1 首次执行（2026-10-05 · 已回滚，教训归档）
+
 | 项 | 值 |
 | ---- | ---- |
-| 执行人 / 日期 | ＿＿＿＿ / ＿＿ |
-| NS 切换时间 | ＿＿ |
-| Cloudflare 生效（Active）时间 | ＿＿ |
+| 执行人 / 时间 | 域名管理员 + AI 协同 · 13:00-17:10 |
+| 完成项 | CF zone 建立 ✅ · h3 CNAME 橙云 ✅ · 阿里云 NS 切换 ✅ · SSL=full/minTLS=1.2/AlwaysHTTPS ✅ · API Token 权限补齐 ✅ |
+| 卡点 | Universal SSL 双 CA（LE→GTS 换签）均卡 `pending_validation` 4h+ |
+| **根因** | **未预降 NS TTL**：旧 48h TTL 致国际递归（8.8.8.8/1.1.1.1）权威混乱 → CA DCV 查不到 TXT（阿里 223.5.5.5 已传播正常——国内快国外慢的分裂态实证） |
+| 处置 | 17:0x 按 §六回滚 NS → hichina（旧 h3 记录健在，无缝恢复直连） |
+| 结果 | **回滚成功**；CF zone/记录保留，待 NS TTL 全球过期（≤48h，即 10-07 17:00 后）按 §8.2 重切 |
+| 证据链 | `logs/visual/cdn_baseline/`：before_1159（基线）· after_1309（CF 期 5×200）· watch*.log（全程侦测）· rollback_restored_*（回滚验证） |
+
+### 8.2 重切入计划（TTL 过期后）
+
+1. 前置确认：`dig NS yyc3.top @8.8.8.8` 与 `@1.1.1.1` 均应答 hichina（旧缓存已过期心智）
+2. （可选但推荐）在阿里云把 NS TTL 已是低位则直接切；否则再等
+3. 阿里云 NS → `lila/neil.ns.cloudflare.com`（zone/记录已在 CF，无需重建）
+4. 等 5-15 分钟 → 本 SOP §五验证（预期证书 DCV 一次通过：递归已无中间态）
+
+| 项 | 值 |
+| ---- | ---- |
+| 重切执行人 / 日期 | ＿＿＿＿ / ＿＿ |
 | 验证五项结果 | ①＿＿ ②＿＿ ③＿＿ ④＿＿ ⑤＿＿ |
 | 24h 后看门狗 P95 / warn | ＿＿ |
-| 结论（通过/回滚） | ＿＿ |
+| 结论 | ＿＿ |
 
 ---
 
@@ -164,6 +183,23 @@ dig +short h3.yyc3.top | head -4
 - 诊断摘要与决策快照：[docs/17-工作台部署环境清单.md](17-工作台部署环境清单.md) §七
 - 看门狗与聚合器（验证数据源）：[docs/21-智能化运维脚本闭环说明.md](21-智能化运维脚本闭环说明.md)
 - 发布灰度与回滚总 SOP：docs/17 §五
+
+## 十、首次执行排障实录索引（2026-10-05，13:00-17:10）
+
+全程证据归档 `logs/visual/cdn_baseline/`（gitignore 运行时区，本表为固化索引）：
+
+| 时间 | 事件 | 产物 |
+| ---- | ---- | ---- |
+| 11:59 | 接入前基线（curl×5 + 聚合快照：P95 均值 5.04s） | before_1159.txt |
+| 13:09 | CF 生效窗口探测 5×200（tls 0.5-3s 部署中间态） | after_1309.txt |
+| 13:1x-16:0x | 边缘不一致期：openssl 间歇 OK / curl 000 闪烁 | watch*.log |
+| 14:5x | 敲打①：LE 重签（disable→enable） | — |
+| 15:0x-16:0x | LE 卡 pending 76 分钟；DCV 诊断：TXT 在权威但公共递归分裂（8.8.8.8/1.1.1.1 空 vs 223.5.5.5 正常） | — |
+| 16:1x | 敲打②：切 GTS 重签——仍卡（双 CA 同症 = 公共环节） | watch4.log |
+| 17:0x | 定性 NS TTL 48h 未预降 → 按 §六回滚 NS | — |
+| 17:1x | 直连恢复确认（h3 → 185.199.x + 200×3） | rollback_restored_*.txt |
+
+**API 侧操作留痕**（.secrets/cloudflare.env token，权限 Zone Settings/DNS/SSL Edit）：zone `8cf53aff…`、Universal SSL 敲打×2、certificate_authority le→google。
 
 ---
 **维护**：接入完成后本文状态改为 `status: stable` 并回填 §八；回滚则记录原因与 EdgeOne 评估结论。
