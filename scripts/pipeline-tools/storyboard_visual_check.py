@@ -1,6 +1,10 @@
-#!/usr/bin/env python3
+#!/Users/yanyu/YYC-Cube/YYC3-MiniMax-H3/.venv/bin/python
 """
 storyboard_visual_check.py — /storyboard 分镜确认页浏览器视觉验证（B5 收口件）
+
+⚠️ 解释器锚定：shebang 硬绑定项目 .venv/bin/python（pyvenv 独立 venv，include-system-site-packages=false）
+   — 根治 2026-10-08 homebrew 升 3.14 后裸 python3 漂移丢 playwright/uvicorn 事故
+   — 调用文档/脚本注释中的 `python3` 已过时，一律改用 `.venv/bin/python` 或 `./storyboard_visual_check.py`
 
 背景：B5（项目记忆）——/storyboard 的 curl 全链已验（d3edc87），但 UI 渲染/
 单选高亮/错误 toast 需浏览器实测。本脚本以 headless 浏览器自动化完成，

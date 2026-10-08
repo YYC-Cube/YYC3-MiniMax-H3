@@ -2,14 +2,15 @@
 file: 22-CDN接入SOP.md
 description: h3.yyc3.top 线上加速 Cloudflare 接入标准作业程序——诊断证据、选型、分步执行、验证、回滚与执行记录表
 author: YanYuCloudCube Team <admin@0379.email>
-version: v1.1.0
+version: v1.2.0
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-10-08
 status: active
 tags: [cdn],[cloudflare],[ops],[ttfb],[sop]
 category: guide
 language: zh-CN
 changelog:
+  - 2026-10-08 v1.2.0 重切执行回填：§8.2 表格闭环（cert 15:15 转 active · §五五项全过 · h3 CDN 终态）；24h 看门狗 P95 待 10-09 复测
   - 2026-10-05 v1.1.0 首次执行归档：§三新增 NS TTL 预降硬性步骤（双 CA 卡 pending 根因）；§八 8.1 执行记录（回滚）+ 8.2 重切计划；§十（§九后）排障实录索引 logs/visual/cdn_baseline/
   - 2026-10-05 v1.0.0 初始版：由 docs/17 §七扩展为独立执行级 SOP（选型对比/重定向陷阱/缓存规则/执行记录表）
 ---
@@ -162,7 +163,7 @@ dig +short h3.yyc3.top | head -4
 | 结果 | **回滚成功**；CF zone/记录保留，待 NS TTL 全球过期（≤48h，即 10-07 17:00 后）按 §8.2 重切 |
 | 证据链 | `logs/visual/cdn_baseline/`：before_1159（基线）· after_1309（CF 期 5×200）· watch*.log（全程侦测）· rollback_restored_*（回滚验证） |
 
-### 8.2 重切入计划（TTL 过期后）
+### 8.2 重切入计划（TTL 过期后）→ ✅ 已于 2026-10-08 执行闭环
 
 1. 前置确认：`dig NS yyc3.top @8.8.8.8` 与 `@1.1.1.1` 均应答 hichina（旧缓存已过期心智）
 2. （可选但推荐）在阿里云把 NS TTL 已是低位则直接切；否则再等
@@ -171,10 +172,19 @@ dig +short h3.yyc3.top | head -4
 
 | 项 | 值 |
 | ---- | ---- |
-| 重切执行人 / 日期 | ＿＿＿＿ / ＿＿ |
-| 验证五项结果 | ①＿＿ ②＿＿ ③＿＿ ④＿＿ ⑤＿＿ |
-| 24h 后看门狗 P95 / warn | ＿＿ |
-| 结论 | ＿＿ |
+| 重切执行人 / 日期 | 域名管理员（手机阿里云 App 改 NS）+ AI 导师 API 协同验证 / 2026-10-08 |
+| 验证五项结果 | ① CF 权威 `@lila` 应答 lila/neil ✓ ② 双递归（1.1.1.1 与 223.5.5.5）均 lila/neil（TTL 3600）✓ ③ h3 A → 104.21.27.164 / 172.67.169.143（CF proxied）✓ ④ `https://h3.yyc3.top` HTTP/2 200 · `server: cloudflare` ✓ ⑤ API `certificate_status=active`（ssl=strict）✓ |
+| 24h 后看门狗 P95 / warn | 待 10-09 复测回填 |
+| 结论 | **重切成功，CDN 接入终态闭环**。cert DCV 非「一次通过」：08:24 重签起 pending ~6.9h，15:15 转 active（10:43-15:15 主机休眠轮询空窗，实际转正或更早）；非上轮递归分裂复现——本轮递归当日即收敛，定性 CF Free 签发队列慢（无 SLA） |
+
+**执行实录**（证据归档 `logs/visual/cdn_baseline/`）：
+
+| 时间 | 事件 | 产物 |
+| ---- | ---- | ---- |
+| 08:14 | 用户手机阿里云 App NS→lila/neil；1.1.1.1 自 08:15 稳定应答 CF | switch_watch_20261008_0814.log |
+| 08:24 | SSL 设置枚举 PATCH 副作用触发重签（modified=00:24:12Z） | — |
+| 08:31-15:15 | cert 轮询 pending×22 → #23 转 active（5min 间隔） | cert_poll_20261008_0831.log |
+| 15:47 | §五五项验证全过（见上表） | 本节 |
 
 ---
 

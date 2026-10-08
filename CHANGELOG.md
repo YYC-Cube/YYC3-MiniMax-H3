@@ -24,6 +24,7 @@ changelog:
 
 ### Added
 
+- **CDN 重切闭环（docs/22 v1.2.0 · §8.2 回填，2026-10-08）**：NS 切 CF 后全球递归当日收敛（1.1.1.1 与 223.5.5.5 均 lila/neil，TTL 3600）；Universal SSL cert pending ~6.9h（08:24 重签→15:15 active，定性 CF Free 签发队列慢、非上轮递归分裂复现）；§五五项验证全过——CF 权威 ✓ / 双递归 ✓ / h3 A=104.21.27.164+172.67.169.143 ✓ / HTTPS HTTP/2 200 `server: cloudflare` ✓ / cert API active（ssl=strict）✓；24h 看门狗 P95 待 10-09 复测回填
 - **CDN 接入 SOP 独立文档（docs/22 v1.0.0，编号入列 01~22）**：由 docs/17 §七扩展为执行级 SOP——选型对比（Cloudflare 免费主案/EdgeOne 备案后备）、前置检查清单（DNS 全量盘点防丢）、六步接入（含 **Flexible 模式无限重定向陷阱警示**）、验证五项标准（tls<0.3s/P95<3s 且 warn=0）、<5 分钟回滚、风险表、执行记录回填表；docs/17 §7.5 收敛为诊断摘要并指向本文（单一执行真源）
 - **终审遗留三项闭环（P3×2 + P2×1）**：
   - **TTFB 根因确诊 + CDN 接入 SOP（docs/17 §七 v1.1.0）**：110 样本分布（≥10s 慢尾占 14%）+ curl 阶段分解（**瓶颈=跨境 TLS 握手**，round3 tls=11.0s 占 99%；落地页 1.8MB 无辜）——「30 天后决策」等待条件提前满足；Cloudflare 接入四步 + 同源验证命令 + 5 分钟回滚；DNS 执行权留域名管理员（自动化不越权）
@@ -80,6 +81,7 @@ changelog:
 
 ### Fixed
 
+- **Python 解释器漂移事故根修（docs/21 v1.2.0 §九，2026-10-08）**：homebrew 升 Python 3.14 → 裸 `python3` 漂移致 `storyboard_visual_check.py` 服务编排全灭（`No module named uvicorn`）+ 项目 `.venv` 软链跟升丢 playwright（venv 非保险箱）；修复 = playwright 装回 `.venv` + shebang 硬绑 `.venv/bin/python` + Chrome 152 兼容复验 V1~V7 全绿；沉淀两轨解释器纪律（ML 生产=conda h3-m4 / web-agent=.venv）入 docs/21 §九
 - **终审整改：CI 核心回归空集根修**——原门禁命令 `unittest discover scripts/pipeline-tools` 实为 0 用例（全仓唯一测试集在 `agent/tests/test_smoke.py` 12 用例，此前 CI 从未执行任何 Python 单测）。ci.yml 新增「核心回归（agent 冒烟 12 用例）」步骤（working-directory: agent）；docs/08 §10.2 与 CONTRIBUTING 门禁命令同步纠正
 - **CI 供应链冷却补 pin（hono 4.13.13 <24h 被拒）**：pages-deploy 在 `pnpm install --frozen-lockfile` 阶段被 pnpm 11 `minimumReleaseAge` 拦截（hono@4.13.13 于 2026-10-04 发布，距 CI 运行不足 24h）——workspace overrides 追加 `hono: 4.13.12`（09-30 发布，功能等价），本地 frozen 复验通过
 - **gitignore 否定失效修复（batches.json git add 失败）**：`dashboard/data/` 目录排除在路径遍历层剪枝，使 `!dashboard/data/batches.json` 无法重新包含；另裸 `data/` 模式命中任意层级（含 dashboard/data）。改为 `dashboard/data/*`（只排除内容）+ `/data/` 根锚定——batches.json 恢复免 `-f` 正常 add，根 data/ 与其他 dashboard 数据仍隔离
