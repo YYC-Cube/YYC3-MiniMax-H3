@@ -1,23 +1,34 @@
 // src/pages/AssistantPage.tsx — AI 助手（Vercel AI SDK v7 useChat + UIMessageStream）
 // 提示词优化助手：0379-World 网关 OpenAI 兼容端点（H3_LLM_BASE_URL/H3_LLM_API_KEY）
-import { useEffect, useState } from "react";
-import { DefaultChatTransport, type TextUIPart } from "ai";
-import { useChat } from "@ai-sdk/react";
-import { Bot, Eraser, Loader2, Send, Square, User } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useMotionAllowed } from "@/components/motion/tokens";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/stores/chatSlice";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, type TextUIPart } from "ai";
+import { Bot, Eraser, Loader2, Send, Square, User } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function AssistantPage() {
   const chat = useChat({ transport: new DefaultChatTransport({ api: "/api/chat" }) });
   const [input, setInput] = useState("");
+  const motionAllowed = useMotionAllowed();
 
   const streaming = chat.status === "streaming" || chat.status === "submitted";
   const lastError = chat.error?.message ?? null;
+
+  // 跨页上下文提问：挂载时消费一次 pendingPrompt（来源页如 Pipeline「问 AI 排障」）
+  const consumePendingPrompt = useChatStore((s) => s.consumePendingPrompt);
+  useEffect(() => {
+    const pending = consumePendingPrompt();
+    if (pending) void chat.sendMessage({ text: pending });
+    // 仅挂载一次；sendMessage 为 useChat 稳定动作
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 镜像到 chatSlice（slice 模式：跨页状态单一出口）
   useEffect(() => {
@@ -93,7 +104,12 @@ export default function AssistantPage() {
                     >
                       {text}
                       {!isUser && streaming && m.id === chat.messages[chat.messages.length - 1]?.id ? (
-                        <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-primary align-middle" />
+                        <span
+                          className={cn(
+                            "ml-0.5 inline-block h-3.5 w-1.5 bg-primary align-middle",
+                            motionAllowed && "animate-pulse"
+                          )}
+                        />
                       ) : null}
                     </div>
                   </div>
