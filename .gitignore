@@ -67,7 +67,11 @@ projects/
 .hermes/
 .qoder/
 .reasonix/
-.trae/
+# .trae 本地态隔离；仅团队共享规则白名单入库（Trae 启动自动加载 .trae/rules/*.md）
+.trae/*
+!.trae/rules/
+.trae/rules/*
+!.trae/rules/*.md
 .zcode/
 # 根锚定：避免误伤 canonical 的 .agents/skills/
 /skills/
