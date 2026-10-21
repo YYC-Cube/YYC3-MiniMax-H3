@@ -123,10 +123,26 @@ category: guide
 ```
 ---
 
+## 五、官方权威指南与黄金样例（上游同步 · 2026-10-22）
+
+> 来源：官方仓 [MiniMax-AI/MiniMax-H3](https://github.com/MiniMax-AI/MiniMax-H3) `skills/h3-prompt-writing/`，同步快照 hash `3d01859464bc9438585c8fdbf7fcd4b4c54404fadd3f1a64ab7970ae8877d086`（见 `official/h3-prompt-writing/upstream-skills-lock.json`，复核时与上游 `skills-lock.json` 对照即可发现漂移）。
+
+| 文件 | 用途 |
+| --- | --- |
+| `official/h3-prompt-writing/references/ref-en.txt` | **Ref2VA 全参考模式**六段格式权威版：`subject_definitions` → `summary` → `retention_analysis` → `detailed_description` → `overall_soundscape` → `non_diegetic_music`；四类引用标签 `<Subject N>/<Picture N>/<Video N>/<Audio N>` 规则；保留态四值（fully_preserved / partially_preserved / transferred / reused） |
+| `official/h3-prompt-writing/references/base-en.txt` | T2VA / I2VA / FL2VA / L2VA 文本与关键帧模式三段格式：`integrated_multimodal_description` → `overall_soundscape` → `non_diegetic_music` |
+| `official/h3-prompt-writing/SKILL.md` | 工作流与输出规则（英文写作、`<d>` 对话标签保留原语言、时长 4–15s 对齐） |
+| `golden/context-ir-{t2va,i2va,ref2va}.json` | 官方 H3-Context-IR 真实输出 ×3，含 token 基线（8,565 / 22,822 / 39,299），作 prompt 工程回归锚；同名 `.prompt.txt` 为纯文本 |
+
+**与本文模板的对应关系**：本文「主体定义 / 视频概要 / 保留分析 / 详细画面 / 音频描述」五段即官方 ref-en 六段的中文适配（官方把音频拆为 `overall_soundscape` 与 `non_diegetic_music` 两段）。新写 Ref2VA 提示词以官方六段为准，本文中文模板作语义对照与本地 480×832 档参数经验层。
+
+---
+
 ## 变更历史
 
 | 版本   | 日期       | 变更内容 | 作者 |
 | ------ | ---------- | -------- | ---- |
+| v1.1.0 | 2026-10-22 | 新增「五、官方权威指南与黄金样例」：同步上游 h3-prompt-writing（hash 锁定）+ Context-IR 黄金样例 ×3 入库 | Chief Architect |
 | v1.0.1 | 2026-09-03 | 补齐 YYC3 品牌标尾与变更历史（文档规范审计） | Impl Expert |
 | v1.0.0 | 2026-09-02 | 初始版本 | YanYuCloudCube Team |
 
