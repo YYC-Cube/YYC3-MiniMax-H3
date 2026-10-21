@@ -37,6 +37,8 @@ _万象归元于云枢 | 深栈智启新纪元_
 > [Mac-M4-Max-128GB-MiniMax-H3-NF4完整部署脚本.md](docs/legacy/Mac-M4-Max-128GB-MiniMax-H3-NF4完整部署脚本.md) · [MiniMax-H3-DiffSynth本地版-提示词模板.md](docs/legacy/MiniMax-H3-DiffSynth本地版-提示词模板.md)
 > **规范**：遵循 [YYC³ 团队开发标准](docs/YYC3-团队通用-标规文档/YYC3-团队规范-开发标准.md)（五高 · 五标 · 五化 · 五维驱动）
 
+> **架构关系**：本仓是 **后端（引擎域）** —— Python 五步闭环引擎 + console BFF（:3030）+ agent 网关（:8300）+ `@yyc3/manifest-schema` 双端契约。配套 **生产端（前端工作台）** 为姊妹仓 [YYC3-MH3](https://github.com/YYC-Cube/YYC3-MH3)（公网橱窗 `mh3.yyc3.top` 只读快照 + 本地控制面 :3031），定位 **非商用 · 本地自用**，与上游 MiniMax H3 Community License 一致。双端衔接记录（架构分析 / 整改路线 / 官方仓汲取 / 总执行清单）见该仓 `docs/YYC3-MH3-chief-architect-20261015/`。
+
 ---
 
 ## 🏗️ 可视化体系架构
@@ -121,8 +123,12 @@ YYC3-MiniMax-H3/
 │   ├── h3_agent/                      ← config / security / protocol / base / agents×3 / orchestrator / gateway
 │   └── tests/test_smoke.py            ← 离线冒烟 17 用例（InMemory 传输，无 GPU/Redis 依赖）
 ├── dashboard/                         ← 可视化面板（管理面板 HTML + 数据桥 JSON）
+├── apps/console/                      ← 前端工作台（Vite 6 SPA + Hono 单端口 BFF :3030：SSE 日志台 / 任务中心 / 分镜闸门）
+├── packages/manifest-schema/          ← 共享契约（zod 双端唯一真源：manifest.json / batches.json / assets；CI 锁 JSON Schema 漂移）
 ├── prompts/
-│   └── README.md                      ← 提示词模板（Ref2VA/FL2VA/音色参考）+ 最佳实践
+│   ├── README.md                      ← 提示词模板（Ref2VA/FL2VA/音色参考）+ 最佳实践
+│   ├── official/h3-prompt-writing/    ← 上游官方权威指南（base-en / ref-en + SKILL.md，hash 锁定同步）
+│   └── golden/                        ← Context-IR 黄金样例 ×3（T2VA/I2VA/Ref2VA，含官方 token 基线）
 ├── scripts/
 │   ├── batch_ref2va_nf4.py            ← ★ 主生成脚本 v2（manifest化+性能基线+断点续跑）
 │   ├── score_lipsync.py               ← ★ SyncNet自动口型评分（双后端）
@@ -203,17 +209,17 @@ Released under the MIT License.
 
 ## 🔄 变更历史
 
-| 版本　 | 日期　　　 | 变更内容　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | 作者　　　　　　　　 |
-| -------- | ------------ | ---------------------------------------------------------------------- | --------------------- |
-| v2.3.0 | 2026-09-25 | 文档矩阵收录「生产闭环」16 篇蓝图（P0 密钥脱敏/注入修复/超时修正 + P1-D1 规范化：FM 补齐/腐蚀链接修复/尾巴清理）；新增会话工作区 20260925 | Impl Expert　　　　 |
-| v2.4.0 | 2026-09-26 | 开发者文档开源全套：补齐 LICENSE（MIT，对齐既有 badge）+ CONTRIBUTING.md + docs/08 v1.2.0 新增「10. 开源协作指南」（五门禁/密钥纪律/docs 导航） | Impl Expert　　　　 |
-| v2.4.1 | 2026-09-26 | docs/08 目录补「10. 开源协作指南」锚点（标题去版本后缀保证 TOC 跳转）；开源文档结构闭环 | Impl Expert　　　　 |
+| 版本　 | 日期　　　 | 变更内容　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| 作者　　　　　　　　|
+| --------| ------------| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------|
+| v2.3.0 | 2026-09-25 | 文档矩阵收录「生产闭环」16 篇蓝图（P0 密钥脱敏/注入修复/超时修正 + P1-D1 规范化：FM 补齐/腐蚀链接修复/尾巴清理）；新增会话工作区 20260925　　　　　　　　　　　　　　　　　　　 | Impl Expert　　　　 |
+| v2.4.0 | 2026-09-26 | 开发者文档开源全套：补齐 LICENSE（MIT，对齐既有 badge）+ CONTRIBUTING.md + docs/08 v1.2.0 新增「10. 开源协作指南」（五门禁/密钥纪律/docs 导航）　　　　　　　　　　　　　　　　 | Impl Expert　　　　 |
+| v2.4.1 | 2026-09-26 | docs/08 目录补「10. 开源协作指南」锚点（标题去版本后缀保证 TOC 跳转）；开源文档结构闭环　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | Impl Expert　　　　 |
 | v2.5.0 | 2026-10-05 | 全局文档治理：徽章系统完善（CI/Pages/Workbench 实况徽章 + Version 对齐）+ 目录树 19/20 号编号化 + 两 HTML 角色注释 + agent 17 用例对齐 + 全库 FM 合规补全（language/changelog） | Impl Expert　　　　 |
-| v2.2.0 | 2026-09-16 | 文档矩阵补 14-15（生产落地闭环 + Pruned A/B 升格方案）；A2 升格启动（h3_common pruned 修复） | Impl Expert　　　　 |
-| v2.1.0 | 2026-09-15 | 文档矩阵补 11-13；快速开始对齐实况（--auto/快预览档/console dev）；目录结构补工具链五件套 | Impl Expert　　　　 |
-| v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/　 | Impl Expert　　　　 |
-| v2.0.0 | 2026-09-03 | README v2 重构：yyc3-family.png 顶图 + 徽章系统 + Mermaid 可视化架构 | Impl Expert　　　　 |
-| v1.0.0 | 2026-09-02 | 初始版本（源文档整理归档）　　　　　　　　　　　　　　　　　　　　　 | YanYuCloudCube Team |
+| v2.2.0 | 2026-09-16 | 文档矩阵补 14-15（生产落地闭环 + Pruned A/B 升格方案）；A2 升格启动（h3_common pruned 修复）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| Impl Expert　　　　 |
+| v2.1.0 | 2026-09-15 | 文档矩阵补 11-13；快速开始对齐实况（--auto/快预览档/console dev）；目录结构补工具链五件套　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | Impl Expert　　　　 |
+| v2.0.1 | 2026-09-03 | 修复 v2.0.0 内容损坏；Mermaid 架构图规范化；目录结构补全 dashboard/　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | Impl Expert　　　　 |
+| v2.0.0 | 2026-09-03 | README v2 重构：yyc3-family.png 顶图 + 徽章系统 + Mermaid 可视化架构　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| Impl Expert　　　　 |
+| v1.0.0 | 2026-09-02 | 初始版本（源文档整理归档）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| YanYuCloudCube Team |
 
 ---
 

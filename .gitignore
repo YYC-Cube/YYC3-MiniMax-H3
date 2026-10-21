@@ -78,3 +78,9 @@ projects/
 
 # update_seed_list 写回备份
 *.bak
+
+# IDE / AI 工具本地态（2026-10-22 收口）
+.idea/
+.mimosa/
+.v2c/
+.video_agent/

@@ -2,7 +2,7 @@
   "name": "yyc3-minimax-h3",
   "version": "1.1.0",
   "private": true,
-  "description": "YYC3-MiniMax-H3 monorepo — Python 引擎（根目录 scripts/）+ Next.js 控制台（apps/console）+ 共享契约（packages/）",
+  "description": "YYC3-MiniMax-H3 monorepo — Python 引擎（根目录 scripts/）+ Vite 6 + Hono 前端工作台（apps/console）+ 共享契约（packages/）",
   "packageManager": "pnpm@11.10.0",
   "engines": {
     "node": ">=20"
