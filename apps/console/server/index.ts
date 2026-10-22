@@ -4,6 +4,7 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import fs from "node:fs";
 import path from "node:path";
 import { dashboardRoutes } from "./routes/dashboard.js";
@@ -19,6 +20,17 @@ const PORT = Number(process.env.CONSOLE_PORT ?? 3030);
 const API_PORT = Number(process.env.CONSOLE_API_PORT ?? 3031);
 
 const app = new Hono();
+
+// F-1/T-5：允许生产端（YYC3-MH3）dev origin 跨源访问本地 BFF——仅回环 :3031 白名单；
+// 写操作鉴权仍由各路由的令牌 fail-closed 把关（未配置令牌时仅回环放行）。
+const loopbackOrigins = new Set(["http://localhost:3031", "http://127.0.0.1:3031"]);
+app.use(
+  "/api/*",
+  cors({
+    origin: (origin) => (origin && loopbackOrigins.has(origin) ? origin : undefined),
+    allowHeaders: ["content-type", "authorization", "x-api-key", "x-claim-token"],
+  }),
+);
 
 // ---- 健康检查（供冒烟/运维轮询）----
 app.get("/api/health", (c) => c.json({ ok: true, ts: Date.now(), mode: isProd ? "prod" : "dev" }));
